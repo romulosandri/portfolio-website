@@ -1,8 +1,135 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "PP Mondwest";
+  src: url("/fonts/PPMondwest-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Saans";
+  src: url("/fonts/Saans-TRIAL-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Saans";
+  src: url("/fonts/Saans-TRIAL-RegularItalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Saans";
+  src: url("/fonts/Saans-TRIAL-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Saans";
+  src: url("/fonts/Saans-TRIAL-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Season Serif";
+  src: url("/fonts/SeasonSerif-TRIAL-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Season Serif";
+  src: url("/fonts/SeasonSerif-TRIAL-RegularItalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Season Serif";
+  src: url("/fonts/SeasonSerif-TRIAL-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Season Serif";
+  src: url("/fonts/SeasonSerif-TRIAL-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Serrif";
+  src: url("/fonts/Serrif-TRIAL-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Serrif";
+  src: url("/fonts/Serrif-TRIAL-RegularItalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Serrif";
+  src: url("/fonts/Serrif-TRIAL-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Serrif";
+  src: url("/fonts/Serrif-TRIAL-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 @theme {
   --color-page: #0c0b0a;
   --color-game-bezel: #0c1a12;
+
+  --font-sans: "Saans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Season Serif", ui-serif, Georgia, serif;
+  --font-display: "PP Mondwest", ui-serif, Georgia, serif;
+  --font-serrif: "Serrif", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
 }
 
 @layer base {
