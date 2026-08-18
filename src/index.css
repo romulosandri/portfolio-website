@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-page: #0c0b0a;
+  --color-game-bezel: #0c1a12;
+}
+
+@layer base {
+  html {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+}
