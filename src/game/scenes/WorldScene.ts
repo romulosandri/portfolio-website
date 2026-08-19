@@ -1,5 +1,10 @@
 import Phaser from 'phaser'
+import { gsap } from '../../lib/gsap'
 import {
+  CAMERA_RUN_ZOOM,
+  CAMERA_ZOOM,
+  CAMERA_ZOOM_IN_DURATION,
+  CAMERA_ZOOM_OUT_DURATION,
   DEPTH,
   PLAYER_SCALE,
   PLAYER_SPEED,
@@ -36,6 +41,8 @@ export class WorldScene extends Phaser.Scene {
   private debugFeet!: Phaser.GameObjects.Rectangle
   private debugVisible = true
   private walking = false
+  private readonly cameraZoom = { value: CAMERA_ZOOM }
+  private cameraZoomTween?: ReturnType<typeof gsap.to>
 
   constructor() {
     super('WorldScene')
@@ -59,9 +66,12 @@ export class WorldScene extends Phaser.Scene {
 
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
     this.cameras.main.setRoundPixels(false)
-    this.cameras.main.setZoom(3)
+    this.cameras.main.setZoom(CAMERA_ZOOM)
     this.cameras.main.startFollow(this.player, true, 0.14, 0.14)
     this.cameras.main.setDeadzone(80, 60)
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.killCameraZoomTween, this)
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.killCameraZoomTween, this)
   }
 
   update() {
@@ -195,6 +205,7 @@ export class WorldScene extends Phaser.Scene {
       this.player.play('walk')
       this.player.setScale(PLAYER_WALK_SCALE)
       this.syncPlayerFeetBody()
+      this.tweenCameraZoom(CAMERA_RUN_ZOOM, CAMERA_ZOOM_IN_DURATION, 'sine.inOut')
       return
     }
 
@@ -204,6 +215,25 @@ export class WorldScene extends Phaser.Scene {
     this.player.setTexture('player')
     this.player.setScale(PLAYER_SCALE)
     this.syncPlayerFeetBody()
+    this.tweenCameraZoom(CAMERA_ZOOM, CAMERA_ZOOM_OUT_DURATION, 'power2.out')
+  }
+
+  private tweenCameraZoom(zoom: number, duration: number, ease: string) {
+    this.cameraZoomTween?.kill()
+    this.cameraZoomTween = gsap.to(this.cameraZoom, {
+      value: zoom,
+      duration,
+      ease,
+      overwrite: true,
+      onUpdate: () => {
+        this.cameras.main.setZoom(this.cameraZoom.value)
+      },
+    })
+  }
+
+  private killCameraZoomTween() {
+    this.cameraZoomTween?.kill()
+    this.cameraZoomTween = undefined
   }
 
   private syncPlayerFeetBody() {
