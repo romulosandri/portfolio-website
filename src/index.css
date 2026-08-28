@@ -124,12 +124,146 @@
   --color-page: #0c0b0a;
   --color-game-bezel: #0c1a12;
 
+  --color-cobblestone-50: #fbfbf8;
+  --color-cobblestone-100: #f6f6f3;
+  --color-cobblestone-200: #e9e4e2;
+  --color-cobblestone-300: #d9d2ce;
+  --color-cobblestone-400: #a89a8f;
+  --color-cobblestone-500: #807164;
+  --color-cobblestone-600: #5d5548;
+  --color-cobblestone-700: #494137;
+  --color-cobblestone-800: #2c2321;
+  --color-cobblestone-900: #1f1814;
+  --color-cobblestone-950: #0e0907;
+  --color-cobblestone-transparent-light-0: rgb(217 210 206 / 0);
+  --color-cobblestone-transparent-light-8: rgb(217 210 206 / 0.08);
+  --color-cobblestone-transparent-light-12: rgb(217 210 206 / 0.12);
+  --color-cobblestone-transparent-light-32: rgb(217 210 206 / 0.32);
+  --color-cobblestone-transparent-light-56: rgb(217 210 206 / 0.56);
+  --color-cobblestone-transparent-light-72: rgb(217 210 206 / 0.72);
+  --color-cobblestone-transparent-dark-0: rgb(73 65 55 / 0);
+  --color-cobblestone-transparent-dark-8: rgb(73 65 55 / 0.08);
+  --color-cobblestone-transparent-dark-12: rgb(73 65 55 / 0.12);
+  --color-cobblestone-transparent-dark-32: rgb(73 65 55 / 0.32);
+  --color-cobblestone-transparent-dark-56: rgb(73 65 55 / 0.56);
+  --color-cobblestone-transparent-dark-72: rgb(73 65 55 / 0.72);
+  --color-cobblestone-50-transparent-0: rgb(251 251 248 / 0);
+  --color-cobblestone-100-transparent-0: rgb(246 246 243 / 0);
+  --color-cobblestone-900-transparent-0: rgb(31 24 20 / 0);
+
+  --color-background-white: #ffffff;
+  --color-background-primary: var(--color-cobblestone-50);
+  --color-background-secondary: var(--color-cobblestone-100);
+  --color-background-tertiary: var(--color-cobblestone-200);
+  --color-stroke-primary: var(--color-cobblestone-100);
+  --color-stroke-secondary: var(--color-cobblestone-200);
+  --color-foreground-primary: var(--color-cobblestone-950);
+  --color-foreground-secondary: var(--color-cobblestone-800);
+  --color-foreground-tertiary: var(--color-cobblestone-700);
+  --color-foreground-quaternary: var(--color-cobblestone-500);
+
   --font-sans: "Saans", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Season Serif", ui-serif, Georgia, serif;
   --font-display: "PP Mondwest", ui-serif, Georgia, serif;
   --font-serrif: "Serrif", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
+  --font-heading: "Season Serif", ui-serif, Georgia, serif;
+  --font-body: "Saans", ui-sans-serif, system-ui, sans-serif;
+
+  --text-xsm: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-4xl: 64px;
+  --text-d: 180px;
+
+  --spacing-none: 0px;
+  --spacing-2xs: 2px;
+  --spacing-xsm: 4px;
+  --spacing-sm: 6px;
+  --spacing-md: 8px;
+  --spacing-lg: 12px;
+  --spacing-xl: 16px;
+  --spacing-1xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 48px;
+
+  --radius-none: 0px;
+  --radius-xsm: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xlg: 16px;
+  --radius-all: 999px;
+}
+
+@utility text-display {
+  font-family: var(--font-heading);
+  font-size: var(--text-d);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@utility text-h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@utility text-h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@utility text-h4 {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@utility text-h5 {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@utility text-body-large {
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+@utility text-body-default {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+@utility text-body-small {
+  font-family: var(--font-body);
+  font-size: var(--text-xsm);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
 @layer base {
