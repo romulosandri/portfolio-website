@@ -1,21 +1,95 @@
+import { useEffect, useMemo, useState } from 'react'
+
+const HOVER_PREVIEW_COUNT = 5
+const HOVER_PREVIEW_INTERVAL_MS = 600
+
 type WorkCardProps = {
   title: string
   year: string
   cover: string
   href: string
+  images?: string[]
   className?: string
 }
 
-export function WorkCard({ title, year, cover, href, className }: WorkCardProps) {
+export function WorkCard({ title, year, cover, href, images = [], className }: WorkCardProps) {
+  const previewImages = useMemo(() => {
+    const frames: string[] = []
+    const seen = new Set<string>()
+    for (const src of images.length > 0 ? images : [cover]) {
+      if (seen.has(src)) continue
+      seen.add(src)
+      frames.push(src)
+      if (frames.length === HOVER_PREVIEW_COUNT) break
+    }
+    return frames
+  }, [cover, images])
+
+  const [hovered, setHovered] = useState(false)
+  const [primed, setPrimed] = useState(false)
+  const [frame, setFrame] = useState(0)
+
+  useEffect(() => {
+    if (!hovered || previewImages.length < 2) return
+
+    const id = window.setInterval(() => {
+      setFrame((current) => (current + 1) % previewImages.length)
+    }, HOVER_PREVIEW_INTERVAL_MS)
+
+    return () => window.clearInterval(id)
+  }, [hovered, previewImages.length])
+
+  const startPreview = () => {
+    const next =
+      previewImages.length > 1 && previewImages[0] === cover ? 1 : 0
+    setFrame(next)
+    setPrimed(true)
+    setHovered(true)
+  }
+
+  const stopPreview = () => {
+    setHovered(false)
+    setFrame(0)
+  }
+
+  const activeSrc = hovered ? previewImages[frame] ?? cover : cover
+
   return (
     <a
-      className={['flex w-full flex-col items-start gap-2xl no-underline', className]
+      className={['flex flex-col items-start gap-2xl no-underline', className || 'w-full']
         .filter(Boolean)
         .join(' ')}
       href={href}
+      onBlur={stopPreview}
+      onFocus={startPreview}
+      onMouseEnter={startPreview}
+      onMouseLeave={stopPreview}
     >
       <span className="relative block aspect-[2048/1536] w-full overflow-clip">
-        <img alt="" className="absolute inset-0 size-full object-cover" src={cover} />
+        <img
+          alt=""
+          className="absolute inset-0 size-full object-cover"
+          decoding="async"
+          draggable={false}
+          src={cover}
+        />
+        {primed
+          ? previewImages.map((src) =>
+              src === cover ? null : (
+                <img
+                  alt=""
+                  className={[
+                    'absolute inset-0 size-full object-cover',
+                    hovered && src === activeSrc ? 'opacity-100' : 'opacity-0',
+                  ].join(' ')}
+                  decoding="async"
+                  draggable={false}
+                  key={src}
+                  src={src}
+                />
+              ),
+            )
+          : null}
       </span>
       <span className="flex w-full items-center justify-between">
         <span className="whitespace-nowrap text-h4 text-foreground-primary">{title}</span>

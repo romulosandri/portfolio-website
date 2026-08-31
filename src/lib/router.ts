@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 
 export type Route =
   | { name: 'home' }
   | { name: 'work' }
   | { name: 'workDetail'; slug: string }
   | { name: 'projects' }
+  | { name: 'projectDetail'; slug: string }
   | { name: 'howAi' }
   | { name: 'contact' }
   | { name: 'game' }
@@ -21,6 +22,8 @@ export function parseLocation(pathname: string, search: string): Route {
   const workDetail = path.match(/^\/work\/([^/]+)$/)
   if (workDetail) return { name: 'workDetail', slug: workDetail[1] }
   if (path === '/projects') return { name: 'projects' }
+  const projectDetail = path.match(/^\/projects\/([^/]+)$/)
+  if (projectDetail) return { name: 'projectDetail', slug: projectDetail[1] }
   if (path === '/how-i-use-ai') return { name: 'howAi' }
   if (path === '/contact') return { name: 'contact' }
   if (path === '/game') return { name: 'game' }
@@ -44,6 +47,8 @@ export function useRoute() {
   const [pathname, setPathname] = useState(window.location.pathname)
 
   useEffect(() => {
+    window.history.scrollRestoration = 'manual'
+
     const sync = () => {
       setPathname(window.location.pathname)
       setRoute(parseLocation(window.location.pathname, window.location.search))
@@ -68,6 +73,10 @@ export function useRoute() {
       document.removeEventListener('click', onClick)
     }
   }, [])
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
 
   return { route, pathname }
 }

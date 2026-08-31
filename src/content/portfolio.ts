@@ -26,7 +26,7 @@ export const workItems: WorkItem[] = [
     title: 'Pacelane.ai',
     year: '2026',
     cover: '/images/work/pacelane/avif/pacelane-cover.avif',
-    images: workImages('pacelane', 3),
+    images: workImages('pacelane', 40),
     href: '/work/pacelane',
     client: 'Pacelane',
     role: 'Product Designer',
@@ -45,7 +45,7 @@ export const workItems: WorkItem[] = [
     title: 'Gemhaus',
     year: '2025',
     cover: '/images/work/gemhaus/avif/gemhaus-cover.avif',
-    images: workImages('gemhaus', 3),
+    images: workImages('gemhaus', 35),
     href: '/work/gemhaus',
     client: 'Gemhaus',
     role: 'Product Designer',
@@ -64,7 +64,7 @@ export const workItems: WorkItem[] = [
     title: 'Meltwater',
     year: '2024',
     cover: '/images/work/meltwater/avif/meltwater-cover.avif',
-    images: workImages('meltwater', 3),
+    images: workImages('meltwater', 42),
     href: '/work/meltwater',
     client: 'Stream Streaks',
     role: 'Product Designer',
@@ -83,7 +83,7 @@ export const workItems: WorkItem[] = [
     title: 'Cinepolis',
     year: '2023',
     cover: '/images/work/cinepolis/avif/cinepolis-cover.avif',
-    images: workImages('cinepolis', 3),
+    images: workImages('cinepolis', 24),
     href: '/work/cinepolis',
     client: 'Cinepolis',
     role: 'Product Designer',
@@ -102,7 +102,7 @@ export const workItems: WorkItem[] = [
     title: 'Stream Stakes',
     year: '2024',
     cover: '/images/work/stream-stakes/avif/stream-stakes-cover.avif',
-    images: workImages('stream-stakes', 3),
+    images: workImages('stream-stakes', 20),
     href: '/work/stream-stakes',
     client: 'Stream Stakes',
     role: 'Product Designer',
@@ -121,7 +121,7 @@ export const workItems: WorkItem[] = [
     title: 'Random Selection',
     year: '2022-2026',
     cover: '/images/work/random-selection/avif/random-selection-cover.avif',
-    images: workImages('random-selection', 3),
+    images: workImages('random-selection', 49),
     href: '/work/random-selection',
     client: 'Random Selection',
     role: 'Product Designer',
@@ -137,12 +137,12 @@ export const workItems: WorkItem[] = [
   },
 ]
 
-export type ProjectItem = {
-  slug: string
-  title: string
-  year: string
-  cover: string
-  href: string
+export type ProjectItem = WorkItem
+
+function projectImages(slug: string, count: number) {
+  const cover = `/images/projects/${slug}/avif/${slug}-cover.avif`
+  const rest = Array.from({ length: count }, (_, i) => `/images/projects/${slug}/avif/${slug}-${i + 1}.avif`)
+  return [cover, ...rest]
 }
 
 export const projectItems: ProjectItem[] = [
@@ -151,28 +151,76 @@ export const projectItems: ProjectItem[] = [
     title: 'Fotospin.ai',
     year: '2026',
     cover: '/images/projects/fotospin/avif/fotospin-cover.avif',
-    href: '/projects',
+    images: projectImages('fotospin', 8),
+    href: '/projects/fotospin',
+    client: 'Fotospin',
+    role: 'Product Designer',
+    duration: '13 Months',
+    description:
+      'Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.',
+    delivered: [
+      'Full Design System with components and tokens',
+      '91 high resolution and responsive screens in light and dark modes',
+      'Desktop research on competitors and the industry',
+      'Kickoff and brand workshops to learn about the problem',
+    ],
   },
   {
     slug: 'spiiine',
     title: 'Spiiine',
     year: '2025',
     cover: '/images/projects/spiiine/avif/spiiine-cover.avif',
-    href: '/projects',
+    images: projectImages('spiiine', 6),
+    href: '/projects/spiiine',
+    client: 'Spiiine',
+    role: 'Product Designer',
+    duration: '13 Months',
+    description:
+      'Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.',
+    delivered: [
+      'Full Design System with components and tokens',
+      '91 high resolution and responsive screens in light and dark modes',
+      'Desktop research on competitors and the industry',
+      'Kickoff and brand workshops to learn about the problem',
+    ],
   },
   {
     slug: 'bunnyhop',
     title: 'Bunnyhop',
     year: '2024',
     cover: '/images/projects/bunnyhop/avif/bunnyhop-cover.avif',
-    href: '/projects',
+    images: projectImages('bunnyhop', 10),
+    href: '/projects/bunnyhop',
+    client: 'Bunnyhop',
+    role: 'Product Designer',
+    duration: '13 Months',
+    description:
+      'Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.',
+    delivered: [
+      'Full Design System with components and tokens',
+      '91 high resolution and responsive screens in light and dark modes',
+      'Desktop research on competitors and the industry',
+      'Kickoff and brand workshops to learn about the problem',
+    ],
   },
   {
     slug: 'ai-workshops',
     title: 'AI Workshops',
     year: '2022-2026',
     cover: '/images/projects/ai-workshops/avif/ai-workshops-cover.avif',
-    href: '/projects',
+    images: projectImages('ai-workshops', 11),
+    href: '/projects/ai-workshops',
+    client: 'AI Workshops',
+    role: 'Product Designer',
+    duration: '13 Months',
+    description:
+      'Norem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.',
+    delivered: [
+      'Full Design System with components and tokens',
+      '91 high resolution and responsive screens in light and dark modes',
+      'Desktop research on competitors and the industry',
+      'Kickoff and brand workshops to learn about the problem',
+    ],
   },
 ]
 
@@ -295,4 +343,41 @@ export const modelRows = [
 
 export function workBySlug(slug: string) {
   return workItems.find((item) => item.slug === slug)
+}
+
+export function projectBySlug(slug: string) {
+  return projectItems.find((item) => item.slug === slug)
+}
+
+export type TickerImage = {
+  src: string
+  href: string
+  title: string
+}
+
+function shuffle<T>(items: T[]): T[] {
+  const next = [...items]
+  for (let i = next.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const current = next[i]
+    const swap = next[j]
+    if (current === undefined || swap === undefined) continue
+    next[i] = swap
+    next[j] = current
+  }
+  return next
+}
+
+export function randomTickerImages(count = 10): TickerImage[] {
+  const items = shuffle([...workItems, ...projectItems]).slice(0, count)
+  return items.map((item) => {
+    const pool = item.images.length > 0 ? item.images : [item.cover]
+    const src = pool[Math.floor(Math.random() * pool.length)] ?? item.cover
+    return { src, href: item.href, title: item.title }
+  })
+}
+
+export function randomWorkImages(count = 10): string[] {
+  const pool = workItems.flatMap((item) => (item.images.length > 0 ? item.images : [item.cover]))
+  return shuffle(pool).slice(0, Math.min(count, pool.length))
 }

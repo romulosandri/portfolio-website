@@ -37,7 +37,7 @@ export function HowIUseAiPage({ pathname }: HowIUseAiPageProps) {
                         .join(' ')}
                       key={tool.name}
                     >
-                      <AppLogo name={tool.name} />
+                      <AppLogo name={tool.name} size={32} />
                       <div className="flex w-full flex-col items-start gap-xl">
                         <p className="text-body-large text-foreground-primary">{tool.title}</p>
                         <p className="w-full whitespace-pre-wrap text-body-default text-foreground-secondary">

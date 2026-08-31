@@ -16,6 +16,7 @@ export function WorkGalleryPage({ pathname }: WorkGalleryPageProps) {
             <WorkCard
               cover={item.cover}
               href={item.href}
+              images={item.images}
               key={item.slug}
               title={item.title}
               year={item.year}

@@ -1,4 +1,4 @@
-import { DesignSystemGallery } from './design-system'
+import { BackToTop, DesignSystemGallery } from './design-system'
 import { useRoute } from './lib/router'
 import { ContactPage } from './pages/ContactPage'
 import { GamePage } from './pages/GamePage'
@@ -11,30 +11,49 @@ import { WorkGalleryPage } from './pages/WorkGalleryPage'
 function App() {
   const { route, pathname } = useRoute()
 
+  let page
   switch (route.name) {
     case 'ds':
-      return (
+      page = (
         <div className="min-h-full w-full">
           <DesignSystemGallery />
         </div>
       )
+      break
     case 'work':
-      return <WorkGalleryPage pathname={pathname} />
+      page = <WorkGalleryPage pathname={pathname} />
+      break
     case 'workDetail':
-      return <ProjectDetailPage pathname={pathname} slug={route.slug} />
+      page = <ProjectDetailPage collection="work" pathname={pathname} slug={route.slug} />
+      break
     case 'projects':
-      return <ProjectsGalleryPage pathname={pathname} />
+      page = <ProjectsGalleryPage pathname={pathname} />
+      break
+    case 'projectDetail':
+      page = <ProjectDetailPage collection="projects" pathname={pathname} slug={route.slug} />
+      break
     case 'howAi':
-      return <HowIUseAiPage pathname={pathname} />
+      page = <HowIUseAiPage pathname={pathname} />
+      break
     case 'contact':
-      return <ContactPage pathname={pathname} />
+      page = <ContactPage pathname={pathname} />
+      break
     case 'game':
-      return <GamePage pathname={pathname} />
+      page = <GamePage pathname={pathname} />
+      break
     case 'notFound':
-      return <HomePage pathname={pathname} />
+      page = <HomePage pathname={pathname} />
+      break
     default:
-      return <HomePage pathname={pathname} />
+      page = <HomePage pathname={pathname} />
   }
+
+  return (
+    <>
+      {page}
+      {route.name !== 'game' && <BackToTop />}
+    </>
+  )
 }
 
 export default App

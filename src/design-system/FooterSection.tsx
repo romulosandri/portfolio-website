@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AiButton } from './AiButton'
-import { DsImage } from './DsImage'
 import { FooterButton } from './FooterButton'
+import { FooterPluto } from './FooterPluto'
 import { SocialIcon, type SocialIconType } from './SocialIcon'
 import type { AiLogoName } from './AiLogo'
 
@@ -22,11 +22,11 @@ const work = [
 ]
 
 const projects = [
-  { label: 'Fotospin.ai', href: '/projects' },
-  { label: 'Spiiine', href: '/projects' },
-  { label: 'Bunnyhop', href: '/projects' },
+  { label: 'Fotospin.ai', href: '/projects/fotospin' },
+  { label: 'Spiiine', href: '/projects/spiiine' },
+  { label: 'Bunnyhop', href: '/projects/bunnyhop' },
   { label: 'Kessera', href: '/projects' },
-  { label: 'AI Workshops', href: '/projects' },
+  { label: 'AI Workshops', href: '/projects/ai-workshops' },
 ]
 
 const aiButtons: Array<{ name: AiLogoName; href: string }> = [
@@ -149,13 +149,7 @@ export function FooterSection({ className }: FooterSectionProps) {
         </div>
       </div>
 
-      <DsImage
-        alt=""
-        className="pointer-events-none absolute bottom-0 left-[37px]"
-        height={207}
-        src="/design-system/game/character-sprite-3.png"
-        width={406}
-      />
+      <FooterPluto />
     </footer>
   )
 }
