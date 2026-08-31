@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { PLAYER_SOURCE_HEIGHT } from '../constants'
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../grid'
 
+const ART = '/design-system/game'
 const MAP_KEYS = ['grass', 'street', 'flowers', 'scene'] as const
 const RUN_KEYS = [
   'player-run-1',
@@ -92,15 +93,15 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('grass', '/game/grass.png')
-    this.load.image('street', '/game/street.png')
-    this.load.image('flowers', '/game/flowers.png')
-    this.load.image('scene', '/game/scene.png')
-    this.load.image('player', '/game/character.png')
-    this.load.image('player-run-1', '/game/character-sprite-1.png')
-    this.load.image('player-run-2', '/game/character-sprite-2.png')
-    this.load.image('player-run-3', '/game/character-sprite-3.png')
-    this.load.image('player-run-4', '/game/character-sprite-4.png')
+    this.load.image('grass', `${ART}/scenario/grass.png`)
+    this.load.image('street', `${ART}/scenario/street.png`)
+    this.load.image('flowers', `${ART}/scenario/flowers.png`)
+    this.load.image('scene', `${ART}/scenario/scene.png`)
+    this.load.image('player', `${ART}/sprites/pluto/idle.png`)
+    this.load.image('player-run-1', `${ART}/sprites/pluto/sprite-1.png`)
+    this.load.image('player-run-2', `${ART}/sprites/pluto/sprite-2.png`)
+    this.load.image('player-run-3', `${ART}/sprites/pluto/sprite-3.png`)
+    this.load.image('player-run-4', `${ART}/sprites/pluto/sprite-4.png`)
   }
 
   create() {

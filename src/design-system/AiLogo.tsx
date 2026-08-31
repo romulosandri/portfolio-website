@@ -6,18 +6,20 @@ export type AiLogoName = keyof typeof AI_LOGOS
 type AiLogoProps = {
   name: AiLogoName
   className?: string
+  width?: number
+  height?: number
 }
 
-export function AiLogo({ name, className }: AiLogoProps) {
+export function AiLogo({ name, className, width, height }: AiLogoProps) {
   const asset = AI_LOGOS[name]
   return (
     <DsHoverImage
       alt={name}
       className={className}
       defaultSrc={asset.defaultSrc}
-      height={asset.height}
+      height={height ?? asset.height}
       hoverSrc={asset.hoverSrc}
-      width={asset.width}
+      width={width ?? asset.width}
     />
   )
 }
