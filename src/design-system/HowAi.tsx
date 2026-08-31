@@ -23,7 +23,7 @@ type HowAiProps = {
   className?: string
 }
 
-export function HowAi({ href = '#', forceHover = false, className }: HowAiProps) {
+export function HowAi({ href = '/how-i-use-ai', forceHover = false, className }: HowAiProps) {
   return (
     <a
       className={[

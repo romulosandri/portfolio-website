@@ -1,7 +1,9 @@
 export const site = {
-  name: 'Your Name',
-  role: 'Creative Developer',
+  name: 'Rômulo Sandri',
+  role: 'Product Designer',
   blurb:
-    'A portfolio with motion, and a little world you can walk around in.',
-  email: 'hello@example.com',
+    'Hi, I am Rômulo Sandri — Product Designer based in Palmas, Brazil. I design, write code, and ship products people actually use, from the first conversation to the last pixel.',
+  email: 'romulosandrirodrigues@gmail.com',
+  whatsapp: '+5563984602704',
+  whatsappHref: 'https://wa.me/5563984602704',
 }

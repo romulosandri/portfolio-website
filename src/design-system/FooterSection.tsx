@@ -6,7 +6,7 @@ import { SocialIcon, type SocialIconType } from './SocialIcon'
 import type { AiLogoName } from './AiLogo'
 
 const socials: Array<{ type: SocialIconType; href: string }> = [
-  { type: 'email', href: 'mailto:hello@example.com' },
+  { type: 'email', href: 'mailto:romulosandrirodrigues@gmail.com' },
   { type: 'github', href: 'https://github.com' },
   { type: 'x', href: 'https://x.com' },
   { type: 'linkedin', href: 'https://linkedin.com' },
@@ -14,19 +14,19 @@ const socials: Array<{ type: SocialIconType; href: string }> = [
 ]
 
 const work = [
-  { label: 'Pacelane.ai', href: '#pacelane' },
-  { label: 'Gemhaus', href: '#gemhaus' },
-  { label: 'Meltwater', href: '#meltwater' },
-  { label: 'Cinepolis', href: '#cinepolis' },
-  { label: 'Stream Stakes', href: '#stream-stakes' },
+  { label: 'Pacelane.ai', href: '/work/pacelane' },
+  { label: 'Gemhaus', href: '/work/gemhaus' },
+  { label: 'Meltwater', href: '/work/meltwater' },
+  { label: 'Cinepolis', href: '/work/cinepolis' },
+  { label: 'Stream Stakes', href: '/work/stream-stakes' },
 ]
 
 const projects = [
-  { label: 'Fotospin.ai', href: '#fotospin' },
-  { label: 'Spiiine', href: '#spiiine' },
-  { label: 'Bunnyhop', href: '#bunnyhop' },
-  { label: 'Kessera', href: '#kessera' },
-  { label: 'AI Workshops', href: '#ai-workshops' },
+  { label: 'Fotospin.ai', href: '/projects' },
+  { label: 'Spiiine', href: '/projects' },
+  { label: 'Bunnyhop', href: '/projects' },
+  { label: 'Kessera', href: '/projects' },
+  { label: 'AI Workshops', href: '/projects' },
 ]
 
 const aiButtons: Array<{ name: AiLogoName; href: string }> = [

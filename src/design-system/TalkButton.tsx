@@ -10,7 +10,7 @@ type TalkButtonProps = {
 }
 
 export function TalkButton({
-  href = '#',
+  href = '/contact',
   forceHover = false,
   className,
 }: TalkButtonProps) {

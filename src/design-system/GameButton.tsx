@@ -8,7 +8,7 @@ type GameButtonProps = {
 }
 
 export function GameButton({
-  href = '#',
+  href = '/game',
   forceHover = false,
   className,
 }: GameButtonProps) {

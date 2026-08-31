@@ -34,7 +34,7 @@ function NameRow({ letters }: { letters: Array<[LetterChar, LetterStyle]> }) {
   )
 }
 
-export function NameLogo({ href = '#top', className }: NameLogoProps) {
+export function NameLogo({ href = '/', className }: NameLogoProps) {
   const mark = (
     <span className="inline-flex items-center gap-3xl">
       <NameRow letters={firstName} />
