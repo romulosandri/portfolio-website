@@ -1,11 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './lib/gsap'
+import './motion-system/gsap'
 import './index.css'
+import { LenisProvider } from './motion-system/LenisProvider'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <LenisProvider>
+      <App />
+    </LenisProvider>
   </StrictMode>,
 )

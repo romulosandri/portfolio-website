@@ -1,32 +1,45 @@
-import { FooterSection, HeroFamily, HowAi, LogosTicker, NavBar, TalkButton, WelcomeTag } from '../design-system'
+import {
+  FooterSection,
+  HowAi,
+  TalkButton,
+  WelcomeTag,
+} from '../design-system'
+import {
+  CursorTrail,
+  HeroFamily,
+  ImagesTicker,
+  LogosTicker,
+  RevealBlock,
+  RevealGroup,
+  RevealText,
+} from '../motion-system'
 import { site } from '../content/site'
 import { valueCards, workItems } from '../content/portfolio'
-import { CursorTrail } from './CursorTrail'
-import { ImagesTicker } from './ImagesTicker'
-import { SectionHeader, WorkCard } from './WorkCard'
+import { SectionHeader, WorkCard, WorkGrid } from './WorkCard'
 
-type HomePageProps = {
-  pathname: string
-}
-
-export function HomePage({ pathname }: HomePageProps) {
+export function HomePage() {
   return (
     <div className="flex min-h-full w-full flex-col bg-background-primary">
-      <section className="relative flex h-svh w-full flex-col items-start overflow-clip bg-background-secondary">
+      <section className="relative -mt-[var(--site-nav-height,0px)] flex h-svh w-full flex-col items-start overflow-clip bg-background-secondary pt-[var(--site-nav-height,0px)]">
         <CursorTrail />
-        <NavBar className="relative z-10 shrink-0 bg-background-secondary" pathname={pathname} />
         <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center justify-center p-[10px]">
-          <div className="flex flex-col items-center gap-[132px]">
+          <RevealGroup className="flex flex-col items-center gap-[132px]">
             <div className="flex flex-col items-center gap-3xl">
               <WelcomeTag />
-              <h1 className="whitespace-pre text-center text-display text-foreground-primary">
+              <RevealText
+                as="h1"
+                className="whitespace-pre text-center text-display text-foreground-primary"
+              >
                 {`Product \nDesigner`}
-              </h1>
+              </RevealText>
             </div>
-            <p className="w-[256px] text-center font-body text-xl leading-[1.35] text-foreground-tertiary">
+            <RevealText
+              as="p"
+              className="w-[256px] text-center font-body text-xl leading-[1.35] text-foreground-tertiary"
+            >
               +8 Years working with amazing software
-            </p>
-          </div>
+            </RevealText>
+          </RevealGroup>
         </div>
         <div className="relative z-20 w-full shrink-0">
           <HeroFamily />
@@ -49,9 +62,9 @@ export function HomePage({ pathname }: HomePageProps) {
       </section>
 
       <section className="flex w-full flex-col items-center justify-center bg-background-primary p-4xl">
-        <div className="flex w-full flex-col items-center gap-4xl">
+        <RevealGroup className="flex w-full flex-col items-center gap-4xl">
           <SectionHeader caption="Selected work from 2023 to 2026" title="Work" />
-          <div className="grid w-full grid-cols-2 gap-x-xl gap-y-2xl">
+          <WorkGrid>
             {workItems.map((item) => (
               <WorkCard
                 cover={item.cover}
@@ -62,15 +75,19 @@ export function HomePage({ pathname }: HomePageProps) {
                 year={item.year}
               />
             ))}
-          </div>
-        </div>
+          </WorkGrid>
+        </RevealGroup>
       </section>
 
       <section className="flex w-full flex-col items-center justify-center bg-background-primary px-[10px] py-[164px]">
-        <div className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-[120px] px-3xl py-4xl">
+        <RevealGroup className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-[120px] px-3xl py-4xl">
           <div className="flex flex-col items-center gap-xl text-center">
-            <p className="whitespace-nowrap text-body-default text-foreground-secondary">About Me</p>
-            <p className="w-[640px] text-h2 leading-[1.2] text-foreground-primary">{site.blurb}</p>
+            <RevealText as="p" className="whitespace-nowrap text-body-default text-foreground-secondary">
+              About Me
+            </RevealText>
+            <RevealText as="p" className="w-[640px] text-h2 leading-[1.2] text-foreground-primary">
+              {site.blurb}
+            </RevealText>
           </div>
           <div className="flex w-full max-w-[1176px] flex-col items-start gap-4xl">
             <div className="flex w-full flex-col items-stretch">
@@ -85,8 +102,14 @@ export function HomePage({ pathname }: HomePageProps) {
                     ].join(' ')}
                     key={card.title}
                   >
-                    <p className="text-body-default text-foreground-primary">{card.title}</p>
-                    <p className="w-full text-body-small text-foreground-secondary">{card.body}</p>
+                    <RevealBlock>
+                      <RevealText as="p" className="text-body-default text-foreground-primary">
+                        {card.title}
+                      </RevealText>
+                      <RevealText as="p" className="w-full text-body-small text-foreground-secondary">
+                        {card.body}
+                      </RevealText>
+                    </RevealBlock>
                   </div>
                 ))}
               </div>
@@ -94,7 +117,7 @@ export function HomePage({ pathname }: HomePageProps) {
             </div>
             <TalkButton href="/contact" />
           </div>
-        </div>
+        </RevealGroup>
       </section>
 
       <section className="flex w-full items-center overflow-clip bg-background-secondary">

@@ -1,28 +1,27 @@
+import { RevealGroup } from '../motion-system'
 import { workItems } from '../content/portfolio'
 import { PageLayout } from './PageLayout'
-import { DisplayHero, WorkCard } from './WorkCard'
+import { DisplayHero, WorkCard, WorkGrid } from './WorkCard'
 
-type WorkGalleryPageProps = {
-  pathname: string
-}
-
-export function WorkGalleryPage({ pathname }: WorkGalleryPageProps) {
+export function WorkGalleryPage() {
   return (
-    <PageLayout pathname={pathname}>
+    <PageLayout>
       <DisplayHero>Work</DisplayHero>
       <section className="flex w-full flex-col items-center justify-center bg-background-primary px-4xl pt-none pb-[164px]">
-        <div className="grid w-full grid-cols-2 gap-x-xl gap-y-2xl">
-          {workItems.map((item) => (
-            <WorkCard
-              cover={item.cover}
-              href={item.href}
-              images={item.images}
-              key={item.slug}
-              title={item.title}
-              year={item.year}
-            />
-          ))}
-        </div>
+        <RevealGroup className="w-full">
+          <WorkGrid>
+            {workItems.map((item) => (
+              <WorkCard
+                cover={item.cover}
+                href={item.href}
+                images={item.images}
+                key={item.slug}
+                title={item.title}
+                year={item.year}
+              />
+            ))}
+          </WorkGrid>
+        </RevealGroup>
       </section>
     </PageLayout>
   )

@@ -1,6 +1,6 @@
 import { useRef } from 'react'
-import { Logo, type LogoName } from './Logo'
-import { gsap, ScrollTrigger, useGSAP } from '../lib/gsap'
+import { Logo, type LogoName } from '../design-system/Logo'
+import { gsap, ScrollTrigger, useGSAP } from './gsap'
 
 const logos: LogoName[] = [
   'miro',

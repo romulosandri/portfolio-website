@@ -1,20 +1,17 @@
 import { AppLogo } from '../design-system'
+import { RevealBlock, RevealGroup, RevealText } from '../motion-system'
 import { modelRows, toolCards } from '../content/portfolio'
 import { PageLayout } from './PageLayout'
 import { DisplayHero, SectionHeader } from './WorkCard'
 
-type HowIUseAiPageProps = {
-  pathname: string
-}
-
 const toolRows = [toolCards.slice(0, 4), toolCards.slice(4, 8), toolCards.slice(8, 12)]
 
-export function HowIUseAiPage({ pathname }: HowIUseAiPageProps) {
+export function HowIUseAiPage() {
   return (
-    <PageLayout pathname={pathname}>
+    <PageLayout>
       <DisplayHero>How I use AI</DisplayHero>
       <section className="flex w-full flex-col items-center justify-center gap-[164px] bg-background-primary px-4xl pt-none pb-[164px]">
-        <div className="flex w-full flex-col items-center gap-4xl">
+        <RevealGroup className="flex w-full flex-col items-center gap-4xl">
           <SectionHeader
             caption="A selection of the AI tools I use and the context where I use them"
             title="Tools"
@@ -38,44 +35,54 @@ export function HowIUseAiPage({ pathname }: HowIUseAiPageProps) {
                       key={tool.name}
                     >
                       <AppLogo name={tool.name} size={32} />
-                      <div className="flex w-full flex-col items-start gap-xl">
-                        <p className="text-body-large text-foreground-primary">{tool.title}</p>
-                        <p className="w-full whitespace-pre-wrap text-body-default text-foreground-secondary">
-                          {tool.body}
-                        </p>
-                      </div>
+                      <RevealBlock>
+                        <div className="flex w-full flex-col items-start gap-xl">
+                          <RevealText as="p" className="text-body-large text-foreground-primary">
+                            {tool.title}
+                          </RevealText>
+                          <RevealText
+                            as="p"
+                            className="w-full whitespace-pre-wrap text-body-default text-foreground-secondary"
+                          >
+                            {tool.body}
+                          </RevealText>
+                        </div>
+                      </RevealBlock>
                     </div>
                   )
                 })}
               </div>
             ))}
           </div>
-        </div>
+        </RevealGroup>
 
-        <div className="flex w-full flex-col items-center gap-4xl">
+        <RevealGroup className="flex w-full flex-col items-center gap-4xl">
           <SectionHeader title="Models" />
           <div className="flex w-full flex-col rounded-sm bg-background-primary">
             {modelRows.map((row, index) => (
-              <div
-                className={[
-                  'flex w-full items-start gap-lg bg-background-primary p-2xl',
-                  index === 0
-                    ? 'border border-solid border-stroke-secondary'
-                    : 'border-r border-b border-l border-solid border-stroke-secondary',
-                ].join(' ')}
-                key={`${row.provider}-${row.name}`}
-              >
-                <p className="w-[120px] shrink-0 text-body-large text-foreground-secondary">
-                  {row.provider}
-                </p>
-                <p className="w-[320px] shrink-0 text-body-large text-foreground-primary">
-                  {row.name}
-                </p>
-                <p className="text-body-default text-foreground-tertiary">{row.note}</p>
-              </div>
+              <RevealBlock key={`${row.provider}-${row.name}`}>
+                <div
+                  className={[
+                    'flex w-full items-start gap-lg bg-background-primary p-2xl',
+                    index === 0
+                      ? 'border border-solid border-stroke-secondary'
+                      : 'border-r border-b border-l border-solid border-stroke-secondary',
+                  ].join(' ')}
+                >
+                  <RevealText as="p" className="w-[120px] shrink-0 text-body-large text-foreground-secondary">
+                    {row.provider}
+                  </RevealText>
+                  <RevealText as="p" className="w-[320px] shrink-0 text-body-large text-foreground-primary">
+                    {row.name}
+                  </RevealText>
+                  <RevealText as="p" className="text-body-default text-foreground-tertiary">
+                    {row.note}
+                  </RevealText>
+                </div>
+              </RevealBlock>
             ))}
           </div>
-        </div>
+        </RevealGroup>
       </section>
     </PageLayout>
   )

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { gsap, useGSAP } from '../lib/gsap'
+import { gsap, useGSAP } from '../motion-system/gsap'
+import { pauseSmoothScroll, resumeSmoothScroll } from '../motion-system/smoothScroll'
 import { toPngSrc } from '../lib/images'
 
 const MIN_SCALE = 1
@@ -187,6 +188,7 @@ export function ImageLightbox({
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    pauseSmoothScroll()
     const app = document.getElementById('root')
     const previouslyFocused = document.activeElement
     if (app) {
@@ -196,6 +198,7 @@ export function ImageLightbox({
     closeRef.current?.focus()
 
     return () => {
+      resumeSmoothScroll()
       document.body.style.overflow = previousOverflow
       if (app) {
         app.removeAttribute('aria-hidden')

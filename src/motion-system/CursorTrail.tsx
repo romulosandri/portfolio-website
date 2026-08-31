@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { trailImages } from '../content/portfolio'
-import { gsap, useGSAP } from '../lib/gsap'
+import { gsap, useGSAP } from './gsap'
 
 const GAP = 100
 const TRAIL_COUNT = 18

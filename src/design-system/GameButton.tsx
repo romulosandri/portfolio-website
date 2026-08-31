@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { gsap, useGSAP } from '../lib/gsap'
+import { gsap, useGSAP } from '../motion-system/gsap'
 import { DsImage } from './DsImage'
 import { GameThumbnailImage } from './GameThumbnailImage'
 

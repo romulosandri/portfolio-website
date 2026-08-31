@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { gsap, ScrollTrigger, useGSAP } from '../lib/gsap'
+import { gsap, ScrollTrigger, useGSAP } from './gsap'
 
 const RUN_FRAMES = [
   '/design-system/game/sprites/pluto/sprite-1.png',

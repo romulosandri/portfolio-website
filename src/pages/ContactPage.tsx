@@ -1,12 +1,9 @@
 import type { FormEvent } from 'react'
-import { ArrowButton, SocialIcon, type SocialIconType } from '../design-system'
+import { SendButton, SocialIcon, type SocialIconType } from '../design-system'
+import { RevealGroup, RevealLine, RevealText } from '../motion-system'
 import { site } from '../content/site'
 import { PageLayout } from './PageLayout'
 import { WorkImageSequence } from './WorkImageSequence'
-
-type ContactPageProps = {
-  pathname: string
-}
 
 const socials: SocialIconType[] = ['email', 'github', 'x', 'linkedin', 'instagram']
 
@@ -70,7 +67,7 @@ function Field({
   )
 }
 
-export function ContactPage({ pathname }: ContactPageProps) {
+export function ContactPage() {
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -98,10 +95,14 @@ export function ContactPage({ pathname }: ContactPageProps) {
   }
 
   return (
-    <PageLayout pathname={pathname}>
+    <PageLayout>
       <section className="flex w-full items-center justify-center gap-[120px] bg-background-primary px-4xl py-[164px]">
         <form className="flex min-w-px flex-1 flex-col items-start gap-4xl" onSubmit={onSubmit}>
-          <h1 className="whitespace-nowrap text-h1 text-foreground-primary">Contact Me</h1>
+          <RevealGroup>
+            <RevealText as="h1" className="whitespace-nowrap text-h1 text-foreground-primary">
+              Contact Me
+            </RevealText>
+          </RevealGroup>
           <div className="flex w-full flex-col items-start gap-4xl">
             <div className="flex w-full items-start gap-lg">
               <Field id="name" label="Your Name" placeholder="John Doe Jr" />
@@ -111,22 +112,9 @@ export function ContactPage({ pathname }: ContactPageProps) {
               <Field id="message" label="Your Message" multiline placeholder="I want to hire you to..." />
             </div>
           </div>
-          <button
-            className="group flex w-full cursor-pointer items-center justify-between border-y border-solid border-stroke-secondary bg-background-primary p-xl text-left hover:border-foreground-quaternary hover:bg-foreground-primary"
-            type="submit"
-          >
-            <span className="text-h3 text-foreground-primary group-hover:text-background-primary">Send</span>
-            <span className="flex items-center justify-end">
-              <span className="group-hover:hidden">
-                <ArrowButton variant="default" />
-              </span>
-              <span className="hidden group-hover:inline-flex">
-                <ArrowButton variant="dark" />
-              </span>
-            </span>
-          </button>
-          <div className="flex w-full flex-col items-start gap-xl">
-            <div className="h-px w-full border-t border-dashed border-stroke-secondary" />
+          <SendButton />
+          <RevealGroup className="flex w-full flex-col items-start gap-xl">
+            <RevealLine dashed />
             <div className="flex items-center gap-2xl whitespace-pre text-body-default text-foreground-secondary">
               <p>
                 WhatsApp
@@ -143,7 +131,7 @@ export function ContactPage({ pathname }: ContactPageProps) {
                 </a>
               </p>
             </div>
-          </div>
+          </RevealGroup>
           <div className="flex items-center gap-xl">
             {socials.map((type) => (
               <SocialIcon key={type} type={type} />

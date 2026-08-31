@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { randomTickerImages, type TickerImage } from '../content/portfolio'
-import { gsap, useGSAP } from '../lib/gsap'
+import { gsap, useGSAP } from './gsap'
 
 type ImagesTickerProps = {
   className?: string

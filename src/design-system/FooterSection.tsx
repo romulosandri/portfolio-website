@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AiButton } from './AiButton'
 import { FooterButton } from './FooterButton'
-import { FooterPluto } from './FooterPluto'
+import { FooterPluto } from '../motion-system/FooterPluto'
 import { SocialIcon, type SocialIconType } from './SocialIcon'
 import type { AiLogoName } from './AiLogo'
 
@@ -36,27 +36,39 @@ const aiButtons: Array<{ name: AiLogoName; href: string }> = [
   { name: 'perplexity', href: 'https://www.perplexity.ai' },
 ]
 
+const BRASILIA_TIME_ZONE = 'America/Sao_Paulo'
+
+const brasiliaClockFormatter = new Intl.DateTimeFormat('en-GB', {
+  timeZone: BRASILIA_TIME_ZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+})
+
+function getBrasiliaClock(date = new Date()) {
+  return {
+    dateTime: date.toISOString(),
+    label: `${brasiliaClockFormatter.format(date)} BRT (UTC-3)`,
+  }
+}
+
 function useBrasiliaClock() {
-  const [label, setLabel] = useState('BRT (UTC-3)')
+  const [clock, setClock] = useState(getBrasiliaClock)
 
   useEffect(() => {
-    const formatter = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'America/Sao_Paulo',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })
+    let timeoutId = 0
 
-    const tick = () => {
-      setLabel(`${formatter.format(new Date())} BRT (UTC-3)`)
+    const schedule = () => {
+      setClock(getBrasiliaClock())
+      timeoutId = window.setTimeout(schedule, 1000 - (Date.now() % 1000))
     }
 
-    tick()
-    const id = window.setInterval(tick, 1000)
-    return () => window.clearInterval(id)
+    schedule()
+    return () => window.clearTimeout(timeoutId)
   }, [])
 
-  return label
+  return clock
 }
 
 type FooterSectionProps = {
@@ -120,9 +132,13 @@ export function FooterSection({ className }: FooterSectionProps) {
                 <AiButton href={item.href} key={item.name} name={item.name} />
               ))}
             </div>
-            <p className="ml-auto whitespace-nowrap text-body-default text-foreground-tertiary">
-              {clock}
-            </p>
+            <time
+              aria-label="Current time in Brasília, Brazil"
+              className="ml-auto whitespace-nowrap text-body-default text-foreground-tertiary tabular-nums"
+              dateTime={clock.dateTime}
+            >
+              {clock.label}
+            </time>
           </div>
           <div className="w-full whitespace-pre-wrap text-body-small text-foreground-tertiary">
             <p>For AI Agents</p>

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { DsImage } from './DsImage'
-import { gsap, useGSAP } from '../lib/gsap'
+import { gsap, useGSAP } from '../motion-system/gsap'
+import { animateScrollTo, getScrollY } from '../motion-system/smoothScroll'
 
 const SHOW_AFTER_PX = 240
 const FILL_REST = '#fbfbf8'
@@ -43,7 +44,7 @@ export function BackToTop() {
       const showDuration = reduced ? 0 : 0.4
 
       const update = () => {
-        const show = window.scrollY > SHOW_AFTER_PX
+        const show = getScrollY() > SHOW_AFTER_PX
         if (show === visible) return
         visible = show
         gsap.to(root, {
@@ -163,12 +164,7 @@ export function BackToTop() {
 
   const scrollToTop = () => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    gsap.to(window, {
-      duration: reduced ? 0 : 0.85,
-      ease: 'power3.inOut',
-      overwrite: 'auto',
-      scrollTo: { y: 0 },
-    })
+    animateScrollTo(0, reduced ? 0 : 0.85)
   }
 
   return (

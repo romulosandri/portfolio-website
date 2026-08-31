@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
-import { gsap } from '../lib/gsap'
-import { renderPage, type PageKey } from './renderPage'
+import { renderPage, type PageKey } from '../pages/renderPage'
+import { gsap } from './gsap'
 
 export type PanelTransitionMode = 'enter' | 'leave'
 
@@ -14,7 +14,7 @@ type PanelTransitionProps = {
 
 function FrozenPage({ page, scrollY }: { page: PageKey; scrollY: number }) {
   return (
-    <div className="h-svh w-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden">
       <div className="w-full" style={{ transform: `translateY(${-scrollY}px)` }}>
         {renderPage(page)}
       </div>
@@ -36,22 +36,30 @@ export function PanelTransition({ from, to, mode, fromScrollY, onComplete }: Pan
     if (!root || !outgoing || !incoming) return
 
     let finished = false
+    const rootEl = document.documentElement
+    const widthBeforeLock = rootEl.clientWidth
+    rootEl.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    const released = rootEl.clientWidth - widthBeforeLock
+    if (released > 0) rootEl.style.paddingRight = `${released}px`
+
+    const unlockViewport = () => {
+      rootEl.style.overflow = ''
+      document.body.style.overflow = ''
+      rootEl.style.paddingRight = ''
+    }
+
     const finish = () => {
       if (finished) return
       finished = true
-      gsap.ticker.lagSmoothing(500, 33)
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
       onCompleteRef.current()
     }
 
-    document.documentElement.style.overflow = 'hidden'
-    document.body.style.overflow = 'hidden'
-    gsap.ticker.lagSmoothing(0)
-
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       finish()
-      return
+      return () => {
+        unlockViewport()
+      }
     }
 
     const ctx = gsap.context(() => {
@@ -82,9 +90,7 @@ export function PanelTransition({ from, to, mode, fromScrollY, onComplete }: Pan
     return () => {
       window.clearTimeout(safety)
       ctx.revert()
-      gsap.ticker.lagSmoothing(500, 33)
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
+      unlockViewport()
     }
   }, [from.pathname, to.pathname, mode, fromScrollY])
 
@@ -94,7 +100,7 @@ export function PanelTransition({ from, to, mode, fromScrollY, onComplete }: Pan
   const overScrollY = mode === 'leave' ? fromScrollY : 0
 
   return (
-    <div className="pointer-events-none relative h-svh w-full overflow-hidden" data-panel-transition="" ref={rootRef}>
+    <div className="pointer-events-none relative h-full w-full overflow-hidden" data-panel-transition="" ref={rootRef}>
       <div className="absolute inset-0 z-0 overflow-hidden" ref={outgoingRef}>
         <FrozenPage page={under} scrollY={underScrollY} />
       </div>

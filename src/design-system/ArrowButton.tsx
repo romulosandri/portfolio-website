@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { DsImage } from './DsImage'
 
 export type ArrowButtonVariant = 'default' | 'dark'
@@ -8,37 +9,63 @@ type ArrowButtonProps = {
   className?: string
 }
 
-const icons: Record<ArrowButtonVariant, string> = {
-  default: '/design-system/icons/arrow-up-right-dark.svg',
-  dark: '/design-system/icons/arrow-up-right-light.svg',
-}
+const restIcon = '/design-system/icons/arrow-up-right-dark.svg'
+const hoverIcon = '/design-system/icons/arrow-up-right-light.svg'
 
-export function ArrowButton({
-  variant = 'default',
-  href,
-  className,
-}: ArrowButtonProps) {
-  const classes = [
-    'inline-flex size-[80px] shrink-0 items-center justify-center',
-    variant === 'dark'
-      ? 'rounded-all bg-foreground-secondary'
-      : 'border border-solid border-stroke-secondary bg-background-primary',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ')
+export const ArrowButton = forwardRef<HTMLSpanElement, ArrowButtonProps>(
+  function ArrowButton({ variant = 'default', href, className }, ref) {
+    const isDark = variant === 'dark'
+    const classes = [
+      'relative inline-flex size-[80px] shrink-0 items-center justify-center will-change-transform',
+      isDark
+        ? 'rounded-all bg-foreground-secondary'
+        : 'border border-solid border-stroke-secondary bg-background-primary',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ')
 
-  const icon = (
-    <DsImage alt="" height={32} src={icons[variant]} width={32} />
-  )
-
-  if (href) {
-    return (
-      <a className={classes} href={href}>
-        {icon}
-      </a>
+    const icon = (
+      <span className="relative size-[32px] shrink-0">
+        <span
+          className={[
+            'absolute inset-0 flex items-center justify-center',
+            isDark ? 'opacity-0' : undefined,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          data-arrow-rest=""
+        >
+          <DsImage alt="" height={32} src={restIcon} width={32} />
+        </span>
+        <span
+          className={[
+            'absolute inset-0 flex items-center justify-center',
+            isDark ? undefined : 'opacity-0',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          data-arrow-hover=""
+        >
+          <DsImage alt="" height={32} src={hoverIcon} width={32} />
+        </span>
+      </span>
     )
-  }
 
-  return <span className={classes}>{icon}</span>
-}
+    if (href) {
+      return (
+        <a className="inline-flex" href={href}>
+          <span className={classes} ref={ref}>
+            {icon}
+          </span>
+        </a>
+      )
+    }
+
+    return (
+      <span className={classes} ref={ref}>
+        {icon}
+      </span>
+    )
+  },
+)

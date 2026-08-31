@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { gsap } from '../../lib/gsap'
+import { gsap } from '../../motion-system/gsap'
 import {
   CAMERA_RUN_ZOOM,
   CAMERA_ZOOM,

@@ -1,6 +1,6 @@
 import { useRef } from 'react'
-import { gsap, useGSAP } from '../lib/gsap'
-import { RollingText } from './RollingText'
+import { gsap, useGSAP } from '../motion-system/gsap'
+import { RollingText } from '../motion-system/RollingText'
 import { Symbol } from './Symbol'
 
 type NavItemProps = {

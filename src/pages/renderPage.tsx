@@ -22,7 +22,7 @@ export function isWorkOrProjectsRoute(route: Route) {
   )
 }
 
-export function renderPage({ route, pathname }: PageKey) {
+export function renderPage({ route }: PageKey) {
   switch (route.name) {
     case 'ds':
       return (
@@ -31,22 +31,22 @@ export function renderPage({ route, pathname }: PageKey) {
         </div>
       )
     case 'work':
-      return <WorkGalleryPage pathname={pathname} />
+      return <WorkGalleryPage />
     case 'workDetail':
-      return <ProjectDetailPage collection="work" pathname={pathname} slug={route.slug} />
+      return <ProjectDetailPage collection="work" slug={route.slug} />
     case 'projects':
-      return <ProjectsGalleryPage pathname={pathname} />
+      return <ProjectsGalleryPage />
     case 'projectDetail':
-      return <ProjectDetailPage collection="projects" pathname={pathname} slug={route.slug} />
+      return <ProjectDetailPage collection="projects" slug={route.slug} />
     case 'howAi':
-      return <HowIUseAiPage pathname={pathname} />
+      return <HowIUseAiPage />
     case 'contact':
-      return <ContactPage pathname={pathname} />
+      return <ContactPage />
     case 'game':
-      return <GamePage pathname={pathname} />
+      return <GamePage />
     case 'notFound':
-      return <HomePage pathname={pathname} />
+      return <HomePage />
     default:
-      return <HomePage pathname={pathname} />
+      return <HomePage />
   }
 }

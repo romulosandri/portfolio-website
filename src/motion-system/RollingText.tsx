@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { gsap, useGSAP } from '../lib/gsap'
+import { gsap, useGSAP } from './gsap'
 
 type RollingTextProps = {
   text: string
@@ -17,7 +17,7 @@ export function RollingText({ text, className }: RollingTextProps) {
       const stacks = gsap.utils.toArray<HTMLElement>('[data-roll]', root)
       if (stacks.length === 0) return
 
-      const trigger = root.closest('a') ?? root
+      const trigger = root.closest('a, button') ?? root
       const mm = gsap.matchMedia()
 
       mm.add(

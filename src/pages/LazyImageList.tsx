@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { gsap, ScrollTrigger, useGSAP } from '../lib/gsap'
+import { useScrollSkew } from '../motion-system'
 import { ImageLightbox } from './ImageLightbox'
 
 const BATCH_SIZE = 5
@@ -15,45 +15,7 @@ export function LazyImageList({ images, title }: LazyImageListProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const sentinelRef = useRef<HTMLButtonElement>(null)
 
-  useGSAP(
-    () => {
-      const column = rootRef.current
-      if (!column) return
-
-      const mm = gsap.matchMedia()
-
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
-        const items = gsap.utils.toArray<HTMLElement>('button', column)
-        if (items.length === 0) return
-
-        const proxy = { skew: 0 }
-        const skewSetter = gsap.quickSetter(items, 'skewY', 'deg')
-        const clamp = gsap.utils.clamp(-1.5, 1.5)
-
-        gsap.set(items, { transformOrigin: 'right center', force3D: true })
-
-        ScrollTrigger.create({
-          onUpdate: (self) => {
-            const skew = clamp(self.getVelocity() / -1800)
-            if (Math.abs(skew) <= Math.abs(proxy.skew)) return
-            proxy.skew = skew
-            gsap.to(proxy, {
-              skew: 0,
-              duration: 1.4,
-              ease: 'power3',
-              overwrite: true,
-              onUpdate: () => {
-                skewSetter(proxy.skew)
-              },
-            })
-          },
-        })
-      })
-
-      return () => mm.revert()
-    },
-    { scope: rootRef, dependencies: [images], revertOnUpdate: true },
-  )
+  useScrollSkew(rootRef, 'button', [images])
 
   useEffect(() => {
     if (loadedCount >= images.length) return
