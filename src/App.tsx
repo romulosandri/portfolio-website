@@ -1,57 +1,77 @@
-import { BackToTop, DesignSystemGallery } from './design-system'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { BackToTop } from './design-system'
 import { useRoute } from './lib/router'
-import { ContactPage } from './pages/ContactPage'
-import { GamePage } from './pages/GamePage'
-import { HomePage } from './pages/HomePage'
-import { HowIUseAiPage } from './pages/HowIUseAiPage'
-import { ProjectDetailPage } from './pages/ProjectDetailPage'
-import { ProjectsGalleryPage } from './pages/ProjectsGalleryPage'
-import { WorkGalleryPage } from './pages/WorkGalleryPage'
+import { PanelTransition, type PanelTransitionMode } from './pages/PanelTransition'
+import { isWorkOrProjectsRoute, renderPage, type PageKey } from './pages/renderPage'
+
+type PendingTransition = {
+  from: PageKey
+  to: PageKey
+  mode: PanelTransitionMode
+  fromScrollY: number
+}
 
 function App() {
   const { route, pathname } = useRoute()
+  const [active, setActive] = useState<PageKey>(() => ({ route, pathname }))
+  const [pending, setPending] = useState<PendingTransition | null>(null)
+  const activeRef = useRef(active)
+  const pendingRef = useRef(pending)
+  const handledPathRef = useRef(pathname)
+  activeRef.current = active
+  pendingRef.current = pending
 
-  let page
-  switch (route.name) {
-    case 'ds':
-      page = (
-        <div className="min-h-full w-full">
-          <DesignSystemGallery />
-        </div>
-      )
-      break
-    case 'work':
-      page = <WorkGalleryPage pathname={pathname} />
-      break
-    case 'workDetail':
-      page = <ProjectDetailPage collection="work" pathname={pathname} slug={route.slug} />
-      break
-    case 'projects':
-      page = <ProjectsGalleryPage pathname={pathname} />
-      break
-    case 'projectDetail':
-      page = <ProjectDetailPage collection="projects" pathname={pathname} slug={route.slug} />
-      break
-    case 'howAi':
-      page = <HowIUseAiPage pathname={pathname} />
-      break
-    case 'contact':
-      page = <ContactPage pathname={pathname} />
-      break
-    case 'game':
-      page = <GamePage pathname={pathname} />
-      break
-    case 'notFound':
-      page = <HomePage pathname={pathname} />
-      break
-    default:
-      page = <HomePage pathname={pathname} />
+  useLayoutEffect(() => {
+    if (handledPathRef.current === pathname) return
+    handledPathRef.current = pathname
+
+    const from = pendingRef.current?.to ?? activeRef.current
+    const to = { route, pathname }
+    const fromPanel = isWorkOrProjectsRoute(from.route)
+    const toPanel = isWorkOrProjectsRoute(to.route)
+
+    if (!fromPanel && !toPanel) {
+      setActive(to)
+      setPending(null)
+      window.scrollTo(0, 0)
+      return
+    }
+
+    setPending({
+      from,
+      to,
+      mode: toPanel ? 'enter' : 'leave',
+      fromScrollY: pendingRef.current ? 0 : window.scrollY,
+    })
+  }, [pathname, route])
+
+  const completeTransition = () => {
+    const current = pendingRef.current
+    if (!current) return
+    handledPathRef.current = current.to.pathname
+    setActive(current.to)
+    setPending(null)
+    window.scrollTo(0, 0)
   }
+
+  const shown = pending?.to ?? active
+  const hideBackToTop = shown.route.name === 'game' || Boolean(pending)
 
   return (
     <>
-      {page}
-      {route.name !== 'game' && <BackToTop />}
+      {pending ? (
+        <PanelTransition
+          from={pending.from}
+          fromScrollY={pending.fromScrollY}
+          key={`${pending.from.pathname}->${pending.to.pathname}:${pending.mode}`}
+          mode={pending.mode}
+          onComplete={completeTransition}
+          to={pending.to}
+        />
+      ) : (
+        renderPage(active)
+      )}
+      {hideBackToTop ? null : <BackToTop />}
     </>
   )
 }

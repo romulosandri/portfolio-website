@@ -1,6 +1,7 @@
-import { FooterSection, HowAi, LogosTicker, NavBar, TalkButton, WelcomeTag } from '../design-system'
+import { FooterSection, HeroFamily, HowAi, LogosTicker, NavBar, TalkButton, WelcomeTag } from '../design-system'
 import { site } from '../content/site'
 import { valueCards, workItems } from '../content/portfolio'
+import { CursorTrail } from './CursorTrail'
 import { ImagesTicker } from './ImagesTicker'
 import { SectionHeader, WorkCard } from './WorkCard'
 
@@ -12,8 +13,9 @@ export function HomePage({ pathname }: HomePageProps) {
   return (
     <div className="flex min-h-full w-full flex-col bg-background-primary">
       <section className="relative flex h-svh w-full flex-col items-start overflow-clip bg-background-secondary">
-        <NavBar className="shrink-0 bg-background-secondary" pathname={pathname} />
-        <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center p-[10px]">
+        <CursorTrail />
+        <NavBar className="relative z-10 shrink-0 bg-background-secondary" pathname={pathname} />
+        <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center justify-center p-[10px]">
           <div className="flex flex-col items-center gap-[132px]">
             <div className="flex flex-col items-center gap-3xl">
               <WelcomeTag />
@@ -26,11 +28,14 @@ export function HomePage({ pathname }: HomePageProps) {
             </p>
           </div>
         </div>
-        <LogosTicker className="shrink-0" />
+        <div className="relative z-20 w-full shrink-0">
+          <HeroFamily />
+          <LogosTicker />
+        </div>
         <video
           aria-hidden
           autoPlay
-          className="pointer-events-none absolute top-[calc(50%+27.26px)] left-1/2 size-[316px] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover"
+          className="pointer-events-none absolute top-[calc(50%+27.26px)] left-1/2 z-10 size-[316px] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover"
           disablePictureInPicture
           height={316}
           loop

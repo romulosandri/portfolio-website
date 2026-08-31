@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export type Route =
   | { name: 'home' }
@@ -73,10 +73,6 @@ export function useRoute() {
       document.removeEventListener('click', onClick)
     }
   }, [])
-
-  useLayoutEffect(() => {
-    window.scrollTo(0, 0)
-  }, [pathname])
 
   return { route, pathname }
 }

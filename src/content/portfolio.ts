@@ -381,3 +381,12 @@ export function randomWorkImages(count = 10): string[] {
   const pool = workItems.flatMap((item) => (item.images.length > 0 ? item.images : [item.cover]))
   return shuffle(pool).slice(0, Math.min(count, pool.length))
 }
+
+export function trailImages(count = 18): string[] {
+  const items = [...workItems, ...projectItems]
+  const covers = items.map((item) => item.cover)
+  const extras = items.flatMap((item) => item.images.filter((src) => src !== item.cover))
+  const needed = Math.max(0, count - covers.length)
+  const pool = [...covers, ...shuffle(extras).slice(0, needed)]
+  return shuffle(pool).slice(0, Math.min(count, pool.length))
+}

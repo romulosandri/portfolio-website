@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { gsap, ScrollTrigger, useGSAP } from '../lib/gsap'
 import { ImageLightbox } from './ImageLightbox'
 
 const BATCH_SIZE = 5
@@ -9,9 +10,50 @@ type LazyImageListProps = {
 }
 
 export function LazyImageList({ images, title }: LazyImageListProps) {
+  const rootRef = useRef<HTMLDivElement>(null)
   const [loadedCount, setLoadedCount] = useState(() => Math.min(BATCH_SIZE, images.length))
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const sentinelRef = useRef<HTMLButtonElement>(null)
+
+  useGSAP(
+    () => {
+      const column = rootRef.current
+      if (!column) return
+
+      const mm = gsap.matchMedia()
+
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const items = gsap.utils.toArray<HTMLElement>('button', column)
+        if (items.length === 0) return
+
+        const proxy = { skew: 0 }
+        const skewSetter = gsap.quickSetter(items, 'skewY', 'deg')
+        const clamp = gsap.utils.clamp(-1.5, 1.5)
+
+        gsap.set(items, { transformOrigin: 'right center', force3D: true })
+
+        ScrollTrigger.create({
+          onUpdate: (self) => {
+            const skew = clamp(self.getVelocity() / -1800)
+            if (Math.abs(skew) <= Math.abs(proxy.skew)) return
+            proxy.skew = skew
+            gsap.to(proxy, {
+              skew: 0,
+              duration: 1.4,
+              ease: 'power3',
+              overwrite: true,
+              onUpdate: () => {
+                skewSetter(proxy.skew)
+              },
+            })
+          },
+        })
+      })
+
+      return () => mm.revert()
+    },
+    { scope: rootRef, dependencies: [images], revertOnUpdate: true },
+  )
 
   useEffect(() => {
     if (loadedCount >= images.length) return
@@ -42,12 +84,12 @@ export function LazyImageList({ images, title }: LazyImageListProps) {
   }, [images.length, loadedCount])
 
   return (
-    <div className="flex min-w-px flex-1 flex-col items-start gap-2xl">
+    <div className="flex min-w-px flex-1 flex-col items-start gap-2xl" ref={rootRef}>
       {images.map((src, index) => (
         <button
           aria-label={`View ${title} image ${index + 1} larger`}
           className={[
-            'relative block aspect-[2048/1536] w-full overflow-clip bg-background-secondary p-0',
+            'relative block aspect-[2048/1536] w-full overflow-clip bg-background-secondary p-0 will-change-transform',
             index < loadedCount ? 'cursor-zoom-in' : 'cursor-default',
           ].join(' ')}
           key={src}
