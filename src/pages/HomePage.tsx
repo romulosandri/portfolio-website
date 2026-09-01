@@ -29,6 +29,7 @@ export function HomePage() {
               <RevealText
                 as="h1"
                 className="whitespace-pre text-center text-display text-foreground-primary"
+                srText={`${site.name} — ${site.role}`}
               >
                 {`Product \nDesigner`}
               </RevealText>
@@ -82,7 +83,11 @@ export function HomePage() {
       <section className="flex w-full flex-col items-center justify-center bg-background-primary px-[10px] py-[164px]">
         <RevealGroup className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-[120px] px-3xl py-4xl">
           <div className="flex flex-col items-center gap-xl text-center">
-            <RevealText as="p" className="whitespace-nowrap text-body-default text-foreground-secondary">
+            <RevealText
+              as="h2"
+              className="whitespace-nowrap text-body-default text-foreground-secondary"
+              variant="blur"
+            >
               About Me
             </RevealText>
             <RevealText as="p" className="w-[640px] text-h2 leading-[1.2] text-foreground-primary">
@@ -103,7 +108,11 @@ export function HomePage() {
                     key={card.title}
                   >
                     <RevealBlock>
-                      <RevealText as="p" className="text-body-default text-foreground-primary">
+                      <RevealText
+                        as="h3"
+                        className="text-body-default text-foreground-primary"
+                        variant="blur"
+                      >
                         {card.title}
                       </RevealText>
                       <RevealText as="p" className="w-full text-body-small text-foreground-secondary">

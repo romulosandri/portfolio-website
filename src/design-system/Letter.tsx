@@ -17,9 +17,12 @@ type LetterProps = {
 export function Letter({ letter, style, className }: LetterProps) {
   const key: LetterKey = `${letter}-${style}`
   const asset = LETTERS[key]
+  // Deliberately empty: these are single-glyph images that together spell a
+  // wordmark. Per-letter alt text serialises as "r o m u l o s a n d r i".
+  // The readable name lives on the NameLogo link instead.
   return (
     <DsImage
-      alt={letter}
+      alt=""
       className={className}
       height={asset.height}
       src={asset.src}

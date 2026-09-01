@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { BackToTop, NavBar } from './design-system'
 import { useRoute } from './lib/router'
+import { useDocumentHead } from './lib/useDocumentHead'
 import { PanelTransition, type PanelTransitionMode } from './motion-system/PanelTransition'
 import {
   getScrollY,
@@ -21,8 +22,35 @@ function isHomeChrome(page: PageKey) {
   return page.route.name === 'home' || page.route.name === 'notFound'
 }
 
+/**
+ * Tells scripts/prerender.mjs the page has settled and is safe to serialise.
+ * Waits for fonts plus two frames so GSAP's reveal pass has already run.
+ */
+function usePrerenderSignal(pathname: string) {
+  useEffect(() => {
+    let cancelled = false
+    delete document.documentElement.dataset.prerenderReady
+
+    const markReady = () => {
+      if (cancelled) return
+      document.documentElement.dataset.prerenderReady = 'true'
+    }
+
+    const afterFonts = () =>
+      requestAnimationFrame(() => requestAnimationFrame(markReady))
+
+    document.fonts?.ready.then(afterFonts).catch(afterFonts) ?? afterFonts()
+
+    return () => {
+      cancelled = true
+    }
+  }, [pathname])
+}
+
 function App() {
   const { route, pathname } = useRoute()
+  useDocumentHead(route)
+  usePrerenderSignal(pathname)
   const [active, setActive] = useState<PageKey>(() => ({ route, pathname }))
   const [pending, setPending] = useState<PendingTransition | null>(null)
   const activeRef = useRef(active)

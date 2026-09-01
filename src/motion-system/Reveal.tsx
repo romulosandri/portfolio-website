@@ -272,13 +272,19 @@ export function RevealLine({ dashed = false, className }: RevealLineProps) {
   )
 }
 
-type RevealTag = 'h1' | 'h2' | 'h3' | 'p' | 'span'
+type RevealTag = 'h1' | 'h2' | 'h3' | 'p' | 'span' | 'dt' | 'dd' | 'li'
 
 type RevealTextProps = {
   children: string
   as?: RevealTag
   variant?: RevealVariant
   className?: string
+  /**
+   * Overrides the screen-reader and crawler-visible text for `roll` headings,
+   * where the visible glyphs are per-character and aria-hidden. Use when the
+   * displayed wording is shorter than what the heading should actually say.
+   */
+  srText?: string
 }
 
 function headingVariant(tag: RevealTag, variant?: RevealVariant): RevealVariant {
@@ -330,7 +336,13 @@ function RollingChars({ text }: { text: string }) {
   )
 }
 
-export function RevealText({ children, as: tag = 'p', variant: variantProp, className }: RevealTextProps) {
+export function RevealText({
+  children,
+  as: tag = 'p',
+  variant: variantProp,
+  className,
+  srText,
+}: RevealTextProps) {
   const rootRef = useRef<HTMLElement>(null)
   const group = useContext(RevealGroupContext)
   const parentBlockId = useContext(RevealBlockContext)
@@ -413,7 +425,7 @@ export function RevealText({ children, as: tag = 'p', variant: variantProp, clas
     return createElement(
       tag,
       { className, 'data-reveal': 'roll', ref: rootRef },
-      createElement('span', { className: 'sr-only' }, children),
+      createElement('span', { className: 'sr-only' }, srText ?? children),
       createElement(RollingChars, { text: children }),
     )
   }

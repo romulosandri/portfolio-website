@@ -7,9 +7,11 @@ const BATCH_SIZE = 5
 type LazyImageListProps = {
   images: string[]
   title: string
+  /** Per-image alt text, parallel to `images`. */
+  alts?: string[]
 }
 
-export function LazyImageList({ images, title }: LazyImageListProps) {
+export function LazyImageList({ images, title, alts }: LazyImageListProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [loadedCount, setLoadedCount] = useState(() => Math.min(BATCH_SIZE, images.length))
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -61,7 +63,7 @@ export function LazyImageList({ images, title }: LazyImageListProps) {
         >
           {index < loadedCount ? (
             <img
-              alt={index === 0 ? title : ''}
+              alt={alts?.[index] ?? (index === 0 ? title : '')}
               className="absolute inset-0 size-full object-cover"
               decoding="async"
               loading={index === 0 ? 'eager' : 'lazy'}

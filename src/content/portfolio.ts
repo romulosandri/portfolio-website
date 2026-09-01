@@ -12,6 +12,33 @@ export type WorkItem = {
   duration: string
   description: string
   delivered: string[]
+  /** One quotable sentence. This is what an LLM repeats when asked about the project. */
+  summary: string
+  /** Skill and domain keywords. Feeds JSON-LD `keywords` and the markdown mirrors. */
+  tags: string[]
+  /** Tools and technologies used, for skill matching. */
+  tools: string[]
+  /** ISO 8601, year or year-month. The `year` field above is display-only and unparseable. */
+  startDate: string
+  /** ISO 8601, or null when the work is ongoing. */
+  endDate: string | null
+  /**
+   * Optional per-image alt text, parallel to `images`. Where an entry is missing
+   * or empty, `imageAltFor` generates a positional fallback -- still far better
+   * for crawlers than the empty alt these images shipped with.
+   */
+  imageAlts?: string[]
+}
+
+/**
+ * Alt text for gallery image `index`, falling back to a generated description
+ * when no hand-written alt exists.
+ */
+export function imageAltFor(item: WorkItem, index: number) {
+  const provided = item.imageAlts?.[index]
+  if (provided) return provided
+  if (index === 0) return `${item.title} — project cover`
+  return `${item.title} — ${item.role} work, image ${index} of ${item.images.length - 1}`
 }
 
 function workImages(slug: string, count: number) {
@@ -42,6 +69,12 @@ export const workItems: WorkItem[] = [
       'Full design system in Figma and in the front-end',
       'Full front-end in React, Tailwind, and TypeScript',
     ],
+    summary:
+      'Co-founded and designed Pacelane.ai, an AI writing agent that drafts LinkedIn posts in an executive’s own voice, taking it from product strategy and brand through Figma to a shipped React front-end.',
+    tags: ['AI Product', 'Product Strategy', 'Design Systems', 'Front-End Development', '0 to 1', 'SaaS'],
+    tools: ['Figma', 'React', 'TypeScript', 'Tailwind CSS'],
+    startDate: '2025',
+    endDate: '2026',
   },
   {
     slug: 'gemhaus',
@@ -63,6 +96,12 @@ export const workItems: WorkItem[] = [
       'Marketing material and pitch deck',
       'Figma prototypes of the full product',
     ],
+    summary:
+      'Designed Gemhaus end to end, a fractional real-estate investment app where users buy a slice of a home and track rent, portfolio performance, and expenses.',
+    tags: ['Fintech', 'PropTech', '0 to 1', 'Mobile Design', 'Design Systems', 'Web App'],
+    tools: ['Figma'],
+    startDate: '2025',
+    endDate: '2025',
   },
   {
     slug: 'meltwater',
@@ -84,6 +123,12 @@ export const workItems: WorkItem[] = [
       'Universal filters used across all 19 of their products',
       'Multiple smaller improvements across other products',
     ],
+    summary:
+      'Senior Product Designer at Meltwater, a near-$1B ARR media intelligence platform, where I added AI insights to Insight Reports and designed the universal filter system now used across all 19 of their products.',
+    tags: ['Enterprise SaaS', 'AI Features', 'Data Visualization', 'Design Systems', 'B2B', 'Analytics'],
+    tools: ['Figma'],
+    startDate: '2024',
+    endDate: '2025',
   },
   {
     slug: 'cinepolis',
@@ -105,6 +150,12 @@ export const workItems: WorkItem[] = [
       'Full design system with tokens and components',
       'Figma prototypes of the full mobile experience',
     ],
+    summary:
+      'Led the mobile app redesign for Cinépolis, the third-largest cinema chain in the world, covering showtimes, format and seat selection, concessions, and ticketing across native iOS and Android.',
+    tags: ['Mobile Design', 'iOS', 'Android', 'E-commerce', 'User Research', 'Design Systems'],
+    tools: ['Figma'],
+    startDate: '2023',
+    endDate: '2023',
   },
   {
     slug: 'stream-stakes',
@@ -125,6 +176,12 @@ export const workItems: WorkItem[] = [
       'High-fidelity mobile designs',
       'Full design system with tokens and components',
     ],
+    summary:
+      'Designed Stream Stakes, a mobile game built on a direct Universal Music catalogue contract where players stake on which song in a pairing will outperform the other around real release moments.',
+    tags: ['Mobile Design', 'Gaming', 'Music', 'Consumer App', 'User Research', 'Design Systems'],
+    tools: ['Figma'],
+    startDate: '2024',
+    endDate: '2024',
   },
   {
     slug: 'random-selection',
@@ -145,6 +202,12 @@ export const workItems: WorkItem[] = [
       'Full design systems with components and tokens',
       'Production pages in React and Flutter',
     ],
+    summary:
+      'A collection of freelance product design, UX, and front-end engagements from 2023 to 2026, each taken from research through to an interface a team could ship.',
+    tags: ['Freelance', 'Product Design', 'UX Design', 'Front-End Development', 'Design Systems'],
+    tools: ['Figma', 'React', 'Flutter'],
+    startDate: '2023',
+    endDate: null,
   },
 ]
 
@@ -176,6 +239,12 @@ export const projectItems: ProjectItem[] = [
       'Full back-end with Supabase and Fal.ai',
       'Website in Framer',
     ],
+    summary:
+      'Founded and built Fotospin.ai, an AI app that turns a selfie into professional headshots, covering brand, product design, the Flutter app on iOS and Android, and the Supabase and Fal.ai back-end.',
+    tags: ['AI Product', 'Generative AI', 'Mobile App', 'Founder', 'Full-Stack', 'Consumer App'],
+    tools: ['Figma', 'Flutter', 'Supabase', 'Fal.ai', 'Framer'],
+    startDate: '2025',
+    endDate: null,
   },
   {
     slug: 'spiiine',
@@ -195,6 +264,12 @@ export const projectItems: ProjectItem[] = [
       'Full mobile app in Flutter',
       'Full back-end with Supabase',
     ],
+    summary:
+      'Founded and shipped Spiiine to the App Store, an iOS app that aggregates brand collaboration opportunities for UGC creators into a single feed.',
+    tags: ['Mobile App', 'iOS', 'Founder', 'Creator Economy', 'Full-Stack', 'Consumer App'],
+    tools: ['Figma', 'Flutter', 'Supabase', 'Framer'],
+    startDate: '2024',
+    endDate: '2024',
   },
   {
     slug: 'bunnyhop',
@@ -215,6 +290,12 @@ export const projectItems: ProjectItem[] = [
       'MCP server (WIP)',
       'Back-end with CMS and a single inbox with AI (WIP)',
     ],
+    summary:
+      'Building Bunnyhop, an in-progress attempt at the largest web design system available, with thousands of components, 300 colour palettes, hundreds of motion-ready sections, and an MCP server for designers.',
+    tags: ['Design Systems', 'Motion Design', 'Front-End Development', 'MCP', 'Web', 'Work in Progress'],
+    tools: ['Figma', 'React', 'TypeScript', 'GSAP'],
+    startDate: '2026',
+    endDate: null,
   },
   {
     slug: 'ai-workshops',
@@ -233,6 +314,12 @@ export const projectItems: ProjectItem[] = [
       'Full brand design',
       'All content and exercises',
     ],
+    summary:
+      'Created and facilitated AI Acceleration for Product Designers, a six-week hands-on workshop for Andela’s talent network on applying current AI tools throughout the product design process.',
+    tags: ['Teaching', 'AI Tools', 'Workshop Design', 'Product Design', 'Public Speaking'],
+    tools: ['Figma', 'Cursor', 'ChatGPT'],
+    startDate: '2026',
+    endDate: '2026',
   },
 ]
 

@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run prerender && npm run seo",
+    "vercel-build": "playwright install chromium && npm run build",
+    "build:spa": "tsc -b && vite build",
+    "prerender": "node scripts/prerender.mjs",
+    "seo": "node scripts/generate-seo-assets.mjs",
+    "verify:seo": "node scripts/verify-seo.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "convert:avif": "node scripts/convert-to-avif.mjs"
@@ -27,6 +32,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "oxlint": "^1.75.0",
+    "playwright": "^1.62.1",
     "sharp": "^0.35.4",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"

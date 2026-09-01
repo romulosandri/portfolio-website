@@ -37,7 +37,11 @@ export function navigate(href: string) {
 }
 
 function isInternalHref(href: string) {
-  return href.startsWith('/') && !href.startsWith('//')
+  if (!href.startsWith('/') || href.startsWith('//')) return false
+  // Static files served straight from the origin -- /llms.txt, /resume.json, the
+  // per-page markdown mirrors. These are real documents, not SPA routes, so the
+  // click handler must let the browser fetch them normally.
+  return !/\.[a-z0-9]+$/i.test(href.split('?')[0] ?? href)
 }
 
 export function useRoute() {

@@ -63,6 +63,9 @@ export function NameLogo({ href = '/', className }: NameLogoProps) {
 
   const mark = (
     <span className="inline-flex items-center gap-3xl">
+      {/* The wordmark is built from letter images, so the name only exists as
+          real text here. Absolutely positioned, so it adds no flex gap. */}
+      <span className="sr-only">Rômulo Sandri</span>
       <NameRow letters={firstName} styles={firstStyles} />
       <Symbol variant="16" />
       <NameRow letters={lastName} styles={lastStyles} />

@@ -8,7 +8,7 @@ import {
   RevealText,
 } from '../motion-system'
 import { gsap, ScrollTrigger, useGSAP } from '../motion-system/gsap'
-import { projectBySlug, projectItems, workBySlug, workItems } from '../content/portfolio'
+import { imageAltFor, projectBySlug, projectItems, workBySlug, workItems } from '../content/portfolio'
 import { LazyImageList } from './LazyImageList'
 import { PageLayout } from './PageLayout'
 import { DisplayHero, SectionHeader, WorkCard } from './WorkCard'
@@ -18,18 +18,46 @@ type ProjectDetailPageProps = {
   collection: 'work' | 'projects'
 }
 
+// Rendered as a description list so crawlers read client, role, year, and
+// duration as labelled key-value pairs instead of four unrelated paragraphs.
 function MetaField({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <RevealBlock>
-      <div className={['flex flex-col items-start gap-[10px]', className].filter(Boolean).join(' ')}>
-        <RevealText as="p" className="whitespace-nowrap text-body-small text-foreground-tertiary">
+      <dl className={['flex flex-col items-start gap-[10px]', className].filter(Boolean).join(' ')}>
+        <RevealText as="dt" className="whitespace-nowrap text-body-small text-foreground-tertiary">
           {label}
         </RevealText>
-        <RevealText as="p" className="w-full text-body-default text-foreground-primary">
+        <RevealText as="dd" className="m-0 w-full text-body-default text-foreground-primary">
           {value}
         </RevealText>
-      </div>
+      </dl>
     </RevealBlock>
+  )
+}
+
+/** Labelled list of deliverables, as a real ul/li so crawlers read it as a list. */
+function MetaList({ label, items }: { label: string; items: string[] }) {
+  if (items.length === 0) return null
+
+  return (
+    <div className="flex w-full flex-col items-start gap-[10px]">
+      <RevealText as="h2" className="whitespace-nowrap text-body-small text-foreground-tertiary" variant="blur">
+        {label}
+      </RevealText>
+      <ul className="m-0 flex w-full list-none flex-col items-start gap-lg rounded-sm p-0">
+        {items.map((line) => (
+          <RevealBlock key={line}>
+            <li className="flex w-full flex-col gap-lg">
+              <RevealLine dashed />
+              <RevealText as="span" className="text-body-small text-foreground-primary">
+                {line}
+              </RevealText>
+            </li>
+          </RevealBlock>
+        ))}
+        <RevealLine dashed />
+      </ul>
+    </div>
   )
 }
 
@@ -244,28 +272,16 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
                 <MetaField className="w-[160px] shrink-0" label="Year" value={item.year} />
                 <MetaField className="min-w-px flex-1" label="Duration" value={item.duration} />
               </div>
-              <div className="flex w-full flex-col items-start gap-[10px]">
-                <RevealText as="p" className="whitespace-nowrap text-body-small text-foreground-tertiary">
-                  Delivered
-                </RevealText>
-                <div className="flex w-full flex-col items-start gap-lg rounded-sm">
-                  {item.delivered.map((line) => (
-                    <RevealBlock key={line}>
-                      <div className="flex w-full flex-col gap-lg">
-                        <RevealLine dashed />
-                        <RevealText as="p" className="text-body-small text-foreground-primary">
-                          {line}
-                        </RevealText>
-                      </div>
-                    </RevealBlock>
-                  ))}
-                  <RevealLine dashed />
-                </div>
-              </div>
+              <MetaList items={item.delivered} label="Delivered" />
             </div>
             <SeeNextSection items={upcoming} rootRef={seeNextRef} />
           </RevealGroup>
-          <LazyImageList images={item.images} key={item.slug} title={item.title} />
+          <LazyImageList
+            alts={item.images.map((_, index) => imageAltFor(item, index))}
+            images={item.images}
+            key={item.slug}
+            title={item.title}
+          />
         </div>
       </section>
       <section

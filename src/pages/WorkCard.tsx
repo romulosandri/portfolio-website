@@ -151,7 +151,7 @@ export function WorkCard({ title, year, cover, href, images = [], className, com
     >
       <span className="relative block aspect-[2048/1536] w-full overflow-clip" ref={mediaRef}>
         <img
-          alt=""
+          alt={`${title} — project cover`}
           className={FRAME_CLASS}
           decoding="async"
           draggable={false}
@@ -173,14 +173,18 @@ export function WorkCard({ title, year, cover, href, images = [], className, com
           : null}
       </span>
       {compact ? (
-        <RevealText as="span" className="w-full text-body-small text-foreground-primary">
+        <RevealText
+          as="h3"
+          className="w-full text-body-small text-foreground-primary"
+          variant="blur"
+        >
           {title}
         </RevealText>
       ) : (
-        <span className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-between">
           <RevealBlock>
             <RevealText
-              as="span"
+              as="h3"
               className="whitespace-nowrap text-h4 text-foreground-primary"
               variant="roll"
             >
@@ -190,7 +194,7 @@ export function WorkCard({ title, year, cover, href, images = [], className, com
               {year}
             </RevealText>
           </RevealBlock>
-        </span>
+        </div>
       )}
     </a>
   )
