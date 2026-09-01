@@ -2,12 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { SendButton, SocialIcon, type SocialIconType } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
 import { site } from '../content/site'
+import { ContactStatusVisual, type ContactStatus } from './ContactStatusVisual'
 import { PageLayout } from './PageLayout'
-import { WorkImageSequence } from './WorkImageSequence'
 
 const socials: SocialIconType[] = ['email', 'github', 'x', 'linkedin', 'instagram']
-
-type Status = 'idle' | 'sending' | 'sent' | 'error'
 
 function requireTrimmed(field: HTMLInputElement | HTMLTextAreaElement) {
   field.setCustomValidity(field.value.trim() ? '' : 'This field is required.')
@@ -70,7 +68,7 @@ function Field({
 }
 
 export function ContactPage() {
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, setStatus] = useState<ContactStatus>('idle')
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -114,7 +112,11 @@ export function ContactPage() {
   return (
     <PageLayout>
       <section className="flex w-full items-center justify-center gap-[120px] bg-background-primary px-4xl py-[164px]">
-        <form className="flex min-w-px flex-1 flex-col items-start gap-4xl" onSubmit={onSubmit}>
+        <form
+          aria-busy={status === 'sending'}
+          className="flex min-w-px flex-1 flex-col items-start gap-4xl"
+          onSubmit={onSubmit}
+        >
           <RevealGroup>
             <RevealText as="h1" className="whitespace-nowrap text-h1 text-foreground-primary">
               Contact Me
@@ -125,21 +127,36 @@ export function ContactPage() {
               <Field id="name" label="Your Name" placeholder="John Doe Jr" />
               <Field id="email" label="Email Address" placeholder="john@doe.com" />
             </div>
-            <div className="flex h-[241px] w-full flex-col items-start gap-md">
-              <Field id="message" label="Your Message" multiline placeholder="I want to hire you to..." />
+            <div className="flex w-full flex-col items-start gap-md">
+              <div className="flex h-[241px] w-full flex-col items-start gap-md">
+                <Field id="message" label="Your Message" multiline placeholder="I want to hire you to..." />
+              </div>
+              <a
+                className="inline-flex items-center gap-sm text-body-small text-foreground-tertiary no-underline hover:text-foreground-secondary"
+                href="https://resend.com"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Powered by Resend
+                <svg
+                  aria-hidden
+                  className="block shrink-0"
+                  fill="currentColor"
+                  height="14"
+                  viewBox="0 0 1800 1800"
+                  width="14"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1000.46 450C1174.77 450 1278.43 553.669 1278.43 691.282C1278.43 828.896 1174.77 932.563 1000.46 932.563H912.382L1350 1350H1040.82L707.794 1033.48C683.944 1011.47 672.936 985.781 672.935 963.765C672.935 932.572 694.959 905.049 737.161 893.122L908.712 847.244C973.85 829.812 1018.81 779.353 1018.81 713.298C1018.8 632.567 952.745 585.78 871.095 585.78H450V450H1000.46Z" />
+                </svg>
+              </a>
             </div>
           </div>
           <input aria-hidden autoComplete="off" className="sr-only" name="company" tabIndex={-1} />
-          <div className="flex w-full flex-col items-start gap-md">
-            <SendButton
-              disabled={status === 'sending'}
-              label={status === 'sending' ? 'Sending' : 'Send'}
-            />
-            <p className="text-body-default text-foreground-secondary" role="status">
-              {status === 'sent' && 'Message sent. I will get back to you shortly.'}
-              {status === 'error' && `Something went wrong. Email me directly at ${site.email}.`}
-            </p>
-          </div>
+          <SendButton
+            disabled={status === 'sending'}
+            label={status === 'sending' ? 'Sending' : 'Send'}
+          />
           <RevealGroup className="flex w-full flex-col items-start gap-xl">
             <RevealLine dashed />
             <div className="flex items-center gap-2xl whitespace-pre text-body-default text-foreground-secondary">
@@ -165,7 +182,7 @@ export function ContactPage() {
             ))}
           </div>
         </form>
-        <WorkImageSequence />
+        <ContactStatusVisual status={status} />
       </section>
     </PageLayout>
   )

@@ -20,7 +20,7 @@ export const site = {
   headline: 'Product designer and design engineer building AI-native products end to end.',
   blurb:
     'Hi, I am Rômulo Sandri, Product Designer based in Palmas, Brazil. I design, write code, and ship products people actually use, from the first conversation to the last pixel.',
-  email: 'romulosandrirodrigues@gmail.com',
+  email: 'contact@romulosandri.com',
   whatsapp: '+5563984602704',
   whatsappHref: 'https://wa.me/5563984602704',
   location: {

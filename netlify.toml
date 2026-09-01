@@ -9,11 +9,15 @@
   PLAYWRIGHT_BROWSERS_PATH = "0"
 
 # Static files win over this rule, so a prerendered dist/work/pacelane.html is
-# served directly and only unknown paths fall back to the client-side router.
+# served directly and only genuinely unknown paths reach the fallback. Because
+# every route in src/content/routes.ts is prerendered to its own file, anything
+# landing here really is missing -- hence 404 rather than 200. The body is still
+# the app shell, so the client router boots and renders its not-found state,
+# while crawlers get a status that keeps the URL out of the index.
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
+  status = 404
 
 # Netlify already serves .md as text/markdown; these rules only add the charset,
 # which the accented characters in the markdown mirrors need. Header wildcards
