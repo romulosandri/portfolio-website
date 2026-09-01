@@ -25,7 +25,7 @@ const projects = [
   { label: 'Fotospin.ai', href: '/projects/fotospin' },
   { label: 'Spiiine', href: '/projects/spiiine' },
   { label: 'Bunnyhop', href: '/projects/bunnyhop' },
-  { label: 'Kessera', href: '/projects' },
+  { label: 'Kessera (WIP)', href: '/projects' },
   { label: 'AI Workshops', href: '/projects/ai-workshops' },
 ]
 
