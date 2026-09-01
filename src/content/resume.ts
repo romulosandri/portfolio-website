@@ -33,8 +33,18 @@ export type EducationEntry = {
   institution: string
   area: string
   studyType: string
-  startDate: string
-  endDate: string | null
+  /** ISO 8601, year or year-month. Omit when unpublished. */
+  startDate?: string
+  /** ISO 8601, or null when current. Omit when the completed year is unpublished. */
+  endDate?: string | null
+}
+
+export type CertificateEntry = {
+  name: string
+  issuer: string
+  /** ISO 8601. Omit when unpublished. */
+  date?: string
+  url?: string
 }
 
 export type LanguageEntry = {
@@ -53,9 +63,34 @@ export const skillGroups: SkillGroup[] = [
       'Interaction Design',
       '0 to 1 Product Design',
       'Mobile Design (iOS and Android)',
+      'Native iOS and Android Design',
       'Web App Design',
+      'Responsive Web Design',
+      'Consumer App Design',
+      'Enterprise SaaS Design',
       'Prototyping',
+      'Wireframing',
+      'User Flows',
       'Information Architecture',
+      'Journey Mapping',
+      'Visual Design',
+      'Brand Design',
+      'Marketing Site and Landing Page Design',
+      'Pitch Deck Design',
+      'Data Visualization',
+      'Design QA',
+    ],
+  },
+  {
+    category: 'Motion Design',
+    skills: [
+      'Motion Design for Websites',
+      'Motion Design for Mobile',
+      'Micro-interactions',
+      'Scroll-driven Animation',
+      'Page Transitions',
+      'Interaction Animation',
+      'GSAP Animation',
     ],
   },
   {
@@ -64,8 +99,10 @@ export const skillGroups: SkillGroup[] = [
       'Primary User Research',
       'Secondary and Competitor Research',
       'User Testing',
+      'Usability Testing',
       'Affinity Mapping',
       'User Personas',
+      'Research Synthesis',
     ],
   },
   {
@@ -76,6 +113,7 @@ export const skillGroups: SkillGroup[] = [
       'Multi-theme Systems (light and dark)',
       'Design System Governance',
       'Figma Variables and Components',
+      'Front-End Implementation of Design Systems',
     ],
   },
   {
@@ -84,26 +122,67 @@ export const skillGroups: SkillGroup[] = [
       'React',
       'TypeScript',
       'Tailwind CSS',
+      'Vite',
+      'GSAP',
+      'Lenis',
+      'Motion',
       'Flutter',
-      'GSAP and Motion',
       'Supabase',
-      'Front-End Implementation of Design Systems',
+      'Netlify',
+      'HTML and CSS',
+      'Phaser',
     ],
   },
   {
     category: 'AI',
     skills: [
       'AI-Native Product Design',
-      'Agent Harnesses (Cursor, Hermes)',
+      'AI Product Features',
+      'Agent Harnesses (Cursor, Hermes, Manus)',
       'Prompt and Meta-Prompt Engineering',
-      'Generative Image Pipelines (Fal.ai)',
-      'MCP Servers',
+      'Generative Image, Video, and 3D Pipelines (Fal.ai)',
+      'MCP Servers and Integrations',
+      'Figma MCP',
       'LLM Evaluation and Model Selection',
+      'Model Routing (OpenRouter)',
+      'AI-Assisted User Research',
+      'Web Data Extraction (Firecrawl)',
+      'AI Search and Research (Tavily)',
+      'Automated Content Pipelines',
+    ],
+  },
+  {
+    category: 'Leadership and Teaching',
+    skills: [
+      'Managing Junior Designers',
+      'Mentoring Designers',
+      'Workshop Instruction',
+      'Workshop Facilitation',
+      'Curriculum Design',
+      'Teaching AI for Product Design',
+      'Public Speaking',
+      'Design Critiques',
     ],
   },
   {
     category: 'Tools',
-    skills: ['Figma', 'Cursor', 'Framer', 'Granola', 'Fal.ai', 'Composio', 'OpenRouter'],
+    skills: [
+      'Figma',
+      'Cursor',
+      'Hermes Agent',
+      'Framer',
+      'Granola',
+      'Fal.ai',
+      'Composio',
+      'OpenRouter',
+      'ChatGPT',
+      'Firecrawl',
+      'Tavily',
+      'Agent Mail',
+      'Zernio',
+      'Manus',
+      'Claude',
+    ],
   },
 ]
 
@@ -125,6 +204,20 @@ export const experience: ExperienceEntry[] = [
       'Built the production front-end in React, Tailwind, and TypeScript',
     ],
     caseStudy: 'pacelane',
+  },
+  {
+    company: 'Fotospin',
+    position: 'Founder',
+    startDate: '2025',
+    endDate: null,
+    location: 'Remote',
+    summary:
+      'Founded an AI headshot app that turns a selfie into professional photos, reaching 7,000 downloads and $2,000 in revenue in 6 months.',
+    highlights: [
+      'Reached 7,000 downloads and $2,000 in revenue in 6 months',
+      'Shipped as a solo founder: brand, Flutter on iOS and Android, Supabase and Fal.ai',
+    ],
+    caseStudy: 'fotospin',
   },
   {
     company: 'Meltwater',
@@ -207,14 +300,29 @@ export const experience: ExperienceEntry[] = [
   },
 ]
 
-// TODO: fill in real education history, or delete this array if you would rather
-// the site say nothing about education than say nothing useful.
-export const education: EducationEntry[] = []
+export const education: EducationEntry[] = [
+  {
+    institution: 'University of California San Diego',
+    area: 'Interaction Design',
+    studyType: 'Professional Certificate',
+    endDate: null,
+  },
+]
 
-// TODO: confirm fluency levels.
+export const certificates: CertificateEntry[] = [
+  {
+    name: 'Google UX Design Professional Certificate',
+    issuer: 'Google',
+  },
+  {
+    name: 'Multiple course certificates',
+    issuer: 'Interaction Design Foundation',
+  },
+]
+
 export const languages: LanguageEntry[] = [
   { language: 'Portuguese', fluency: 'Native speaker' },
-  { language: 'English', fluency: 'Professional working proficiency' },
+  { language: 'English', fluency: 'Fluent' },
 ]
 
 /**
@@ -232,9 +340,10 @@ export const availability = {
   yearsOfExperience: 8,
   preferredRoles: [
     'Senior Product Designer',
+    'Product Designer',
     'Design Engineer',
     'Lead Product Designer',
     'Founding Designer',
   ],
-  noticePeriod: 'TODO',
+  noticePeriod: 'Immediate — can start right away',
 }

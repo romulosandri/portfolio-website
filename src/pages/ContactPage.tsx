@@ -1,11 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { SendButton, SocialIcon, type SocialIconType } from '../design-system'
+import { SendButton, SocialIcon } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
-import { site } from '../content/site'
+import { site, socialLinks } from '../content/site'
 import { ContactStatusVisual, type ContactStatus } from './ContactStatusVisual'
 import { PageLayout } from './PageLayout'
-
-const socials: SocialIconType[] = ['email', 'github', 'x', 'linkedin', 'instagram']
 
 function requireTrimmed(field: HTMLInputElement | HTMLTextAreaElement) {
   field.setCustomValidity(field.value.trim() ? '' : 'This field is required.')
@@ -177,8 +175,10 @@ export function ContactPage() {
             </div>
           </RevealGroup>
           <div className="flex items-center gap-xl">
-            {socials.map((type) => (
-              <SocialIcon key={type} type={type} />
+            {socialLinks.map((item) => (
+              <a aria-label={item.label} href={item.href} key={item.type}>
+                <SocialIcon type={item.type} />
+              </a>
             ))}
           </div>
         </form>

@@ -63,7 +63,8 @@ Dribbble / Behance / Read.cv (optional):
 
 **Your answer:**
 ```
-Canonical title:
+Canonical title: Senior Product Designer
+Also: Product Designer, Design Engineer
 ```
 
 ---
@@ -93,7 +94,7 @@ Canonical title:
 **Your answer:** (correct anything wrong, and give me a real notice period)
 ```
 Corrections:
-Notice period:
+Notice period: Immediate — can start right away
 ```
 
 ---
@@ -111,15 +112,15 @@ Notice period:
 Anything you have for these, even rough:
 
 ```
-Pacelane      — users / funding / launch status:
-Gemhaus       — waitlist size / launch / investment volume:
-Meltwater     — adoption, time saved, anything beyond the 19 products:
-Cinépolis     — App Store rating / conversion / ticket volume:
-Stream Stakes — players / retention / did it launch:
-Fotospin      — downloads / revenue / App Store rating:
-Spiiine       — downloads / active creators / current status:
-AI Workshops  — number of participants / feedback score:
-Bunnyhop      — component count is already there; anything else:
+Pacelane      — none for now
+Gemhaus       — none for now
+Meltwater     — none for now (keep the existing 19 products / ~$1B ARR)
+Cinépolis     — none for now
+Stream Stakes — none for now
+Fotospin      — 7,000 downloads and $2,000 revenue in 6 months  [wired in]
+Spiiine       — none for now
+AI Workshops  — none for now
+Bunnyhop      — component count is already there; nothing else
 ```
 
 ---
@@ -152,7 +153,11 @@ Link them? (yes/no):
 
 **Your answer:**
 ```
-Education (or "skip"):
+Education:
+- UC San Diego — Interaction Design Professional Certificate (in progress)
+- Interaction Design Foundation — multiple course certificates
+- Google — UX Design Professional Certificate
+Years: not provided
 ```
 
 ---

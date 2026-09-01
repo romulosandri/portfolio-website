@@ -231,8 +231,9 @@ export const projectItems: ProjectItem[] = [
     role: 'Founder, Developer, Product and Brand Designer',
     duration: '1.5 Years',
     description:
-      'Fotospin turns a simple selfie into professional photos. You pick a look, lawyer, doctor, or a prompt of your own, and the app generates headshots you can actually use. I founded it to learn how to ship with AI, and took it from brand and product design through a Flutter app on iOS and Android, plus the website.',
+      'Fotospin turns a simple selfie into professional photos. You pick a look, lawyer, doctor, or a prompt of your own, and the app generates headshots you can actually use. I founded it to learn how to ship with AI, and took it from brand and product design through a Flutter app on iOS and Android, plus the website. In 6 months it reached 7,000 downloads and $2,000 in revenue.',
     delivered: [
+      '7,000 downloads and $2,000 in revenue in 6 months',
       'Mobile app design',
       'Full design system in Figma and in the front-end',
       'Full front-end in Flutter',
@@ -240,7 +241,7 @@ export const projectItems: ProjectItem[] = [
       'Website in Framer',
     ],
     summary:
-      'Founded and built Fotospin.ai, an AI app that turns a selfie into professional headshots, covering brand, product design, the Flutter app on iOS and Android, and the Supabase and Fal.ai back-end.',
+      'Founded Fotospin.ai, an AI headshot app that reached 7,000 downloads and $2,000 in revenue in 6 months, shipping brand, product, Flutter on iOS and Android, and a Supabase and Fal.ai back-end as a solo founder.',
     tags: ['AI Product', 'Generative AI', 'Mobile App', 'Founder', 'Full-Stack', 'Consumer App'],
     tools: ['Figma', 'Flutter', 'Supabase', 'Fal.ai', 'Framer'],
     startDate: '2025',

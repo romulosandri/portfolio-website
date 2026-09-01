@@ -1,5 +1,12 @@
 import { projectBySlug, projectItems, workBySlug, workItems, type WorkItem } from '../content/portfolio'
-import { allSkills, availability, education, experience, languages } from '../content/resume'
+import {
+  allSkills,
+  availability,
+  certificates,
+  education,
+  experience,
+  languages,
+} from '../content/resume'
 import type { PageMeta } from '../content/seo'
 import { absoluteUrl, site, SITE_URL } from '../content/site'
 import { toPngSrc } from './images'
@@ -26,7 +33,7 @@ function personNode(): JsonLdNode {
     '@id': PERSON_ID,
     name: site.name,
     url: SITE_URL,
-    jobTitle: site.role,
+    jobTitle: [...site.roles],
     description: site.blurb,
     email: `mailto:${site.email}`,
     telephone: site.whatsapp,
@@ -40,12 +47,36 @@ function personNode(): JsonLdNode {
     knowsLanguage: languages.map((entry) => entry.language),
     ...(site.sameAs.length > 0 ? { sameAs: site.sameAs } : {}),
     ...(currentRole ? { worksFor: { '@type': 'Organization', name: currentRole.company } } : {}),
-    ...(education.length > 0
+    ...(education.some((entry) => entry.endDate === null)
       ? {
-          alumniOf: education.map((entry) => ({
-            '@type': 'EducationalOrganization',
-            name: entry.institution,
-          })),
+          affiliation: education
+            .filter((entry) => entry.endDate === null)
+            .map((entry) => ({
+              '@type': 'EducationalOrganization',
+              name: entry.institution,
+            })),
+        }
+      : {}),
+    ...(education.length > 0 || certificates.length > 0
+      ? {
+          hasCredential: [
+            ...education.map((entry) => ({
+              '@type': 'EducationalOccupationalCredential',
+              name: `${entry.studyType} in ${entry.area}`,
+              credentialCategory: entry.studyType,
+              recognizedBy: {
+                '@type': 'EducationalOrganization',
+                name: entry.institution,
+              },
+              ...(entry.endDate === null ? { description: 'In progress' } : {}),
+            })),
+            ...certificates.map((entry) => ({
+              '@type': 'EducationalOccupationalCredential',
+              name: entry.name,
+              credentialCategory: 'Certificate',
+              recognizedBy: { '@type': 'Organization', name: entry.issuer },
+            })),
+          ],
         }
       : {}),
     hasOccupation: {

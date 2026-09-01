@@ -1,3 +1,4 @@
+import { site } from '../content/site'
 import { GameButton } from './GameButton'
 import { NameLogo } from './NameLogo'
 import { NavItem } from './NavItem'
@@ -6,6 +7,7 @@ const items = [
   { href: '/work', label: 'Work', match: (path: string) => path === '/work' || path.startsWith('/work/') },
   { href: '#life', label: 'Life', match: () => false },
   { href: '/projects', label: 'Projects', match: (path: string) => path === '/projects' || path.startsWith('/projects/') },
+  { href: site.blog.href, label: site.blog.label, match: () => false },
   { href: '/contact', label: 'Contact Me', match: (path: string) => path === '/contact' },
 ]
 

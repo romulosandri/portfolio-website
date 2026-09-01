@@ -2,37 +2,10 @@ import { useEffect, useState } from 'react'
 import { AiButton } from './AiButton'
 import { FooterButton } from './FooterButton'
 import { FooterPluto } from '../motion-system/FooterPluto'
-import { SocialIcon, type SocialIconType } from './SocialIcon'
+import { SocialIcon } from './SocialIcon'
 import type { AiLogoName } from './AiLogo'
-import { site } from '../content/site'
-
-// TODO: these point at bare domains, not real profiles. Replace them with actual
-// URLs and mirror them into `site.sameAs`, which feeds the JSON-LD Person entity.
-// Until then a crawler follows them to a generic homepage, which is worse for
-// entity resolution than having no link at all.
-const socials: Array<{ type: SocialIconType; href: string }> = [
-  { type: 'email', href: `mailto:${site.email}` },
-  { type: 'github', href: 'https://github.com' },
-  { type: 'x', href: 'https://x.com' },
-  { type: 'linkedin', href: 'https://linkedin.com' },
-  { type: 'instagram', href: 'https://instagram.com' },
-]
-
-const work = [
-  { label: 'Pacelane.ai', href: '/work/pacelane' },
-  { label: 'Gemhaus', href: '/work/gemhaus' },
-  { label: 'Meltwater', href: '/work/meltwater' },
-  { label: 'Cinepolis', href: '/work/cinepolis' },
-  { label: 'Stream Stakes', href: '/work/stream-stakes' },
-]
-
-const projects = [
-  { label: 'Fotospin.ai', href: '/projects/fotospin' },
-  { label: 'Spiiine', href: '/projects/spiiine' },
-  { label: 'Bunnyhop', href: '/projects/bunnyhop' },
-  { label: 'Kessera (WIP)', href: '/projects' },
-  { label: 'AI Workshops', href: '/projects/ai-workshops' },
-]
+import { site, socialLinks } from '../content/site'
+import { projectItems, workItems } from '../content/portfolio'
 
 const aiButtons: Array<{ name: AiLogoName; href: string }> = [
   { name: 'openai', href: 'https://chatgpt.com' },
@@ -47,7 +20,6 @@ const brasiliaClockFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: BRASILIA_TIME_ZONE,
   hour: '2-digit',
   minute: '2-digit',
-  second: '2-digit',
   hourCycle: 'h23',
 })
 
@@ -66,7 +38,7 @@ function useBrasiliaClock() {
 
     const schedule = () => {
       setClock(getBrasiliaClock())
-      timeoutId = window.setTimeout(schedule, 1000 - (Date.now() % 1000))
+      timeoutId = window.setTimeout(schedule, 60_000 - (Date.now() % 60_000))
     }
 
     schedule()
@@ -97,8 +69,8 @@ export function FooterSection({ className }: FooterSectionProps) {
           <p className="whitespace-nowrap text-h3 text-foreground-secondary">Let’s Talk</p>
           <div className="flex flex-col items-start gap-1xl">
             <div className="flex items-center gap-xl">
-              {socials.map((item) => (
-                <a aria-label={item.type} href={item.href} key={item.type}>
+              {socialLinks.map((item) => (
+                <a aria-label={item.label} href={item.href} key={item.type}>
                   <SocialIcon type={item.type} />
                 </a>
               ))}
@@ -112,8 +84,8 @@ export function FooterSection({ className }: FooterSectionProps) {
         <div className="flex h-full shrink-0 flex-col items-start justify-between border-l border-solid border-stroke-secondary pl-2xl">
           <p className="text-body-small text-foreground-tertiary">Work</p>
           <div className="flex flex-col items-start gap-md">
-            {work.map((item) => (
-              <FooterButton href={item.href} key={item.label} label={item.label} />
+            {workItems.map((item) => (
+              <FooterButton href={item.href} key={item.slug} label={item.title} />
             ))}
           </div>
         </div>
@@ -121,8 +93,8 @@ export function FooterSection({ className }: FooterSectionProps) {
         <div className="flex h-full shrink-0 flex-col items-start justify-between border-l border-solid border-stroke-secondary pl-2xl">
           <p className="text-body-small text-foreground-tertiary">Projects</p>
           <div className="flex flex-col items-start gap-md">
-            {projects.map((item) => (
-              <FooterButton href={item.href} key={item.label} label={item.label} />
+            {projectItems.map((item) => (
+              <FooterButton href={item.href} key={item.slug} label={item.title} />
             ))}
           </div>
         </div>

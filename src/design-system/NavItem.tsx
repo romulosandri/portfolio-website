@@ -14,6 +14,10 @@ const SYMBOL_SIZE = 16
 const SYMBOL_GAP = 4
 const SLOT_WIDTH = SYMBOL_SIZE + SYMBOL_GAP
 
+function isExternalHref(href: string) {
+  return /^https?:\/\//i.test(href)
+}
+
 export function NavItem({
   label,
   href = '#',
@@ -90,9 +94,12 @@ export function NavItem({
     { scope: rootRef, dependencies: [selected], revertOnUpdate: true },
   )
 
+  const external = isExternalHref(href)
+
   return (
     <a
       aria-current={selected ? 'page' : undefined}
+      aria-label={external ? `${label} (opens in a new tab)` : undefined}
       className={[
         'group inline-flex items-center text-h5 no-underline',
         selected ? 'text-foreground-primary' : 'text-foreground-tertiary hover:text-foreground-primary',
@@ -102,6 +109,8 @@ export function NavItem({
         .join(' ')}
       href={href}
       ref={rootRef}
+      rel={external ? 'noopener noreferrer' : undefined}
+      target={external ? '_blank' : undefined}
     >
       <span
         className={[

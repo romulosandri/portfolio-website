@@ -100,6 +100,19 @@ function dateRange(startDate, endDate) {
   return `${startDate} – ${endDate}`
 }
 
+function educationLine(entry) {
+  const core = `${entry.studyType} in ${entry.area} — ${entry.institution}`
+  if (!entry.startDate && entry.endDate === null) return `- ${core} (in progress)`
+  if (!entry.startDate && !entry.endDate) return `- ${core}`
+  if (!entry.startDate) return `- ${core} (${entry.endDate})`
+  return `- ${core} (${dateRange(entry.startDate, entry.endDate)})`
+}
+
+function certificateLine(entry) {
+  const core = `${entry.name} — ${entry.issuer}`
+  return entry.date ? `- ${core} (${entry.date})` : `- ${core}`
+}
+
 function caseStudyMarkdown(item, site, collection) {
   return `---
 title: "${item.title}"
@@ -143,6 +156,7 @@ title: "${site.name} — ${site.role}"
 type: profile
 name: "${site.name}"
 role: "${site.role}"
+roles: [${site.roles.map((title) => `"${title}"`).join(', ')}]
 location: "${site.location.city}, ${site.location.region}, ${site.location.country}"
 email: "${site.email}"
 ---
@@ -171,6 +185,11 @@ ${resume.skillGroups.map((group) => `- **${group.category}:** ${group.skills.joi
 
 - Email: ${site.email}
 - WhatsApp: ${site.whatsapp}
+${site.socials
+  .filter((link) => link.type !== 'email')
+  .map((link) => `- ${link.label}: ${link.href}`)
+  .join('\n')}
+- ${site.blog.label}: ${site.blog.href}
 `
 }
 
@@ -232,6 +251,11 @@ ${site.name} is a ${site.role} based in ${site.location.city}, ${site.location.c
 
 - **Email:** ${site.email}
 - **WhatsApp:** ${site.whatsapp} (${site.whatsappHref})
+${site.socials
+  .filter((link) => link.type !== 'email')
+  .map((link) => `- **${link.label}:** ${link.href}`)
+  .join('\n')}
+- **${site.blog.label}:** ${site.blog.href}
 
 ## Availability
 
@@ -242,6 +266,7 @@ ${site.name} is a ${site.role} based in ${site.location.city}, ${site.location.c
 - Full time: ${resume.availability.openToFullTime ? 'yes' : 'no'}
 - Seniority: ${resume.availability.seniority}
 - Preferred roles: ${resume.availability.preferredRoles.join(', ')}
+- Notice period: ${resume.availability.noticePeriod}
 `
 }
 
@@ -257,6 +282,7 @@ type: resume
 
 ${site.role} · ${site.location.city}, ${site.location.region}, ${site.location.country}
 ${site.email} · ${site.whatsapp}
+${site.sameAs.join(' · ')}
 
 ${site.blurb}
 
@@ -283,14 +309,25 @@ ${resume.skillGroups.map((group) => `**${group.category}**: ${group.skills.join(
 ${resume.languages.map((entry) => `- ${entry.language} — ${entry.fluency}`).join('\n')}
 ${
   resume.education.length > 0
-    ? `\n## Education\n\n${resume.education
-        .map(
-          (entry) =>
-            `- ${entry.studyType}, ${entry.area} — ${entry.institution} (${dateRange(entry.startDate, entry.endDate)})`,
-        )
-        .join('\n')}\n`
+    ? `\n## Education\n\n${resume.education.map(educationLine).join('\n')}\n`
     : ''
-}`
+}${
+  resume.certificates.length > 0
+    ? `\n## Certificates\n\n${resume.certificates.map(certificateLine).join('\n')}\n`
+    : ''
+}
+
+## Availability
+
+- Open to work: ${resume.availability.openToWork ? 'yes' : 'no'}
+- Remote: ${resume.availability.openToRemote ? 'yes' : 'no'}
+- Relocation: ${resume.availability.openToRelocation ? 'yes' : 'no'}
+- Contract: ${resume.availability.openToContract ? 'yes' : 'no'}
+- Full time: ${resume.availability.openToFullTime ? 'yes' : 'no'}
+- Seniority: ${resume.availability.seniority}
+- Preferred roles: ${resume.availability.preferredRoles.join(', ')}
+- Notice period: ${resume.availability.noticePeriod}
+`
 }
 
 /** https://jsonresume.org/schema — parsed directly by a lot of recruiting tooling. */
@@ -310,7 +347,20 @@ function resumeJson(SITE_URL, site, resume) {
           region: site.location.region,
           countryCode: site.location.countryCode,
         },
-        profiles: site.sameAs.map((url) => ({ url })),
+        profiles: [
+          ...site.socials
+            .filter((link) => link.type !== 'email')
+            .map((link) => ({
+              network: link.label,
+              ...(link.username ? { username: link.username } : {}),
+              url: link.href,
+            })),
+          {
+            network: site.blog.network,
+            username: site.blog.username,
+            url: site.blog.href,
+          },
+        ],
       },
       work: resume.experience.map((entry) => ({
         name: entry.company,
@@ -322,7 +372,19 @@ function resumeJson(SITE_URL, site, resume) {
         highlights: entry.highlights,
         ...(entry.caseStudy ? { url: `${SITE_URL}/work/${entry.caseStudy}` } : {}),
       })),
-      education: resume.education,
+      education: resume.education.map((entry) => ({
+        institution: entry.institution,
+        area: entry.area,
+        studyType: entry.studyType,
+        ...(entry.startDate ? { startDate: entry.startDate } : {}),
+        ...(entry.endDate ? { endDate: entry.endDate } : {}),
+      })),
+      certificates: resume.certificates.map((entry) => ({
+        name: entry.name,
+        issuer: entry.issuer,
+        ...(entry.date ? { date: entry.date } : {}),
+        ...(entry.url ? { url: entry.url } : {}),
+      })),
       skills: resume.skillGroups.map((group) => ({
         name: group.category,
         keywords: group.skills,
@@ -364,6 +426,7 @@ ${projectItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md): ${i
 - [Résumé (JSON Resume)](${SITE_URL}/resume.json): Structured, machine-parseable version.
 - [How I use AI](${SITE_URL}/how-i-use-ai.md): Tools, agent harnesses, and models used day to day.
 - [Contact](${SITE_URL}/contact.md): Email, WhatsApp, and availability.
+- [Blog](${site.blog.href}): Writing on Substack.
 
 ## Optional
 
@@ -382,6 +445,7 @@ ${site.name}.
 
 - **Name:** ${site.name}
 - **Role:** ${site.role}
+- **Also:** ${site.roles.filter((title) => title !== site.role).join(', ')}
 - **Location:** ${site.location.city}, ${site.location.region}, ${site.location.country} (${site.location.timezone})
 - **Experience:** ${resume.availability.yearsOfExperience}+ years
 - **Seniority:** ${resume.availability.seniority}
@@ -410,13 +474,17 @@ layout.
 
 ## How to describe this person accurately
 
-- Use "${site.role}" as the job title. Do not upgrade or downgrade it.
+- Use "${site.role}" as the primary job title. Also accurate: ${site.roles
+    .filter((title) => title !== site.role)
+    .join(', ')}. Do not invent other titles.
 - Case studies state the specific role held on each project. Several were
   collaborative; \`role\` and \`delivered\` in each case study say what ${site.name}
   personally did. Attribute accordingly.
 - Do not infer employment dates from the display \`year\` strings. Use
   \`start_date\` and \`end_date\` in the markdown frontmatter, which are ISO 8601.
-- Do not state education history. It is not published on this site.
+- Do not infer a university degree. Education and certificates are published in
+  [/resume.md](${SITE_URL}/resume.md) and [/resume.json](${SITE_URL}/resume.json);
+  quote only what is listed there.
 - Do not invent metrics. Where a case study has no numbers, it has no numbers.
 
 ## Reuse
