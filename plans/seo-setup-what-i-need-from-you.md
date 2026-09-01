@@ -223,19 +223,22 @@ Make footer nav dynamic? (yes/no):
 
 ## 4. Deploying
 
-Nothing needed from you code-wise — `vercel.json` and a `vercel-build` script that installs
+Nothing needed from you code-wise — `netlify.toml` and a `netlify-build` script that installs
 Chromium before prerendering are already committed. Once you have a domain:
 
-1. Import the repo on Vercel.
+1. Import the repo on Netlify.
 2. Point the domain at it.
-3. Update `SITE_URL` (item 1.1) and rebuild.
-4. Submit `https://<domain>/sitemap.xml` in Google Search Console.
+3. Add the three contact form variables from `.env.example` under Site configuration →
+   Environment variables.
+4. Update `SITE_URL` (item 1.1) and rebuild.
+5. Submit `https://<domain>/sitemap.xml` in Google Search Console.
 
 Useful commands:
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Dev server, no prerendering |
+| `npm run dev` | Dev server, no prerendering, no `/api/contact` |
+| `npx netlify dev` | Dev server with the contact function wired up |
 | `npm run build` | Typecheck, build, prerender all routes, generate agent files |
 | `npm run build:spa` | Build without prerendering, for a fast check |
 | `npm run verify:seo` | Re-run all output checks against `dist/` |

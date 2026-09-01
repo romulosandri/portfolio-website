@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { SendButton, SocialIcon, type SocialIconType } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
 import { site } from '../content/site'
@@ -6,6 +6,8 @@ import { PageLayout } from './PageLayout'
 import { WorkImageSequence } from './WorkImageSequence'
 
 const socials: SocialIconType[] = ['email', 'github', 'x', 'linkedin', 'instagram']
+
+type Status = 'idle' | 'sending' | 'sent' | 'error'
 
 function requireTrimmed(field: HTMLInputElement | HTMLTextAreaElement) {
   field.setCustomValidity(field.value.trim() ? '' : 'This field is required.')
@@ -68,12 +70,17 @@ function Field({
 }
 
 export function ContactPage() {
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const [status, setStatus] = useState<Status>('idle')
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (status === 'sending') return
+
     const form = event.currentTarget
     const fields = [...form.elements].filter(
       (element): element is HTMLInputElement | HTMLTextAreaElement =>
-        element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement,
+        (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) &&
+        element.required,
     )
     for (const field of fields) {
       requireTrimmed(field)
@@ -84,14 +91,24 @@ export function ContactPage() {
     }
 
     const data = new FormData(form)
-    const name = String(data.get('name') ?? '').trim()
-    const email = String(data.get('email') ?? '').trim()
-    const message = String(data.get('message') ?? '').trim()
-    const subject = encodeURIComponent(name ? `Message from ${name}` : 'Portfolio contact')
-    const body = encodeURIComponent(
-      [name && `Name: ${name}`, email && `Email: ${email}`, message].filter(Boolean).join('\n\n'),
-    )
-    window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`
+    setStatus('sending')
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: String(data.get('name') ?? ''),
+          email: String(data.get('email') ?? ''),
+          message: String(data.get('message') ?? ''),
+          company: String(data.get('company') ?? ''),
+        }),
+      })
+      if (!response.ok) throw new Error(`Contact request failed with ${response.status}`)
+      form.reset()
+      setStatus('sent')
+    } catch {
+      setStatus('error')
+    }
   }
 
   return (
@@ -112,7 +129,17 @@ export function ContactPage() {
               <Field id="message" label="Your Message" multiline placeholder="I want to hire you to..." />
             </div>
           </div>
-          <SendButton />
+          <input aria-hidden autoComplete="off" className="sr-only" name="company" tabIndex={-1} />
+          <div className="flex w-full flex-col items-start gap-md">
+            <SendButton
+              disabled={status === 'sending'}
+              label={status === 'sending' ? 'Sending' : 'Send'}
+            />
+            <p className="text-body-default text-foreground-secondary" role="status">
+              {status === 'sent' && 'Message sent. I will get back to you shortly.'}
+              {status === 'error' && `Something went wrong. Email me directly at ${site.email}.`}
+            </p>
+          </div>
           <RevealGroup className="flex w-full flex-col items-start gap-xl">
             <RevealLine dashed />
             <div className="flex items-center gap-2xl whitespace-pre text-body-default text-foreground-secondary">

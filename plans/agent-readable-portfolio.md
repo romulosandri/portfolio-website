@@ -26,7 +26,7 @@ flowchart TD
 
 ## Hosting recommendation
 
-Hosting was undecided. Use **Vercel**. It checks the filesystem before rewrites, so prerendered `dist/work/pacelane/index.html` is served directly while unknown paths still fall back to the SPA. Add a `vercel.json` with `cleanUrls: true` and a catch-all rewrite to `/index.html`. Pick a canonical apex domain (for example `romulosandri.com`) and hardcode it as `SITE_URL` — canonical tags, `sitemap.xml`, OG images, and JSON-LD `@id` values all need one absolute origin.
+Hosting is **Netlify**, matching the rest of the portfolio. Static files shadow redirect rules, so prerendered `dist/work/pacelane.html` is served directly while unknown paths still fall back to the SPA. Add a `netlify.toml` with a catch-all 200 rewrite to `/index.html`. Prerender to flat `.html` documents rather than `<route>/index.html`: Netlify 301s a directory path to a trailing slash, which would contradict every canonical URL on the site. Pick a canonical apex domain (for example `romulosandri.com`) and hardcode it as `SITE_URL` — canonical tags, `sitemap.xml`, OG images, and JSON-LD `@id` values all need one absolute origin.
 
 ---
 
@@ -131,7 +131,7 @@ Phases 1-2 are the unblocking work and can ship alone. Phase 3 is authoring effo
 
 ## Task checklist
 
-- [x] Add `vercel.json` (cleanUrls, SPA fallback) and set a canonical `SITE_URL` constant
+- [x] Add `netlify.toml` (SPA fallback, markdown content types) and set a canonical `SITE_URL` constant
 - [x] Create `src/content/routes.ts` as the shared route manifest derived from `portfolio.ts`
 - [x] Build `scripts/prerender.mjs` with Playwright reduced-motion emulation, DOM sanitization, and per-route HTML output; wire into npm build
 - [x] Create `src/content/seo.ts` and `src/lib/useDocumentHead.ts` for per-route title, description, canonical, OG, and Twitter tags
@@ -158,6 +158,6 @@ These are facts only you have. Each is marked `TODO` in the source.
 ## Deployment notes
 
 - `npm run build` = `tsc -b` → `vite build` → prerender → SEO assets. Roughly 15s locally.
-- `npm run vercel-build` installs Chromium first; Vercel picks this up automatically.
+- `npm run netlify-build` installs Chromium first; `netlify.toml` sets it as the build command.
 - `npm run build:spa` skips prerendering, for fast local checks.
 - `npm run verify:seo` re-runs the output checks against `dist/`.

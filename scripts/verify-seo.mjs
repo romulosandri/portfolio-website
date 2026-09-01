@@ -26,7 +26,7 @@ async function htmlFiles(dir, found = []) {
     if (entry.isDirectory()) {
       if (entry.name === 'assets') continue
       await htmlFiles(full, found)
-    } else if (entry.name === 'index.html') {
+    } else if (entry.name.endsWith('.html')) {
       found.push(full)
     }
   }
@@ -45,7 +45,8 @@ console.log(`Checking ${files.length} prerendered pages\n`)
 const rows = []
 
 for (const file of files.sort()) {
-  const route = `/${path.relative(DIST, path.dirname(file)).replace(/\\/g, '/')}`.replace(/\/\.$/, '/')
+  const relative = path.relative(DIST, file).replace(/\\/g, '/')
+  const route = relative === 'index.html' ? '/' : `/${relative.replace(/\.html$/, '')}`
   const html = await readFile(file, 'utf8')
   const text = strip(html)
 

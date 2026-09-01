@@ -1,0 +1,44 @@
+[build]
+  command = "npm run netlify-build"
+  publish = "dist"
+
+[build.environment]
+  # Puts Chromium in node_modules instead of ~/.cache, which Netlify persists
+  # between builds. Must also be set at build *run* time, not just install time,
+  # or scripts/prerender.mjs looks for the browser in the default cache path.
+  PLAYWRIGHT_BROWSERS_PATH = "0"
+
+# Static files win over this rule, so a prerendered dist/work/pacelane.html is
+# served directly and only unknown paths fall back to the client-side router.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Netlify already serves .md as text/markdown; these rules only add the charset,
+# which the accented characters in the markdown mirrors need. Header wildcards
+# match within a single path segment, hence the second rule for nested routes.
+[[headers]]
+  for = "/*.md"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+
+[[headers]]
+  for = "/*/*.md"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/llms-full.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "index, follow"

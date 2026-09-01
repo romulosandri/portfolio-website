@@ -100,10 +100,18 @@ async function renderRoute(browser, origin, routePath) {
   return { html, warning }
 }
 
-/** `/work/pacelane` -> `dist/work/pacelane/index.html`, `/` -> `dist/index.html`. */
+/**
+ * `/work/pacelane` -> `dist/work/pacelane.html`, `/` -> `dist/index.html`.
+ *
+ * Flat files rather than `<route>/index.html`: Netlify treats a directory index
+ * as a directory and 301s `/work/pacelane` to `/work/pacelane/`, which every
+ * canonical tag, sitemap entry, and JSON-LD @id on the site would then disagree
+ * with. A document at `work/pacelane.html` is served at `/work/pacelane` with no
+ * redirect and no trailing slash.
+ */
 function outputPath(routePath) {
   if (routePath === '/') return path.join(DIST, 'index.html')
-  return path.join(DIST, routePath.replace(/^\//, ''), 'index.html')
+  return path.join(DIST, `${routePath.replace(/^\//, '')}.html`)
 }
 
 async function main() {

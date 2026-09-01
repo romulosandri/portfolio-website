@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && npm run prerender && npm run seo",
-    "vercel-build": "playwright install chromium && npm run build",
+    "netlify-build": "playwright install chromium && npm run build",
     "build:spa": "tsc -b && vite build",
     "prerender": "node scripts/prerender.mjs",
     "seo": "node scripts/generate-seo-assets.mjs",
@@ -27,6 +27,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@netlify/functions": "^6.0.0",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
