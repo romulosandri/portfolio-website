@@ -7,22 +7,28 @@ type ImagesTickerProps = {
 }
 
 /**
- * Height-driven with an auto width, so a phone decodes a fraction of the pixel
- * area for what is a purely decorative marquee.
+ * Frames keep the 853×640 ratio at every width. Height scales down on phones;
+ * width is the matching clamp so Tailwind preflight `max-width: 100%` on `img`
+ * cannot squash them to the viewport. `max-w-none` is unusable here because
+ * `--spacing-none` is 0px, which would collapse the frame.
  */
 function ImageTrack({ copy, images }: { copy: number; images: TickerImage[] }) {
   return (
     <div aria-hidden={copy > 0} className="flex items-center gap-[10px]">
       {images.map((image) => (
-        <img
-          alt=""
-          className="h-[clamp(220px,45vh,640px)] w-auto shrink-0 object-cover"
-          decoding="async"
-          height={640}
+        <div
+          className="relative h-[clamp(220px,45vh,640px)] w-[clamp(calc(220px*853/640),calc(45vh*853/640),853px)] shrink-0 overflow-clip"
           key={`${copy}-${image.src}`}
-          src={image.src}
-          width={853}
-        />
+        >
+          <img
+            alt=""
+            className="absolute inset-0 size-full object-cover"
+            decoding="async"
+            height={640}
+            src={image.src}
+            width={853}
+          />
+        </div>
       ))}
     </div>
   )

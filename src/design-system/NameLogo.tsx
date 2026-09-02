@@ -17,17 +17,17 @@ const initialStyles: LetterStyle[] = [
 ]
 
 /**
- * Below the nav breakpoint the header shows only the two initials -- the `r` of
- * "romulo" and the `s` of "sandri" -- because the full wordmark renders anywhere
- * from 283px to 449px wide depending on which letter styles the randomiser has
- * landed on, and even its narrowest state crowds a phone header.
+ * Below the nav breakpoint the header shows only the first name -- "romulo" --
+ * because the full wordmark renders anywhere from 283px to 449px wide depending
+ * on which letter styles the randomiser has landed on, and even its narrowest
+ * state crowds a phone header.
  *
- * It is done by hiding the other ten letters in CSS rather than by rendering a
+ * It is done by hiding the plus and last name in CSS rather than by rendering a
  * separate compact mark. A second <NameLogo> would put twelve more letter images
  * in the DOM and run a second timer, and a JS branch would ship the desktop
  * wordmark in the prerendered HTML and flash on a phone.
  */
-const COMPACT_INDICES = [0, firstName.length] as const
+const COMPACT_INDICES = firstName.map((_, index) => index)
 const COMPACT_QUERY = '(width < 1120px)'
 
 function pickRandomStyle(current: LetterStyle): LetterStyle {
@@ -48,10 +48,7 @@ function NameRow({
   return (
     <span className="inline-flex items-center gap-[14px]">
       {letters.map((letter, index) => (
-        <span
-          className={index === 0 ? 'inline-flex' : 'hidden nav:inline-flex'}
-          key={`${letter}-${index}`}
-        >
+        <span className="inline-flex" key={`${letter}-${index}`}>
           <Letter letter={letter} style={styles[index]!} />
         </span>
       ))}
@@ -67,7 +64,7 @@ export function NameLogo({ href = '/', className }: NameLogoProps) {
 
     // Behaviour only, never layout: restyling a letter that CSS has hidden is a
     // no-op on screen, so in compact mode the mark would otherwise only appear
-    // to change on 2 ticks in 12.
+    // to change on 6 ticks in 12.
     const compact = window.matchMedia(COMPACT_QUERY)
 
     const id = window.setInterval(() => {
@@ -95,8 +92,14 @@ export function NameLogo({ href = '/', className }: NameLogoProps) {
           real text here. Absolutely positioned, so it adds no flex gap. */}
       <span className="sr-only">Rômulo Sandri</span>
       <NameRow letters={firstName} styles={firstStyles} />
-      <Symbol variant="16" />
-      <NameRow letters={lastName} styles={lastStyles} />
+      {/*
+        Wrapper only carries the display swap. Putting `hidden` on NameRow or
+        Symbol would fight their own `inline-flex` and lose in the stylesheet.
+      */}
+      <span className="hidden nav:contents">
+        <Symbol variant="16" />
+        <NameRow letters={lastName} styles={lastStyles} />
+      </span>
     </span>
   )
 

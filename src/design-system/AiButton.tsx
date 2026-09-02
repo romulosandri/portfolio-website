@@ -1,4 +1,5 @@
 import { site } from '../content/site'
+import { track } from '../lib/analytics'
 import { AiLogo, type AiLogoName } from './AiLogo'
 
 const PROVIDER_LABELS: Record<AiLogoName, string> = {
@@ -37,6 +38,13 @@ export function AiButton({
         aria-label={`Ask about ${site.name} on ${provider} (opens in a new tab)`}
         className={classes}
         href={href}
+        onClick={() =>
+          track('ask_ai_clicked', {
+            provider,
+            href,
+            pathname: window.location.pathname,
+          })
+        }
         rel="noopener noreferrer"
         target="_blank"
       >

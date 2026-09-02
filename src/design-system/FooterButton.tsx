@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { track } from '../lib/analytics'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { RollingText } from '../motion-system/RollingText'
 
@@ -71,6 +72,13 @@ export function FooterButton({
         .filter(Boolean)
         .join(' ')}
       href={href}
+      onClick={() =>
+        track('footer_link_clicked', {
+          label,
+          href,
+          pathname: window.location.pathname,
+        })
+      }
       ref={rootRef}
     >
       <span className="relative inline-flex">

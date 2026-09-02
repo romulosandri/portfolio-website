@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { collectionFromHref, track } from '../lib/analytics'
 import { RevealBlock, RevealGroup, RevealLine, RevealText, useScrollSkew } from '../motion-system'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { displayFitStyle } from '../lib/displayFit'
@@ -149,6 +150,14 @@ export function WorkCard({ title, year, cover, href, images = [], className, com
         .filter(Boolean)
         .join(' ')}
       href={href}
+      onClick={() =>
+        track('project_card_clicked', {
+          title,
+          href,
+          collection: collectionFromHref(href),
+          pathname: window.location.pathname,
+        })
+      }
       onBlur={stopPreview}
       onFocus={startPreview}
       onMouseEnter={startPreview}
@@ -255,7 +264,7 @@ export function DisplayHero({ children, srText }: DisplayHeroProps) {
       <RevealText
         as="h1"
         centerLines
-        className="text-center text-display text-foreground-primary"
+        className="w-full min-w-0 text-center text-display text-foreground-primary"
         srText={srText}
         style={displayFitStyle(children)}
       >

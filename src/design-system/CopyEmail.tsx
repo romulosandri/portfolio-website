@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactNode } from 'react'
 import { site } from '../content/site'
+import { track } from '../lib/analytics'
 import { copyToClipboard } from '../lib/copyToClipboard'
 import { useSnackbar } from './Snackbar'
 
@@ -20,6 +21,7 @@ export function CopyEmail({ className, children, 'aria-label': ariaLabel }: Copy
     event.stopPropagation()
     show(COPIED_MESSAGE)
     void copyToClipboard(site.email).then((ok) => {
+      track('email_copied', { success: ok, pathname: window.location.pathname })
       if (!ok) show('Could not copy the email.')
     })
   }

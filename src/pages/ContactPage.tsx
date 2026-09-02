@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { identifyVisitor, track, trackException } from '../lib/analytics'
 import { CopyEmail, SendButton, SocialLinks } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
 import { site } from '../content/site'
@@ -87,14 +88,16 @@ export function ContactPage() {
     }
 
     const data = new FormData(form)
+    const name = String(data.get('name') ?? '').trim()
+    const email = String(data.get('email') ?? '').trim()
     setStatus('sending')
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: String(data.get('name') ?? ''),
-          email: String(data.get('email') ?? ''),
+          name,
+          email,
           message: String(data.get('message') ?? ''),
           company: String(data.get('company') ?? ''),
         }),
@@ -102,8 +105,12 @@ export function ContactPage() {
       if (!response.ok) throw new Error(`Contact request failed with ${response.status}`)
       form.reset()
       setStatus('sent')
-    } catch {
+      if (email) identifyVisitor(email, { email, name })
+      track('contact_form_submitted', { has_name: Boolean(name) })
+    } catch (error) {
       setStatus('error')
+      track('contact_form_failed')
+      trackException(error, { source: 'contact_form' })
     }
   }
 
@@ -161,7 +168,17 @@ export function ContactPage() {
               <p>
                 WhatsApp
                 {'\n\n'}
-                <a className="no-underline" href={site.whatsappHref}>
+                <a
+                  className="no-underline"
+                  href={site.whatsappHref}
+                  onClick={() =>
+                    track('social_link_clicked', {
+                      network: 'whatsapp',
+                      href: site.whatsappHref,
+                      pathname: window.location.pathname,
+                    })
+                  }
+                >
                   {site.whatsapp}
                 </a>
               </p>

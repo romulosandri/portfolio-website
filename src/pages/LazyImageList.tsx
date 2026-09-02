@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { track } from '../lib/analytics'
 import { useScrollSkew } from '../motion-system'
 import { ImageLightbox } from './ImageLightbox'
 
@@ -48,7 +49,7 @@ export function LazyImageList({ images, title, alts }: LazyImageListProps) {
   }, [images.length, loadedCount])
 
   return (
-    <div className="flex min-w-px flex-1 flex-col items-start gap-2xl" ref={rootRef}>
+    <div className="flex w-full min-w-px flex-1 flex-col items-start gap-2xl" ref={rootRef}>
       {images.map((src, index) => (
         <button
           aria-label={`View ${title} image ${index + 1} larger`}
@@ -57,7 +58,18 @@ export function LazyImageList({ images, title, alts }: LazyImageListProps) {
             index < loadedCount ? 'cursor-zoom-in' : 'cursor-default',
           ].join(' ')}
           key={src}
-          onClick={index < loadedCount ? () => setLightboxIndex(index) : undefined}
+          onClick={
+            index < loadedCount
+              ? () => {
+                  setLightboxIndex(index)
+                  track('gallery_image_opened', {
+                    title,
+                    index,
+                    pathname: window.location.pathname,
+                  })
+                }
+              : undefined
+          }
           ref={index === loadedCount - 1 && loadedCount < images.length ? sentinelRef : undefined}
           type="button"
         >

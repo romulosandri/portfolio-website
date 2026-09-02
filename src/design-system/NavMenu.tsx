@@ -149,14 +149,14 @@ export function NavMenu({ items, open, pathname, onClose }: NavMenuProps) {
         ref={panelRef}
         role="dialog"
       >
-        <nav aria-label="Primary" className="flex flex-col items-start gap-lg pt-4xl">
+        <nav aria-label="Primary" className="flex flex-col items-start gap-3xl pt-4xl">
           {items.map((item) => (
             <NavItem
-              className="text-h2"
               href={item.href}
               key={item.label}
               label={item.label}
               selected={item.match(pathname)}
+              size="lg"
             />
           ))}
         </nav>

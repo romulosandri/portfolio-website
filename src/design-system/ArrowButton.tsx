@@ -16,7 +16,7 @@ export const ArrowButton = forwardRef<HTMLSpanElement, ArrowButtonProps>(
   function ArrowButton({ variant = 'default', href, className }, ref) {
     const isDark = variant === 'dark'
     const classes = [
-      'relative inline-flex size-[80px] shrink-0 items-center justify-center will-change-transform',
+      'relative inline-flex size-[48px] shrink-0 items-center justify-center will-change-transform md:size-[80px]',
       isDark
         ? 'rounded-all bg-foreground-secondary'
         : 'border border-solid border-stroke-secondary bg-background-primary',

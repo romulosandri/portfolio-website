@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { track } from '../lib/analytics'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { RollingText } from '../motion-system/RollingText'
 import { Symbol } from './Symbol'
@@ -8,6 +9,8 @@ type NavItemProps = {
   href?: string
   selected?: boolean
   className?: string
+  /** Overlay menus pass `lg` so the type isn't the same 16px as the header row. */
+  size?: 'sm' | 'lg'
 }
 
 const SYMBOL_SIZE = 16
@@ -23,6 +26,7 @@ export function NavItem({
   href = '#',
   selected = false,
   className,
+  size = 'sm',
 }: NavItemProps) {
   const rootRef = useRef<HTMLAnchorElement>(null)
   const slotRef = useRef<HTMLSpanElement>(null)
@@ -101,13 +105,21 @@ export function NavItem({
       aria-current={selected ? 'page' : undefined}
       aria-label={external ? `${label} (opens in a new tab)` : undefined}
       className={[
-        'group inline-flex items-center text-h5 no-underline',
+        'group inline-flex items-center no-underline',
+        size === 'lg' ? 'text-nav-menu' : 'text-h5',
         selected ? 'text-foreground-primary' : 'text-foreground-tertiary hover:text-foreground-primary',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
       href={href}
+      onClick={() =>
+        track('nav_item_clicked', {
+          label,
+          href,
+          pathname: window.location.pathname,
+        })
+      }
       ref={rootRef}
       rel={external ? 'noopener noreferrer' : undefined}
       target={external ? '_blank' : undefined}

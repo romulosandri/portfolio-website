@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { track } from '../lib/analytics'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { DsImage } from './DsImage'
 import { GameThumbnailImage } from './GameThumbnailImage'
@@ -84,6 +85,12 @@ export function GameButton({
         .join(' ')}
       data-hover={forceHover ? 'true' : undefined}
       href={href}
+      onClick={() =>
+        track('game_cta_clicked', {
+          href,
+          pathname: window.location.pathname,
+        })
+      }
       ref={rootRef}
     >
       <span

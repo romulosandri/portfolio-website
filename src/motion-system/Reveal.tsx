@@ -330,11 +330,13 @@ function rollingChar(char: string, key: string) {
 }
 
 /**
- * Splits a line into words and the spaces between them, keeping both so the
- * per-character roll targets stay in document order.
+ * Words only. Spacing between them is `gap-x-[0.3em]` on the line, matching
+ * `ROLL_SPACE_ADVANCE` in src/lib/displayFit.ts. Space glyphs as flex items
+ * would wrap onto the next line and shove the following word down — that is
+ * what stacked "How I use AI" into three giant lines on a phone.
  */
-function segmentLine(line: string) {
-  return line.match(/[^ ]+| +/g) ?? []
+function wordsIn(line: string) {
+  return line.split(/\s+/).filter(Boolean)
 }
 
 /**
@@ -363,28 +365,24 @@ function RollingChars({ text, centerLines }: { text: string; centerLines?: boole
         'span',
         {
           className: [
-            'inline-flex min-h-[1lh] flex-wrap items-baseline',
+            'inline-flex min-h-[1lh] flex-wrap items-baseline gap-x-[0.3em]',
             centerLines ? 'justify-center' : '',
           ]
             .filter(Boolean)
             .join(' '),
           key: `line-${lineIndex}`,
         },
-        ...segmentLine(line).flatMap((segment, segmentIndex) =>
-          segment.startsWith(' ')
-            ? Array.from(segment).map((char, charIndex) =>
-                rollingChar(char, `space-${lineIndex}-${segmentIndex}-${charIndex}`),
-              )
-            : createElement(
-                'span',
-                {
-                  className: 'inline-flex items-baseline',
-                  key: `word-${lineIndex}-${segmentIndex}`,
-                },
-                ...Array.from(segment).map((char, charIndex) =>
-                  rollingChar(char, `char-${lineIndex}-${segmentIndex}-${charIndex}`),
-                ),
-              ),
+        ...wordsIn(line).map((word, wordIndex) =>
+          createElement(
+            'span',
+            {
+              className: 'inline-flex items-baseline',
+              key: `word-${lineIndex}-${wordIndex}`,
+            },
+            ...Array.from(word).map((char, charIndex) =>
+              rollingChar(char, `char-${lineIndex}-${wordIndex}-${charIndex}`),
+            ),
+          ),
         ),
       ),
     ),

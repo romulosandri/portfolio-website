@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { track } from '../lib/analytics'
 
 export function GameCanvas() {
   const parentRef = useRef<HTMLDivElement>(null)
@@ -19,6 +20,7 @@ export function GameCanvas() {
 
       game = createGame(parentRef.current)
       gameRef.current = game
+      track('game_loaded')
     }
 
     void boot()

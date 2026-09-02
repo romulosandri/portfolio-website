@@ -185,6 +185,23 @@
 }
 
 /**
+ * Home hero composition scale.
+ *
+ * The stage is designed at 1920×1080. `--text-d` is a 180px ceiling, so
+ * `text-display` only shrank once the title actually overflowed its container
+ * (~700px for "Designer") and notebooks kept the full desktop size inside a
+ * much shorter `svh`. `--hero-scale` tracks height from 1080px down so the
+ * title, character, and family pack shrink together. Width overflow is still
+ * handled by `text-display`'s `100cqi / --display-ratio` cap, which is what
+ * phones need.
+ */
+@utility hero-stage {
+  --hero-scale: min(1, calc(100svh / 1080px));
+  --text-d: calc(180px * var(--hero-scale));
+  --hero-video: min(316px, 45cqi, calc(316px * var(--hero-scale)));
+}
+
+/**
  * Display type that cannot outgrow its container.
  *
  * `--display-ratio` is the width of the longest line in ems, set inline from
@@ -208,6 +225,14 @@
 @utility text-h1 {
   font-family: var(--font-heading);
   font-size: var(--text-4xl);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@utility text-nav-menu {
+  font-family: var(--font-heading);
+  font-size: clamp(48px, 13vw, 72px);
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0;

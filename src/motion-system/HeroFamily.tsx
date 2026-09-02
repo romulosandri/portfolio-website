@@ -84,15 +84,27 @@ const BASE_HEIGHT = Math.max(...MEMBERS.map((member) => member.height))
  * report the scaled values. Crossing a breakpoint always changes the track
  * width too, so the existing ResizeObserver restarts the run.
  *
- * 1.2 is the original desktop scale.
+ * `--family-scale-w` is the original stepped width scale (1.2 on desktop).
+ * `--hero-scale` (from `.hero-stage`) also shrinks the pack on short
+ * viewports, taking whichever is smaller so notebooks don't keep the 1080px
+ * composition inside a 768px `svh`.
  */
-const SCALE_CLASSES = '[--family-scale:0.6] xs:[--family-scale:0.8] md:[--family-scale:1] lg:[--family-scale:1.2]'
-const scaled = (px: number) => `calc(${px}px * var(--family-scale, 1.2))`
+const SCALE_CLASSES =
+  '[--family-scale-w:0.6] xs:[--family-scale-w:0.8] md:[--family-scale-w:1] lg:[--family-scale-w:1.2]'
+const scaled = (px: number) =>
+  `calc(${px}px * min(var(--family-scale-w, 1.2), calc(1.2 * var(--hero-scale, 1))))`
 
 const FRAME_DURATION = 0.1
 const RUN_PX_PER_SECOND = 520
+const RUN_PX_PER_SECOND_MOBILE = 240
+const FRAME_TIME_SCALE_MOBILE = 0.6
+const MOBILE_MQ = '(max-width: 767.98px)'
 const REPEAT_DELAY = 2.8
 const REST_X = 48
+
+function isMobileHero() {
+  return window.matchMedia(MOBILE_MQ).matches
+}
 
 function frameTimeline(frames: HTMLElement[]) {
   const tl = gsap.timeline({ repeat: -1, paused: true })
@@ -147,16 +159,20 @@ export function HeroFamily() {
         const startRun = () => {
           const startX = -pack.offsetWidth
           const endX = track.offsetWidth
+          const mobile = isMobileHero()
+          const speed = mobile ? RUN_PX_PER_SECOND_MOBILE : RUN_PX_PER_SECOND
+          const frameScale = mobile ? FRAME_TIME_SCALE_MOBILE : 1
           runTween?.kill()
           gsap.set(pack, { x: startX, autoAlpha: 1 })
           runTween = gsap.to(pack, {
             x: endX,
-            duration: Math.max((endX - startX) / RUN_PX_PER_SECOND, 0.5),
+            duration: Math.max((endX - startX) / speed, 0.5),
             ease: 'none',
             repeat: -1,
             repeatDelay: REPEAT_DELAY,
             paused: !playing,
           })
+          for (const tl of frameTimelines) tl.timeScale(frameScale)
         }
 
         const setPlaying = (next: boolean) => {

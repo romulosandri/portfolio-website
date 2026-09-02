@@ -114,8 +114,9 @@ const ADVANCE: Record<string, number> = {
 const FALLBACK_ADVANCE = 0.6
 
 /**
- * RollingChars forces spaces to `w-[0.3em]` rather than the font's own 0.21em
- * advance, so a measured string is wider than the font metrics alone predict.
+ * RollingChars puts `gap-x-[0.3em]` between words rather than the font's own
+ * 0.21em space advance, so a measured string is wider than the font metrics
+ * alone predict.
  */
 const ROLL_SPACE_ADVANCE = 0.3
 
@@ -130,9 +131,11 @@ function segmentWidth(segment: string, spaceAdvance: number) {
 
 type DisplayRatioOptions = {
   /**
-   * Whether the heading is allowed to break at spaces. When true the binding
-   * constraint is the longest single word, because any space is a legal break
-   * point; when false the whole line has to fit.
+   * Whether the heading is allowed to break at spaces. When true the font is
+   * sized to the longer of the longest word (so a word never overflows) and
+   * half the unwrapped line (so a run of short words wraps to about two lines
+   * instead of stacking every word at display size). When false the whole
+   * line has to fit.
    */
   wrap?: boolean
 }
@@ -148,10 +151,18 @@ export function displayRatio(text: string, { wrap = true }: DisplayRatioOptions 
   let widest = 0
 
   for (const line of lines) {
-    const runs = wrap ? line.split(/\s+/).filter(Boolean) : [line]
-    for (const run of runs) {
-      widest = Math.max(widest, segmentWidth(run, ROLL_SPACE_ADVANCE))
+    if (!wrap) {
+      widest = Math.max(widest, segmentWidth(line, ROLL_SPACE_ADVANCE))
+      continue
     }
+
+    const words = line.split(/\s+/).filter(Boolean)
+    let longestWord = 0
+    for (const word of words) {
+      longestWord = Math.max(longestWord, segmentWidth(word, ROLL_SPACE_ADVANCE))
+    }
+    const unwrapped = segmentWidth(line, ROLL_SPACE_ADVANCE)
+    widest = Math.max(widest, longestWord, unwrapped / 2)
   }
 
   return Math.ceil(widest * 100) / 100

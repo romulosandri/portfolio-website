@@ -17,8 +17,35 @@ type ImageLightboxProps = {
   onIndexChange: (index: number) => void
 }
 
+type Point = { x: number; y: number }
+
+type PinchSession = {
+  startDistance: number
+  startScale: number
+  startPan: Point
+  startMid: Point
+  layoutCenter: Point
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
+}
+
+function distance(a: Point, b: Point) {
+  return Math.hypot(a.x - b.x, a.y - b.y)
+}
+
+function midpoint(a: Point, b: Point): Point {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+}
+
+function firstTwoPoints(map: Map<number, Point>): [Point, Point] | null {
+  if (map.size < 2) return null
+  const values = map.values()
+  const a = values.next().value
+  const b = values.next().value
+  if (!a || !b) return null
+  return [a, b]
 }
 
 function Icon({ children }: { children: ReactNode }) {
@@ -68,11 +95,14 @@ export function ImageLightbox({
   onIndexChange,
 }: ImageLightboxProps) {
   const rootRef = useRef<HTMLDivElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const closingRef = useRef(false)
   const draggingRef = useRef(false)
   const dragMovedRef = useRef(false)
+  const pointersRef = useRef(new Map<number, Point>())
+  const pinchRef = useRef<PinchSession | null>(null)
   const pointerRef = useRef({ x: 0, y: 0, panX: 0, panY: 0, id: -1 })
   const scaleRef = useRef(MIN_SCALE)
   const panRef = useRef({ x: 0, y: 0 })
@@ -103,6 +133,7 @@ export function ImageLightbox({
   const resetView = useCallback(() => {
     scaleRef.current = MIN_SCALE
     panRef.current = { x: 0, y: 0 }
+    pinchRef.current = null
     setScale(MIN_SCALE)
     setPan({ x: 0, y: 0 })
   }, [])
@@ -244,41 +275,213 @@ export function ImageLightbox({
     return () => root.removeEventListener('wheel', onWheel)
   }, [zoomBy])
 
-  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) return
-    draggingRef.current = true
-    dragMovedRef.current = false
-    pointerRef.current = {
-      x: event.clientX,
-      y: event.clientY,
-      panX: panRef.current.x,
-      panY: panRef.current.y,
-      id: event.pointerId,
-    }
-    event.currentTarget.setPointerCapture(event.pointerId)
-  }
+  useEffect(() => {
+    const overlay = overlayRef.current
+    if (!overlay) return
 
-  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current || pointerRef.current.id !== event.pointerId) return
-    const dx = event.clientX - pointerRef.current.x
-    const dy = event.clientY - pointerRef.current.y
-    if (Math.hypot(dx, dy) > 4) dragMovedRef.current = true
-    if (scaleRef.current <= MIN_SCALE) return
-    const nextPan = {
-      x: pointerRef.current.panX + dx,
-      y: pointerRef.current.panY + dy,
-    }
-    panRef.current = nextPan
-    setPan(nextPan)
-  }
+    const pointers = pointersRef.current
 
-  const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (pointerRef.current.id !== event.pointerId) return
-    draggingRef.current = false
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId)
+    const beginPinch = (a: Point, b: Point) => {
+      const stage = stageRef.current
+      if (!stage) return
+      const startDistance = distance(a, b)
+      if (startDistance < 8) return
+      const rect = stage.getBoundingClientRect()
+      pinchRef.current = {
+        startDistance,
+        startScale: scaleRef.current,
+        startPan: { ...panRef.current },
+        startMid: midpoint(a, b),
+        layoutCenter: {
+          x: rect.left + rect.width / 2 - panRef.current.x,
+          y: rect.top + rect.height / 2 - panRef.current.y,
+        },
+      }
     }
-  }
+
+    const movePinch = (a: Point, b: Point) => {
+      const pinch = pinchRef.current
+      if (!pinch) return
+      const dist = distance(a, b)
+      if (dist < 1) return
+      const mid = midpoint(a, b)
+      const nextScale = clamp(pinch.startScale * (dist / pinch.startDistance), MIN_SCALE, MAX_SCALE)
+
+      if (nextScale <= MIN_SCALE) {
+        scaleRef.current = MIN_SCALE
+        panRef.current = { x: 0, y: 0 }
+        setScale(MIN_SCALE)
+        setPan({ x: 0, y: 0 })
+        pinch.startDistance = dist
+        pinch.startScale = MIN_SCALE
+        pinch.startPan = { x: 0, y: 0 }
+        pinch.startMid = mid
+        return
+      }
+
+      const ratio = nextScale / pinch.startScale
+      const startOffsetX = pinch.startMid.x - pinch.layoutCenter.x
+      const startOffsetY = pinch.startMid.y - pinch.layoutCenter.y
+      const nextPan = {
+        x: startOffsetX - (startOffsetX - pinch.startPan.x) * ratio + (mid.x - pinch.startMid.x),
+        y: startOffsetY - (startOffsetY - pinch.startPan.y) * ratio + (mid.y - pinch.startMid.y),
+      }
+      scaleRef.current = nextScale
+      panRef.current = nextPan
+      setScale(nextScale)
+      setPan(nextPan)
+    }
+
+    const pointsFromTouches = (touches: TouchList): [Point, Point] | null => {
+      if (touches.length < 2) return null
+      return [
+        { x: touches[0].clientX, y: touches[0].clientY },
+        { x: touches[1].clientX, y: touches[1].clientY },
+      ]
+    }
+
+    const endPinch = () => {
+      pinchRef.current = null
+      if (scaleRef.current <= MIN_SCALE && (panRef.current.x !== 0 || panRef.current.y !== 0)) {
+        panRef.current = { x: 0, y: 0 }
+        setPan({ x: 0, y: 0 })
+      }
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
+      try {
+        overlay.setPointerCapture(event.pointerId)
+      } catch {
+        // Capture needs a trusted in-progress pointer; pinch still works without it.
+      }
+
+      if (pointers.size >= 2) {
+        draggingRef.current = false
+        dragMovedRef.current = true
+        // Touch pinch is handled by touch events so it is not applied twice.
+        if (event.pointerType !== 'touch') {
+          const pair = firstTwoPoints(pointers)
+          if (pair) beginPinch(pair[0], pair[1])
+        }
+        return
+      }
+
+      draggingRef.current = true
+      if (event.target === overlay) dragMovedRef.current = false
+      pointerRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+        panX: panRef.current.x,
+        panY: panRef.current.y,
+        id: event.pointerId,
+      }
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!pointers.has(event.pointerId)) return
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+      if (pointers.size >= 2) {
+        if (event.pointerType === 'touch') return
+        const pair = firstTwoPoints(pointers)
+        if (!pair) return
+        if (!pinchRef.current) beginPinch(pair[0], pair[1])
+        movePinch(pair[0], pair[1])
+        event.preventDefault()
+        return
+      }
+
+      if (!draggingRef.current || pointerRef.current.id !== event.pointerId) return
+      const dx = event.clientX - pointerRef.current.x
+      const dy = event.clientY - pointerRef.current.y
+      if (Math.hypot(dx, dy) > 4) dragMovedRef.current = true
+      if (scaleRef.current <= MIN_SCALE) return
+      const nextPan = {
+        x: pointerRef.current.panX + dx,
+        y: pointerRef.current.panY + dy,
+      }
+      panRef.current = nextPan
+      setPan(nextPan)
+    }
+
+    const onPointerEnd = (event: PointerEvent) => {
+      if (!pointers.has(event.pointerId)) return
+      pointers.delete(event.pointerId)
+      try {
+        if (overlay.hasPointerCapture(event.pointerId)) {
+          overlay.releasePointerCapture(event.pointerId)
+        }
+      } catch {
+        // Same as capture: ignored when the pointer was never captured.
+      }
+
+      if (pointers.size < 2 && event.pointerType !== 'touch') endPinch()
+
+      if (pointers.size === 1) {
+        const remaining = pointers.entries().next().value
+        if (!remaining) return
+        const [id, pos] = remaining
+        draggingRef.current = true
+        pointerRef.current = {
+          x: pos.x,
+          y: pos.y,
+          panX: panRef.current.x,
+          panY: panRef.current.y,
+          id,
+        }
+        return
+      }
+
+      draggingRef.current = false
+    }
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length < 2) return
+      event.preventDefault()
+      draggingRef.current = false
+      dragMovedRef.current = true
+      const pair = pointsFromTouches(event.touches)
+      if (pair) beginPinch(pair[0], pair[1])
+    }
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length < 2) return
+      event.preventDefault()
+      const pair = pointsFromTouches(event.touches)
+      if (!pair) return
+      if (!pinchRef.current) beginPinch(pair[0], pair[1])
+      movePinch(pair[0], pair[1])
+    }
+
+    const onTouchEnd = (event: TouchEvent) => {
+      if (event.touches.length >= 2) return
+      endPinch()
+    }
+
+    overlay.addEventListener('pointerdown', onPointerDown)
+    overlay.addEventListener('pointermove', onPointerMove, { passive: false })
+    overlay.addEventListener('pointerup', onPointerEnd)
+    overlay.addEventListener('pointercancel', onPointerEnd)
+    overlay.addEventListener('touchstart', onTouchStart, { passive: false })
+    overlay.addEventListener('touchmove', onTouchMove, { passive: false })
+    overlay.addEventListener('touchend', onTouchEnd)
+    overlay.addEventListener('touchcancel', onTouchEnd)
+
+    return () => {
+      overlay.removeEventListener('pointerdown', onPointerDown)
+      overlay.removeEventListener('pointermove', onPointerMove)
+      overlay.removeEventListener('pointerup', onPointerEnd)
+      overlay.removeEventListener('pointercancel', onPointerEnd)
+      overlay.removeEventListener('touchstart', onTouchStart)
+      overlay.removeEventListener('touchmove', onTouchMove)
+      overlay.removeEventListener('touchend', onTouchEnd)
+      overlay.removeEventListener('touchcancel', onTouchEnd)
+      pointers.clear()
+      pinchRef.current = null
+    }
+  }, [])
 
   const onDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (scaleRef.current > MIN_SCALE) {
@@ -286,10 +489,6 @@ export function ImageLightbox({
       return
     }
     zoomBy(RESET_ZOOM, event.clientX, event.clientY)
-  }
-
-  const onBackdropPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) dragMovedRef.current = false
   }
 
   const onBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -310,20 +509,16 @@ export function ImageLightbox({
     >
       <div className="absolute inset-0 bg-cobblestone-950/80" />
       <div
-        className="absolute inset-0 flex items-center justify-center px-xl py-[88px] md:px-[120px] md:py-[112px]"
+        className="absolute inset-0 flex touch-none items-center justify-center px-xl py-[88px] md:px-[120px] md:py-[112px]"
         onClick={onBackdropClick}
-        onPointerDown={onBackdropPointerDown}
+        ref={overlayRef}
       >
         <div
           className={[
-            'max-h-full max-w-full',
+            'max-h-full max-w-full touch-none',
             scale > MIN_SCALE ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in',
           ].join(' ')}
           onDoubleClick={onDoubleClick}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
           ref={stageRef}
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
@@ -332,7 +527,7 @@ export function ImageLightbox({
         >
           <img
             alt={alts?.[index] ?? title}
-            className="max-h-[calc(100dvh-176px)] max-w-[calc(100vw-32px)] select-none object-contain md:max-h-[calc(100dvh-240px)] md:max-w-[min(calc(100vw-240px),1400px)]"
+            className="max-h-[calc(100dvh-176px)] max-w-[calc(100vw-32px)] touch-none select-none object-contain md:max-h-[calc(100dvh-240px)] md:max-w-[min(calc(100vw-240px),1400px)]"
             decoding="async"
             draggable={false}
             src={src}

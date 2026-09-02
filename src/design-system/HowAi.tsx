@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { track } from '../lib/analytics'
 import { RollingText } from '../motion-system/RollingText'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { prefersReducedMotion } from '../motion-system/tokens'
@@ -130,13 +131,20 @@ export function HowAi({ href = '/how-i-use-ai', forceHover = false, className }:
   return (
     <a
       className={[
-        'relative isolate flex h-[52px] w-full items-center justify-center gap-xl overflow-hidden border-b border-l border-r border-solid border-stroke-secondary bg-background-primary p-xl no-underline',
+        'relative isolate flex h-[52px] w-full items-center justify-between gap-xl overflow-hidden border-b border-l border-r border-solid border-stroke-secondary bg-background-primary p-xl no-underline md:justify-center',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
       data-hover={forceHover ? 'true' : undefined}
       href={href}
+      onClick={() =>
+        track('cta_clicked', {
+          cta: 'how_i_use_ai',
+          href,
+          pathname: window.location.pathname,
+        })
+      }
       ref={rootRef}
     >
       <span
@@ -144,10 +152,10 @@ export function HowAi({ href = '/how-i-use-ai', forceHover = false, className }:
         className="pointer-events-none absolute top-0 left-0 bg-foreground-primary will-change-transform"
         ref={fillRef}
       />
-      <span className="relative min-w-px flex-1 mix-blend-difference text-body-default text-background-primary">
+      <span className="relative mix-blend-difference text-body-default text-background-primary max-md:shrink-0 md:min-w-px md:flex-1">
         <RollingText text="See how I use AI" />
       </span>
-      <span className="relative flex items-center gap-xl">
+      <span className="relative hidden items-center gap-xl md:flex">
         {logos.map((name) => (
           <span className="inline-flex overflow-hidden" key={name}>
             <span className="inline-flex will-change-transform" data-cta-icon="">
@@ -165,6 +173,14 @@ export function HowAi({ href = '/how-i-use-ai', forceHover = false, className }:
             />
           </span>
         </span>
+      </span>
+      <span aria-hidden className="relative inline-flex size-[24px] shrink-0 md:hidden">
+        <DsImage
+          alt=""
+          height={24}
+          src="/design-system/icons/arrow-up-right-dark.svg"
+          width={24}
+        />
       </span>
     </a>
   )
