@@ -8,6 +8,10 @@ export type PageMeta = {
   description: string
   /** Site-root-relative path to the social preview image. */
   ogImage: string
+  ogImageWidth?: number
+  ogImageHeight?: number
+  ogImageAlt?: string
+  ogImageType?: string
   /** 'website' for index pages, 'article' for case studies, 'profile' for home. */
   ogType: 'website' | 'article' | 'profile'
   /** Canonical path. Kept separate from the live pathname so unknown slugs don't self-canonicalise. */
@@ -34,7 +38,17 @@ function socialImage(avifPath: string) {
   return toPngSrc(avifPath)
 }
 
-const DEFAULT_OG_IMAGE = '/images/home/hero-character.png'
+const HOME_OG = {
+  ogImage: '/images/og/home.png',
+  ogImageWidth: 1024,
+  ogImageHeight: 537,
+  ogImageType: 'image/png',
+  ogImageAlt:
+    'Rômulo Sandri, Product Designer, with an illustration of him and his dog Pluto, UI screenshots, and logos of companies he has worked with.',
+} as const
+
+/** Fallback for pages that do not yet have a dedicated share card. */
+const DEFAULT_OG_IMAGE = HOME_OG.ogImage
 
 export function getPageMeta(route: Route): PageMeta {
   switch (route.name) {
@@ -103,7 +117,7 @@ export function getPageMeta(route: Route): PageMeta {
         description: clamp(
           `The AI tools, agent harnesses, and language models ${site.name} uses day to day in the product design process, and what each one is actually good for.`,
         ),
-        ogImage: DEFAULT_OG_IMAGE,
+        ...HOME_OG,
         ogType: 'article',
         path: '/how-i-use-ai',
         breadcrumbs: [
@@ -118,7 +132,7 @@ export function getPageMeta(route: Route): PageMeta {
         description: clamp(
           `Get in touch with ${site.name}, ${site.role} based in ${site.location.city}, ${site.location.country}. Available by email and WhatsApp.`,
         ),
-        ogImage: DEFAULT_OG_IMAGE,
+        ...HOME_OG,
         ogType: 'website',
         path: '/contact',
         breadcrumbs: [
@@ -133,7 +147,7 @@ export function getPageMeta(route: Route): PageMeta {
         description: clamp(
           `A small browser game built by ${site.name} as an interactive way to walk through his life and work.`,
         ),
-        ogImage: DEFAULT_OG_IMAGE,
+        ...HOME_OG,
         ogType: 'website',
         path: '/game',
         breadcrumbs: [
@@ -148,7 +162,7 @@ export function getPageMeta(route: Route): PageMeta {
         // and useDocumentHead adds a noindex tag for this route.
         title: `Design system — ${site.name}`,
         description: 'Internal design system gallery.',
-        ogImage: DEFAULT_OG_IMAGE,
+        ...HOME_OG,
         ogType: 'website',
         path: '/',
         breadcrumbs: [],
@@ -162,7 +176,7 @@ export function getPageMeta(route: Route): PageMeta {
       return {
         title: `${site.name} — ${site.role}`,
         description: clamp(site.blurb),
-        ogImage: DEFAULT_OG_IMAGE,
+        ...HOME_OG,
         ogType: 'profile',
         path: '/',
         breadcrumbs: [],
@@ -174,7 +188,7 @@ function notFoundMeta(): PageMeta {
   return {
     title: `Page not found — ${site.name}`,
     description: clamp(`That page does not exist. Browse the work and projects of ${site.name}.`),
-    ogImage: DEFAULT_OG_IMAGE,
+    ...HOME_OG,
     ogType: 'website',
     path: '/',
     breadcrumbs: [],

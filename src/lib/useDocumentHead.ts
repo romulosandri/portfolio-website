@@ -62,6 +62,10 @@ export function useDocumentHead(route: Route) {
     appendMeta('property', 'og:description', meta.description)
     appendMeta('property', 'og:url', canonical)
     appendMeta('property', 'og:image', absoluteUrl(meta.ogImage))
+    if (meta.ogImageWidth) appendMeta('property', 'og:image:width', String(meta.ogImageWidth))
+    if (meta.ogImageHeight) appendMeta('property', 'og:image:height', String(meta.ogImageHeight))
+    if (meta.ogImageType) appendMeta('property', 'og:image:type', meta.ogImageType)
+    if (meta.ogImageAlt) appendMeta('property', 'og:image:alt', meta.ogImageAlt)
     appendMeta('property', 'og:site_name', `${site.name} — ${site.role}`)
     appendMeta('property', 'og:locale', 'en_US')
 
@@ -69,6 +73,12 @@ export function useDocumentHead(route: Route) {
     appendMeta('name', 'twitter:title', meta.title)
     appendMeta('name', 'twitter:description', meta.description)
     appendMeta('name', 'twitter:image', absoluteUrl(meta.ogImage))
+    if (meta.ogImageAlt) appendMeta('name', 'twitter:image:alt', meta.ogImageAlt)
+    const twitter = site.socials.find((link) => link.type === 'x')?.username
+    if (twitter) {
+      appendMeta('name', 'twitter:site', `@${twitter}`)
+      appendMeta('name', 'twitter:creator', `@${twitter}`)
+    }
 
     // Point agents at the clean markdown twin of this page. An agent that lands
     // on the HTML can follow this instead of parsing the rendered layout.
