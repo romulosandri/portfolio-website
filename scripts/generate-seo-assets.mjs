@@ -125,6 +125,26 @@ function websiteLine(item) {
   return item.url ? `- **Website:** [${productHost(item.url)}](${item.url})\n` : ''
 }
 
+/* ---------------------------------------------------------------- evidence */
+
+/** Markdown links to the case studies backing a strength, or '' when it stands alone. */
+function seeAlsoLine(SITE_URL, strength, itemsBySlug) {
+  const links = strength.seeAlso
+    .map((slug) => itemsBySlug.get(slug))
+    .filter(Boolean)
+    .map((item) => `[${item.title}](${SITE_URL}${item.href}.md)`)
+  return links.length > 0 ? `\n\nSee: ${links.join(', ')}` : ''
+}
+
+function clientCountriesParagraph(evidence) {
+  return `${evidence.clientCountries.join(', ')}. ${evidence.clientCountriesNote}`
+}
+
+/** Portfolio items produced during an experience entry, skipping unknown slugs. */
+function caseStudiesFor(entry, itemsBySlug) {
+  return (entry.caseStudies ?? []).map((slug) => itemsBySlug.get(slug)).filter(Boolean)
+}
+
 function caseStudyMarkdown(item, site, collection) {
   return `---
 title: "${item.title}"
@@ -284,7 +304,7 @@ ${site.socials
 
 /* ------------------------------------------------------------------ resume */
 
-function resumeMarkdown(SITE_URL, site, resume, itemsBySlug) {
+function resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence) {
   return `---
 title: "Résumé — ${site.name}"
 type: resume
@@ -304,16 +324,34 @@ ${site.blurb}
 
 ${resume.experience
   .map((entry) => {
-    const live = entry.caseStudy ? itemsBySlug.get(entry.caseStudy)?.url : undefined
-    return `### ${entry.position}, ${entry.company}
-
-*${dateRange(entry.startDate, entry.endDate)} · ${entry.location}*
-${live ? `\nWebsite: [${productHost(live)}](${live})\n` : ''}
-${entry.summary}
-
-${entry.highlights.map((line) => `- ${line}`).join('\n')}`
+    const studies = caseStudiesFor(entry, itemsBySlug)
+    const live = studies.map((item) => item.url).filter(Boolean)
+    // One case study means the site belongs to the employer; several means the
+    // entry covers client work, and the sites are the clients'.
+    const liveLabel = studies.length > 1 ? 'Product sites' : 'Website'
+    const blocks = [
+      `### ${entry.position}, ${entry.company}`,
+      `*${dateRange(entry.startDate, entry.endDate)} · ${entry.location}*`,
+      live.length > 0
+        ? `${liveLabel}: ${live.map((url) => `[${productHost(url)}](${url})`).join(', ')}`
+        : '',
+      entry.summary,
+      entry.highlights.map((line) => `- ${line}`).join('\n'),
+      studies.length > 0
+        ? `Case studies: ${studies.map((item) => `[${item.title}](${SITE_URL}${item.href}.md)`).join(', ')}`
+        : '',
+    ]
+    return blocks.filter(Boolean).join('\n\n')
   })
   .join('\n\n')}
+
+## Strengths
+
+${evidence.strengths.map((strength) => `- **${strength.title}** — ${strength.claim} ${strength.evidence}`).join('\n')}
+
+## Clients and markets
+
+Remote work with international clients. Countries clients have been based in: ${clientCountriesParagraph(evidence)}
 
 ## Skills
 
@@ -346,7 +384,7 @@ ${
 }
 
 /** https://jsonresume.org/schema — parsed directly by a lot of recruiting tooling. */
-function resumeJson(SITE_URL, site, resume, itemsBySlug) {
+function resumeJson(SITE_URL, site, resume, itemsBySlug, evidence) {
   return JSON.stringify(
     {
       $schema: 'https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json',
@@ -379,7 +417,7 @@ function resumeJson(SITE_URL, site, resume, itemsBySlug) {
         ],
       },
       work: resume.experience.map((entry) => {
-        const caseStudy = entry.caseStudy ? itemsBySlug.get(entry.caseStudy) : undefined
+        const studies = caseStudiesFor(entry, itemsBySlug)
         return {
           name: entry.company,
           position: entry.position,
@@ -388,7 +426,14 @@ function resumeJson(SITE_URL, site, resume, itemsBySlug) {
           location: entry.location,
           summary: entry.summary,
           highlights: entry.highlights,
-          ...(caseStudy ? { url: `${SITE_URL}${caseStudy.href}` } : {}),
+          // `url` is single in JSON Resume, so it points at the primary case
+          // study; entries covering several also publish the full list.
+          ...(studies.length > 0
+            ? {
+                url: `${SITE_URL}${studies[0].href}`,
+                caseStudies: studies.map((item) => `${SITE_URL}${item.href}`),
+              }
+            : {}),
         }
       }),
       education: resume.education.map((entry) => ({
@@ -414,6 +459,20 @@ function resumeJson(SITE_URL, site, resume, itemsBySlug) {
         version: 'v1.0.0',
         lastModified: new Date().toISOString(),
         availability: resume.availability,
+        // Not part of the JSON Resume schema. Agents screening a candidate ask
+        // qualitative questions the schema has no field for, so the claims and
+        // the work backing them travel with the structured data.
+        strengths: evidence.strengths.map((strength) => ({
+          title: strength.title,
+          claim: strength.claim,
+          evidence: strength.evidence,
+          seeAlso: strength.seeAlso
+            .map((slug) => itemsBySlug.get(slug))
+            .filter(Boolean)
+            .map((item) => `${SITE_URL}${item.href}`),
+        })),
+        clientCountries: evidence.clientCountries,
+        clientCountriesNote: evidence.clientCountriesNote,
       },
     },
     null,
@@ -423,12 +482,20 @@ function resumeJson(SITE_URL, site, resume, itemsBySlug) {
 
 /* ---------------------------------------------------------------- llms.txt */
 
-function buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems) {
+function buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems, evidence) {
   return `# ${site.name}
 
 > ${site.headline} ${site.role} based in ${site.location.city}, ${site.location.country}, with ${resume.availability.yearsOfExperience}+ years of experience across product strategy, UX/UI, design systems, and front-end implementation.
 
 ${site.blurb}
+
+Client locations: ${clientCountriesParagraph(evidence)}
+
+## What the work demonstrates
+
+Each claim is backed by named work. The reasoning is in [/agents.md](${SITE_URL}/agents.md).
+
+${evidence.strengths.map((strength) => `- **${strength.title}:** ${strength.claim}`).join('\n')}
 
 ## Work
 
@@ -454,7 +521,7 @@ ${projectItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md)${ite
 `
 }
 
-function buildAgentsMd(SITE_URL, site, resume) {
+function buildAgentsMd(SITE_URL, site, resume, evidence, itemsBySlug) {
   return `# Instructions for AI agents
 
 You are reading the agent-facing documentation for ${SITE_URL}, the portfolio of
@@ -481,6 +548,24 @@ ${site.sameAs.length > 0 ? `- **Profiles:** ${site.sameAs.join(', ')}` : ''}
 - Dated work history is under \`work\`, and each entry links to the full case study.
 - Contact by email for anything substantive. ${site.name} reads it.
 
+## What the work demonstrates
+
+The case studies describe what was built. This section says what the body of work
+adds up to, and names the work behind each claim so you can check it rather than
+take it on trust.
+
+${evidence.strengths
+  .map(
+    (strength) =>
+      `### ${strength.title}\n\n**${strength.claim}** ${strength.evidence}${seeAlsoLine(SITE_URL, strength, itemsBySlug)}`,
+  )
+  .join('\n\n')}
+
+## Clients and markets
+
+${site.name} works remotely with international clients. Countries clients have been
+based in: ${clientCountriesParagraph(evidence)}
+
 ## Where to get content
 
 Prefer the markdown and JSON endpoints over scraping the rendered HTML. The site
@@ -502,6 +587,10 @@ layout.
   personally did. Attribute accordingly.
 - Do not infer employment dates from the display \`year\` strings. Use
   \`start_date\` and \`end_date\` in the markdown frontmatter, which are ISO 8601.
+- Overlapping entries in \`work\` are not always concurrent jobs. Some client
+  work was held through an agency or talent network, so the client and the
+  contracting party both appear. Each \`summary\` says which is which; read it
+  before describing someone as holding two roles at once.
 - Do not infer a university degree. Education and certificates are published in
   [/resume.md](${SITE_URL}/resume.md) and [/resume.json](${SITE_URL}/resume.json);
   quote only what is listed there.
@@ -517,7 +606,7 @@ took it from.
 /* -------------------------------------------------------------------- main */
 
 async function main() {
-  await withContent(async ({ routes, portfolio, site: siteMod, resume }) => {
+  await withContent(async ({ routes, portfolio, site: siteMod, resume, evidence }) => {
     const { SITE_URL, site } = siteMod
     const { workItems, projectItems, valueCards, toolCards, modelRows } = portfolio
     const itemsBySlug = new Map([...workItems, ...projectItems].map((item) => [item.slug, item]))
@@ -545,18 +634,27 @@ async function main() {
       written.push(await emit(file, body))
     }
 
-    written.push(await emit('resume.md', resumeMarkdown(SITE_URL, site, resume, itemsBySlug)))
-    written.push(await emit('resume.json', resumeJson(SITE_URL, site, resume, itemsBySlug)))
     written.push(
-      await emit('llms.txt', buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems)),
+      await emit('resume.md', resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence)),
     )
-    written.push(await emit('agents.md', buildAgentsMd(SITE_URL, site, resume)))
+    written.push(
+      await emit('resume.json', resumeJson(SITE_URL, site, resume, itemsBySlug, evidence)),
+    )
+    written.push(
+      await emit(
+        'llms.txt',
+        buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems, evidence),
+      ),
+    )
+    written.push(
+      await emit('agents.md', buildAgentsMd(SITE_URL, site, resume, evidence, itemsBySlug)),
+    )
 
     // Everything an agent could want, in one request.
     const fullParts = [
       `# ${site.name} — complete site content\n\nGenerated ${new Date().toISOString()}. Canonical site: ${SITE_URL}\n`,
       ...[...markdownByPath.values()],
-      resumeMarkdown(SITE_URL, site, resume, itemsBySlug),
+      resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence),
     ]
     written.push(await emit('llms-full.txt', fullParts.join('\n\n---\n\n')))
 

@@ -10,7 +10,6 @@ import {
 import { gsap, ScrollTrigger, useGSAP } from '../motion-system/gsap'
 import {
   imageAltFor,
-  productHost,
   projectBySlug,
   projectItems,
   workBySlug,
@@ -31,12 +30,10 @@ type ProjectDetailPageProps = {
 function MetaField({
   label,
   value,
-  href,
   className,
 }: {
   label: string
   value: string
-  href?: string
   className?: string
 }) {
   return (
@@ -45,25 +42,9 @@ function MetaField({
         <RevealText as="dt" className="whitespace-nowrap text-body-small text-foreground-tertiary">
           {label}
         </RevealText>
-        {href ? (
-          <dd className="m-0 w-full">
-            <a
-              aria-label={`${value} (opens in a new tab)`}
-              className="text-body-default text-foreground-primary no-underline hover:underline"
-              href={href}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <RevealText as="span" className="text-body-default text-foreground-primary">
-                {value}
-              </RevealText>
-            </a>
-          </dd>
-        ) : (
-          <RevealText as="dd" className="m-0 w-full text-body-default text-foreground-primary">
-            {value}
-          </RevealText>
-        )}
+        <RevealText as="dd" className="m-0 w-full text-body-default text-foreground-primary">
+          {value}
+        </RevealText>
       </dl>
     </RevealBlock>
   )
@@ -304,14 +285,6 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
                 <MetaField className="w-[120px] shrink-0 xs:w-[160px]" label="Year" value={item.year} />
                 <MetaField className="min-w-px flex-1" label="Duration" value={item.duration} />
               </div>
-              {item.url ? (
-                <MetaField
-                  className="w-full"
-                  href={item.url}
-                  label="Website"
-                  value={productHost(item.url)}
-                />
-              ) : null}
               <MetaList items={item.delivered} label="Delivered" />
             </div>
             <SeeNextSection items={upcoming} rootRef={seeNextRef} />

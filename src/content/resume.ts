@@ -23,8 +23,12 @@ export type ExperienceEntry = {
   location: string
   summary: string
   highlights: string[]
-  /** Slug of the matching case study in portfolio.ts, when one exists. */
-  caseStudy?: string
+  /**
+   * Slugs of the case studies in portfolio.ts produced during this role.
+   * Several entries cover more than one: Cinépolis was client work done at
+   * WANDR, and Gemhaus and Stream Stakes were both freelance clients.
+   */
+  caseStudies?: string[]
 }
 
 export type EducationEntry = {
@@ -187,7 +191,24 @@ export const skillGroups: SkillGroup[] = [
 /** Flat list for JSON-LD `knowsAbout`. */
 export const allSkills = skillGroups.flatMap((group) => group.skills)
 
+/**
+ * Employment history, reverse-chronological. This is the timeline, not the
+ * project list: client work sits under the employer it was delivered through,
+ * so Cinépolis appears under WANDR and Gemhaus and Stream Stakes under
+ * Freelance. The case studies themselves live in portfolio.ts.
+ */
 export const experience: ExperienceEntry[] = [
+  {
+    company: 'Andela',
+    position: 'Workshop Instructor',
+    startDate: '2026',
+    endDate: '2026',
+    location: 'Remote',
+    summary:
+      'Created and facilitated AI Acceleration for Product Designers, a six-week hands-on workshop for Andela’s talent network.',
+    highlights: ['Authored all workshop content, exercises, and brand'],
+    caseStudies: ['ai-workshops'],
+  },
   {
     company: 'Pacelane',
     position: 'Co-founder and Chief Product Officer',
@@ -201,7 +222,7 @@ export const experience: ExperienceEntry[] = [
       'Owned product strategy, brand, and the full design system',
       'Built the production front-end in React, Tailwind, and TypeScript',
     ],
-    caseStudy: 'pacelane',
+    caseStudies: ['pacelane'],
   },
   {
     company: 'Fotospin',
@@ -215,7 +236,7 @@ export const experience: ExperienceEntry[] = [
       'Reached 7,000 downloads and $2,000 in revenue in 6 months',
       'Shipped as a solo founder: brand, Flutter on iOS and Android, Supabase and Fal.ai',
     ],
-    caseStudy: 'fotospin',
+    caseStudies: ['fotospin'],
   },
   {
     company: 'Meltwater',
@@ -224,66 +245,24 @@ export const experience: ExperienceEntry[] = [
     endDate: '2025',
     location: 'Remote',
     summary:
-      'Senior Product Designer on the team reshaping Meltwater’s media intelligence platform, serving 20,000+ enterprise clients at close to $1B ARR.',
+      'Senior Product Designer on the team reshaping Meltwater’s media intelligence platform, serving 20,000+ enterprise clients at close to $1B ARR. Held as a long-term contract through Andela, not as a separate concurrent role.',
     highlights: [
       'Designed universal filters now used across all 19 Meltwater products',
       'Added AI insights to Insight Reports',
       'Improved the Explore, analytics, reporting, and dashboard products',
+      'Worked daily with data scientists, engineers, and product managers on data-heavy products',
     ],
-    caseStudy: 'meltwater',
-  },
-  {
-    company: 'Gemhaus',
-    position: 'Product Designer',
-    startDate: '2025',
-    endDate: '2025',
-    location: 'Remote',
-    summary:
-      'Designed a fractional real-estate investment product from zero to one across mobile and web.',
-    highlights: [
-      'Designed the complete product, marketing site, and pitch deck',
-      'Delivered light and dark themes on a single tokenised design system',
-    ],
-    caseStudy: 'gemhaus',
-  },
-  {
-    company: 'Stream Stakes',
-    position: 'Product Designer',
-    startDate: '2024',
-    endDate: '2024',
-    location: 'Remote',
-    summary:
-      'Designed a mobile music-prediction game built on a direct Universal Music catalogue contract.',
-    highlights: [
-      'Designed the full player loop from pairing selection through result',
-      'Validated flows with user research and testing before build',
-    ],
-    caseStudy: 'stream-stakes',
-  },
-  {
-    company: 'Cinépolis',
-    position: 'Lead Mobile Designer',
-    startDate: '2023',
-    endDate: '2023',
-    location: 'Remote',
-    summary:
-      'Led the mobile app redesign for the third-largest cinema chain in the world, from research through native iOS and Android flows.',
-    highlights: [
-      'Ran full primary research and multiple rounds of user testing',
-      'Delivered native iOS and Android flows in light and dark mode',
-    ],
-    caseStudy: 'cinepolis',
+    caseStudies: ['meltwater'],
   },
   {
     company: 'Andela',
-    position: 'Workshop Instructor',
-    startDate: '2026',
-    endDate: '2026',
+    position: 'Senior Product Designer (Freelance)',
+    startDate: '2023',
+    endDate: '2025',
     location: 'Remote',
     summary:
-      'Created and facilitated AI Acceleration for Product Designers, a six-week hands-on workshop for Andela’s talent network.',
-    highlights: ['Authored all workshop content, exercises, and brand'],
-    caseStudy: 'ai-workshops',
+      'Senior Product Designer through Andela’s global talent network. The long-running engagement was Meltwater, where he worked as a contractor from 2024 to 2025.',
+    highlights: ['Placed with Meltwater as a long-term contractor'],
   },
   {
     company: 'Freelance',
@@ -292,9 +271,72 @@ export const experience: ExperienceEntry[] = [
     endDate: null,
     location: 'Remote',
     summary:
-      'Ongoing freelance product design, UX, and front-end engagements, each taken from research through to shippable interface.',
-    highlights: ['Shipped production pages in React and Flutter across multiple clients'],
-    caseStudy: 'random-selection',
+      'Ongoing freelance product design, UX, and front-end engagements, each taken from research through to shippable interface. Clients include Gemhaus and Stream Stakes.',
+    highlights: [
+      'Shipped production pages in React and Flutter across multiple clients',
+      'Designed Gemhaus, a fractional real-estate investment product, from zero to one across mobile and web',
+      'Designed Stream Stakes, a mobile music-prediction game built on a direct Universal Music catalogue contract',
+    ],
+    caseStudies: ['gemhaus', 'stream-stakes', 'random-selection'],
+  },
+  {
+    company: 'WANDR',
+    position: 'Product Designer',
+    startDate: '2022',
+    endDate: '2023',
+    location: 'Remote — Los Angeles, United States',
+    summary:
+      'Product Designer at WANDR, a Los Angeles based UX agency, running several client projects at the same time.',
+    highlights: [
+      'Led the Cinépolis mobile app redesign for the third-largest cinema chain in the world',
+      'Created the programme used to train junior designers joining the company',
+    ],
+    caseStudies: ['cinepolis'],
+  },
+  {
+    company: 'Chefie',
+    position: 'UI/UX Designer',
+    startDate: '2021',
+    endDate: '2022',
+    location: 'Brazil',
+    summary: 'UI and UX design at Chefie.',
+    highlights: [],
+  },
+  {
+    company: 'Justos',
+    position: 'Visual Designer',
+    startDate: '2021',
+    endDate: '2022',
+    location: 'Brazil',
+    summary: 'Visual design at Justos.',
+    highlights: [],
+  },
+  {
+    company: 'Oly',
+    position: 'Founder',
+    startDate: '2020',
+    endDate: '2022',
+    location: 'Brazil',
+    summary: 'Founded Oly, an early-stage startup.',
+    highlights: [],
+  },
+  {
+    company: 'Traktor',
+    position: 'Web Designer and Graphic Designer',
+    startDate: '2020',
+    endDate: '2021',
+    location: 'Brazil',
+    summary: 'Web and graphic design at Traktor.',
+    highlights: [],
+  },
+  {
+    company: 'Marvem Supermercado',
+    position: 'Visual Designer',
+    startDate: '2018',
+    endDate: '2020',
+    location: 'Brazil',
+    summary: 'Visual design at Marvem Supermercado.',
+    highlights: [],
   },
 ]
 

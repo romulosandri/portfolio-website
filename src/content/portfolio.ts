@@ -43,15 +43,6 @@ export function imageAltFor(item: WorkItem, index: number) {
   return `${item.title} — ${item.role} work, image ${index} of ${item.images.length - 1}`
 }
 
-/** Hostname for display, e.g. `pacelane.ai` from `https://pacelane.ai`. */
-export function productHost(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '')
-  } catch {
-    return url
-  }
-}
-
 function workImages(slug: string, count: number) {
   const cover = `/images/work/${slug}/avif/${slug}-cover.avif`
   const rest = Array.from({ length: count }, (_, i) => `/images/work/${slug}/avif/${slug}-${i + 1}.avif`)
