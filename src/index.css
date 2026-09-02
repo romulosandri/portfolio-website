@@ -72,55 +72,15 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Serrif";
-  src: url("/fonts/Serrif-TRIAL-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Serrif";
-  src: url("/fonts/Serrif-TRIAL-RegularItalic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Serrif";
-  src: url("/fonts/Serrif-TRIAL-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Serrif";
-  src: url("/fonts/Serrif-TRIAL-MediumItalic.ttf") format("truetype");
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 800;
-  font-style: italic;
-  font-display: swap;
-}
-
 @theme {
+  /* Tuned to this design rather than Tailwind's defaults. `nav` is the width at
+     which the full header row stops fitting: the wordmark reaches 449px when the
+     randomiser lands on the widest letter styles, plus a 518px nav row and 96px
+     of gutter, so it hard-overflows below ~1063px. */
+  --breakpoint-xs: 480px;
+  --breakpoint-nav: 1120px;
+  --breakpoint-xl: 1440px;
+
   --color-page: #0c0b0a;
   --color-game-bezel: #0c1a12;
 
@@ -165,9 +125,7 @@
   --font-sans: "Saans", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Season Serif", ui-serif, Georgia, serif;
   --font-display: "PP Mondwest", ui-serif, Georgia, serif;
-  --font-serrif: "Serrif", ui-serif, Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
-    monospace;
+  --font-serrif: "Season Serif", ui-serif, Georgia, serif;
   --font-heading: "Season Serif", ui-serif, Georgia, serif;
   --font-body: "Saans", ui-sans-serif, system-ui, sans-serif;
 
@@ -177,8 +135,10 @@
   --text-lg: 20px;
   --text-xl: 24px;
   --text-2xl: 28px;
-  --text-3xl: 36px;
-  --text-4xl: 64px;
+  /* Fluid above body copy only. 12/14/16px body sizes stay fixed -- shrinking
+     them costs readability without buying any layout room. */
+  --text-3xl: clamp(24px, 2.5vw, 36px);
+  --text-4xl: clamp(36px, 4.4vw, 64px);
   --text-d: 180px;
 
   --spacing-none: 0px;
@@ -190,8 +150,16 @@
   --spacing-xl: 16px;
   --spacing-1xl: 20px;
   --spacing-2xl: 24px;
-  --spacing-3xl: 32px;
-  --spacing-4xl: 48px;
+  /* Layout-scale spacing is fluid; --spacing-2xs..2xl stay fixed because
+     src/design-system/NavItem.tsx hardcodes SLOT_WIDTH = 20 in JS to match
+     w-1xl, and animating to a fluid width desyncs the symbol reveal. */
+  --spacing-3xl: clamp(20px, 2.2vw, 32px);
+  --spacing-4xl: clamp(24px, 3.3vw, 48px);
+
+  /* The page gutter. Every full-width section uses px-gutter so the left and
+     right edge is defined in exactly one place. Stepped rather than fluid
+     because these are chosen values, not interpolated ones. */
+  --spacing-gutter: 16px;
 
   --radius-none: 0px;
   --radius-xsm: 4px;
@@ -202,9 +170,36 @@
   --radius-all: 999px;
 }
 
+/* Unlayered on purpose: @theme emits into @layer theme, so a layered override
+   would lose to it regardless of source order. */
+@media (width >= 768px) {
+  :root {
+    --spacing-gutter: 32px;
+  }
+}
+
+@media (width >= 1024px) {
+  :root {
+    --spacing-gutter: 48px;
+  }
+}
+
+/**
+ * Display type that cannot outgrow its container.
+ *
+ * `--display-ratio` is the width of the longest line in ems, set inline from
+ * src/lib/displayFit.ts. Dividing the container's inline size by it gives the
+ * largest font size that still fits, and `min()` keeps the desktop size as the
+ * ceiling. This is what replaces `whitespace-nowrap` + a fixed 180px, which
+ * clipped every title longer than "Work".
+ *
+ * Needs an ancestor with `container-type: inline-size`. Without one, `cqi`
+ * falls back to the small viewport, which is a safe over-estimate of the
+ * available width rather than a broken layout.
+ */
 @utility text-display {
   font-family: var(--font-heading);
-  font-size: var(--text-d);
+  font-size: min(var(--text-d), calc(100cqi / var(--display-ratio, 6)));
   font-weight: 400;
   line-height: 0.8;
   letter-spacing: 0;

@@ -74,16 +74,21 @@ const MEMBERS: FamilyMember[] = [
   },
 ]
 
-const SIZE_SCALE = 1.2
 const PACK_GAP = 110
+const BASE_HEIGHT = Math.max(...MEMBERS.map((member) => member.height))
 
-const SCALED_MEMBERS = MEMBERS.map((member) => ({
-  ...member,
-  width: Math.round(member.width * SIZE_SCALE),
-  height: Math.round(member.height * SIZE_SCALE),
-}))
+/**
+ * The pack is scaled in CSS, not by precomputing pixel sizes, so it can shrink
+ * on narrow screens without the run animation drifting: `startRun` reads
+ * `pack.offsetWidth` and `track.offsetWidth` at the moment it starts, and those
+ * report the scaled values. Crossing a breakpoint always changes the track
+ * width too, so the existing ResizeObserver restarts the run.
+ *
+ * 1.2 is the original desktop scale.
+ */
+const SCALE_CLASSES = '[--family-scale:0.6] xs:[--family-scale:0.8] md:[--family-scale:1] lg:[--family-scale:1.2]'
+const scaled = (px: number) => `calc(${px}px * var(--family-scale, 1.2))`
 
-const TRACK_HEIGHT = Math.max(...SCALED_MEMBERS.map((member) => member.height))
 const FRAME_DURATION = 0.1
 const RUN_PX_PER_SECOND = 520
 const REPEAT_DELAY = 2.8
@@ -199,24 +204,28 @@ export function HeroFamily() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-x-0 bottom-full overflow-hidden"
+      className={`pointer-events-none absolute inset-x-0 bottom-full overflow-hidden ${SCALE_CLASSES}`}
       data-prerender="strip"
       ref={trackRef}
-      style={{ height: TRACK_HEIGHT }}
+      style={{ height: scaled(BASE_HEIGHT) }}
     >
       <div
         className="absolute bottom-0 left-0 flex flex-row-reverse items-end will-change-transform"
         ref={packRef}
-        style={{ gap: PACK_GAP, height: TRACK_HEIGHT, transform: 'translateX(-100%)' }}
+        style={{
+          gap: scaled(PACK_GAP),
+          height: scaled(BASE_HEIGHT),
+          transform: 'translateX(-100%)',
+        }}
       >
-        {SCALED_MEMBERS.map((member) => (
+        {MEMBERS.map((member) => (
           <div
             className="relative shrink-0"
             data-family-member={member.id}
             key={member.id}
             style={{
-              width: member.width,
-              height: member.height,
+              width: scaled(member.width),
+              height: scaled(member.height),
             }}
           >
             {member.frames.map((src) => (

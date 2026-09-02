@@ -11,6 +11,7 @@
     "prerender": "node scripts/prerender.mjs",
     "seo": "node scripts/generate-seo-assets.mjs",
     "verify:seo": "node scripts/verify-seo.mjs",
+    "check:responsive": "node scripts/check-responsive.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
     "convert:avif": "node scripts/convert-to-avif.mjs"

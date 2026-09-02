@@ -109,19 +109,19 @@ export function ContactPage() {
 
   return (
     <PageLayout>
-      <section className="flex w-full items-center justify-center gap-[120px] bg-background-primary px-4xl py-[164px]">
+      <section className="flex w-full flex-col items-center justify-center gap-4xl bg-background-primary px-gutter py-[clamp(72px,12vw,164px)] lg:flex-row lg:gap-[120px]">
         <form
           aria-busy={status === 'sending'}
-          className="flex min-w-px flex-1 flex-col items-start gap-4xl"
+          className="flex w-full min-w-px flex-col items-start gap-4xl lg:flex-1"
           onSubmit={onSubmit}
         >
           <RevealGroup>
-            <RevealText as="h1" className="whitespace-nowrap text-h1 text-foreground-primary">
+            <RevealText as="h1" className="text-h1 text-foreground-primary">
               Contact Me
             </RevealText>
           </RevealGroup>
           <div className="flex w-full flex-col items-start gap-4xl">
-            <div className="flex w-full items-start gap-lg">
+            <div className="flex w-full flex-col items-start gap-lg xs:flex-row">
               <Field id="name" label="Your Name" placeholder="John Doe Jr" />
               <Field id="email" label="Email Address" placeholder="john@doe.com" />
             </div>

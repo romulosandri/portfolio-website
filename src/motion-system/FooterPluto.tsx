@@ -15,6 +15,15 @@ const RUN_PX_PER_SECOND = 520
 const REPEAT_DELAY = 2.8
 const REST_X = 37
 
+/**
+ * Scaled in CSS rather than in JS so the run animation stays correct: it reads
+ * `pluto.offsetWidth` and `track.offsetWidth` at start, which report the scaled
+ * pixel sizes, and a ResizeObserver already restarts the run on resize. The
+ * owning footer sets --pluto-scale per breakpoint and uses it for its own bottom
+ * padding, so the clearance under the sprite tracks the sprite.
+ */
+const scaled = (px: number) => `calc(${px}px * var(--pluto-scale, 1))`
+
 export function FooterPluto() {
   const trackRef = useRef<HTMLDivElement>(null)
   const plutoRef = useRef<HTMLDivElement>(null)
@@ -115,12 +124,16 @@ export function FooterPluto() {
       className="pointer-events-none absolute inset-x-0 bottom-0 z-10 overflow-hidden"
       data-prerender="strip"
       ref={trackRef}
-      style={{ height: PLUTO_HEIGHT }}
+      style={{ height: scaled(PLUTO_HEIGHT) }}
     >
       <div
         className="absolute bottom-0 left-0 will-change-transform"
         ref={plutoRef}
-        style={{ width: PLUTO_WIDTH, height: PLUTO_HEIGHT, transform: `translateX(-${PLUTO_WIDTH}px)` }}
+        style={{
+          width: scaled(PLUTO_WIDTH),
+          height: scaled(PLUTO_HEIGHT),
+          transform: 'translateX(-100%)',
+        }}
       >
         {RUN_FRAMES.map((src) => (
           <img

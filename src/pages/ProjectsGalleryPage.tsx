@@ -7,7 +7,7 @@ export function ProjectsGalleryPage() {
   return (
     <PageLayout>
       <DisplayHero>Projects</DisplayHero>
-      <section className="flex w-full flex-col items-center justify-center bg-background-primary px-4xl pt-none pb-[164px]">
+      <section className="flex w-full flex-col items-center justify-center bg-background-primary px-gutter pt-none pb-[clamp(72px,12vw,164px)]">
         <RevealGroup className="w-full">
           <WorkGrid>
             {projectItems.map((item) => (

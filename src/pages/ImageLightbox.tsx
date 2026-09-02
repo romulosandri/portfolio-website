@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { pauseSmoothScroll, resumeSmoothScroll } from '../motion-system/smoothScroll'
-import { toPngSrc } from '../lib/images'
 
 const MIN_SCALE = 1
 const MAX_SCALE = 4
@@ -50,7 +49,7 @@ function ControlButton({
   return (
     <button
       aria-label={label}
-      className="inline-flex size-[56px] shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 disabled:cursor-not-allowed disabled:opacity-40"
+      className="inline-flex size-[44px] shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 disabled:cursor-not-allowed disabled:opacity-40 md:size-[56px]"
       disabled={disabled}
       onClick={onClick}
       type="button"
@@ -80,10 +79,10 @@ export function ImageLightbox({
 
   const [scale, setScale] = useState(MIN_SCALE)
   const [pan, setPan] = useState({ x: 0, y: 0 })
-  const [src, setSrc] = useState(images[index] ?? '')
 
-  const avifSrc = images[index] ?? ''
-  const pngSrc = toPngSrc(avifSrc)
+  // Original AVIF, same pixel dimensions as the PNG twin. Zoom is a CSS
+  // transform on this bitmap — do not swap to PNG or route through Image CDN.
+  const src = images[index] ?? ''
   const count = images.length
   const canPrev = count > 1
   const canNext = count > 1
@@ -170,22 +169,6 @@ export function ImageLightbox({
     },
     [count, onIndexChange, resetView],
   )
-
-  useEffect(() => {
-    setSrc(avifSrc)
-    if (!pngSrc || pngSrc === avifSrc) return
-
-    let cancelled = false
-    const image = new Image()
-    image.onload = () => {
-      if (!cancelled) setSrc(pngSrc)
-    }
-    image.src = pngSrc
-
-    return () => {
-      cancelled = true
-    }
-  }, [avifSrc, pngSrc])
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
@@ -327,7 +310,7 @@ export function ImageLightbox({
     >
       <div className="absolute inset-0 bg-cobblestone-950/80" />
       <div
-        className="absolute inset-0 flex items-center justify-center px-[120px] py-[112px]"
+        className="absolute inset-0 flex items-center justify-center px-xl py-[88px] md:px-[120px] md:py-[112px]"
         onClick={onBackdropClick}
         onPointerDown={onBackdropPointerDown}
       >
@@ -349,7 +332,7 @@ export function ImageLightbox({
         >
           <img
             alt={alts?.[index] ?? title}
-            className="max-h-[calc(100vh-240px)] max-w-[min(calc(100vw-240px),1400px)] select-none object-contain"
+            className="max-h-[calc(100dvh-176px)] max-w-[calc(100vw-32px)] select-none object-contain md:max-h-[calc(100dvh-240px)] md:max-w-[min(calc(100vw-240px),1400px)]"
             decoding="async"
             draggable={false}
             src={src}
@@ -361,7 +344,7 @@ export function ImageLightbox({
         <div className="pointer-events-auto absolute top-4xl right-4xl">
           <button
             aria-label="Close"
-            className="inline-flex size-[56px] shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700"
+            className="inline-flex size-[44px] shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 md:size-[56px]"
             onClick={requestClose}
             ref={closeRef}
             type="button"

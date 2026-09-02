@@ -6,6 +6,7 @@ import {
   useId,
   useMemo,
   useRef,
+  type CSSProperties,
   type ReactNode,
 } from 'react'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from './gsap'
@@ -285,6 +286,13 @@ type RevealTextProps = {
    * displayed wording is shorter than what the heading should actually say.
    */
   srText?: string
+  /** Carries `--display-ratio` for `text-display` headings. */
+  style?: CSSProperties
+  /**
+   * Centers each rendered line of a `roll` heading. Only meaningful for
+   * headings long enough to wrap.
+   */
+  centerLines?: boolean
 }
 
 function headingVariant(tag: RevealTag, variant?: RevealVariant): RevealVariant {
@@ -292,7 +300,59 @@ function headingVariant(tag: RevealTag, variant?: RevealVariant): RevealVariant 
   return tag === 'h1' || tag === 'h2' || tag === 'h3' ? 'roll' : 'blur'
 }
 
-function RollingChars({ text }: { text: string }) {
+function rollingChar(char: string, key: string) {
+  const glyph = char === ' ' ? '\u00A0' : char
+  const spaceClass = char === ' ' ? 'w-[0.3em]' : undefined
+
+  return createElement(
+    'span',
+    {
+      className: ['relative inline-block h-[1lh]', spaceClass].filter(Boolean).join(' '),
+      key,
+    },
+    createElement('span', { className: 'invisible' }, glyph),
+    createElement(
+      'span',
+      {
+        className: 'absolute inset-x-0 top-1/2 h-[1.5em] -translate-y-1/2 overflow-hidden',
+      },
+      createElement(
+        'span',
+        {
+          className: 'flex h-[3em] flex-col will-change-transform',
+          'data-reveal-roll': '',
+        },
+        createElement('span', { className: 'flex h-[1.5em] shrink-0 items-center justify-center' }, glyph),
+        createElement('span', { className: 'flex h-[1.5em] shrink-0 items-center justify-center' }, glyph),
+      ),
+    ),
+  )
+}
+
+/**
+ * Splits a line into words and the spaces between them, keeping both so the
+ * per-character roll targets stay in document order.
+ */
+function segmentLine(line: string) {
+  return line.match(/[^ ]+| +/g) ?? []
+}
+
+/**
+ * One absolutely-positioned copy of each glyph per character, so every letter
+ * can roll independently.
+ *
+ * Characters are grouped into words and the line is `flex-wrap`, which is what
+ * lets a long display title break at a space instead of being scaled down until
+ * the whole thing fits on one line. Flex only ever breaks between items, so the
+ * grouping is what stops it breaking mid-word. A line that does not need to wrap
+ * renders as a single row exactly as before.
+ *
+ * `centerLines` centers each row. It is off by default because a flex line box
+ * reports its *unwrapped* width as max-content, so a heading that wraps is
+ * stretched to the full container and its rows would otherwise sit against the
+ * left edge with all the slack on the right.
+ */
+function RollingChars({ text, centerLines }: { text: string; centerLines?: boolean }) {
   const lines = text.split('\n')
 
   return createElement(
@@ -301,36 +361,31 @@ function RollingChars({ text }: { text: string }) {
     ...lines.map((line, lineIndex) =>
       createElement(
         'span',
-        { className: 'inline-flex h-[1lh] items-baseline whitespace-nowrap', key: `line-${lineIndex}` },
-        ...Array.from(line).map((char, charIndex) => {
-          const glyph = char === ' ' ? '\u00A0' : char
-          const spaceClass = char === ' ' ? 'w-[0.3em]' : undefined
-
-          return createElement(
-            'span',
-            {
-              className: ['relative inline-block h-[1lh]', spaceClass].filter(Boolean).join(' '),
-              key: `char-${lineIndex}-${charIndex}`,
-            },
-            createElement('span', { className: 'invisible' }, glyph),
-            createElement(
-              'span',
-              {
-                className:
-                  'absolute inset-x-0 top-1/2 h-[1.5em] -translate-y-1/2 overflow-hidden',
-              },
-              createElement(
+        {
+          className: [
+            'inline-flex min-h-[1lh] flex-wrap items-baseline',
+            centerLines ? 'justify-center' : '',
+          ]
+            .filter(Boolean)
+            .join(' '),
+          key: `line-${lineIndex}`,
+        },
+        ...segmentLine(line).flatMap((segment, segmentIndex) =>
+          segment.startsWith(' ')
+            ? Array.from(segment).map((char, charIndex) =>
+                rollingChar(char, `space-${lineIndex}-${segmentIndex}-${charIndex}`),
+              )
+            : createElement(
                 'span',
                 {
-                  className: 'flex h-[3em] flex-col will-change-transform',
-                  'data-reveal-roll': '',
+                  className: 'inline-flex items-baseline',
+                  key: `word-${lineIndex}-${segmentIndex}`,
                 },
-                createElement('span', { className: 'flex h-[1.5em] shrink-0 items-center justify-center' }, glyph),
-                createElement('span', { className: 'flex h-[1.5em] shrink-0 items-center justify-center' }, glyph),
+                ...Array.from(segment).map((char, charIndex) =>
+                  rollingChar(char, `char-${lineIndex}-${segmentIndex}-${charIndex}`),
+                ),
               ),
-            ),
-          )
-        }),
+        ),
       ),
     ),
   )
@@ -342,6 +397,8 @@ export function RevealText({
   variant: variantProp,
   className,
   srText,
+  style,
+  centerLines,
 }: RevealTextProps) {
   const rootRef = useRef<HTMLElement>(null)
   const group = useContext(RevealGroupContext)
@@ -424,9 +481,9 @@ export function RevealText({
   if (variant === 'roll') {
     return createElement(
       tag,
-      { className, 'data-reveal': 'roll', ref: rootRef },
+      { className, 'data-reveal': 'roll', ref: rootRef, style },
       createElement('span', { className: 'sr-only' }, srText ?? children),
-      createElement(RollingChars, { text: children }),
+      createElement(RollingChars, { centerLines, text: children }),
     )
   }
 
@@ -436,5 +493,5 @@ export function RevealText({
       : [line],
   )
 
-  return createElement(tag, { className, 'data-reveal': 'blur', ref: rootRef }, ...nodes)
+  return createElement(tag, { className, 'data-reveal': 'blur', ref: rootRef, style }, ...nodes)
 }

@@ -169,7 +169,7 @@ export function BackToTop() {
 
   return (
     <div
-      className="pointer-events-none fixed right-4xl bottom-4xl z-50 size-[80px]"
+      className="pointer-events-none fixed right-gutter bottom-gutter z-50 size-[56px] md:right-4xl md:bottom-4xl md:size-[80px]"
       ref={rootRef}
     >
       <span

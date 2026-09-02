@@ -15,23 +15,31 @@ import {
 } from '../motion-system'
 import { site } from '../content/site'
 import { valueCards, workItems } from '../content/portfolio'
+import { displayFitStyle } from '../lib/displayFit'
 import { SectionHeader, WorkCard, WorkGrid } from './WorkCard'
+
+/** The newline is the composition -- two stacked words, never one line. */
+const HERO_TITLE = 'Product\nDesigner'
 
 export function HomePage() {
   return (
     <div className="flex min-h-full w-full flex-col bg-background-primary">
-      <section className="relative -mt-[var(--site-nav-height,0px)] flex h-svh w-full flex-col items-start overflow-clip bg-background-secondary pt-[var(--site-nav-height,0px)]">
+      <section className="relative -mt-[var(--site-nav-height,0px)] flex h-svh w-full flex-col items-start overflow-clip bg-background-secondary pt-[var(--site-nav-height,0px)] [--hero-video:clamp(180px,45cqi,316px)] [container-type:inline-size]">
         <CursorTrail />
-        <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center justify-center p-[10px]">
-          <RevealGroup className="flex flex-col items-center gap-[132px]">
+        <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center justify-center p-gutter">
+          {/* 132px of the original 316px video, so the gap tracks the character
+              rather than the viewport and the three pieces hold their spacing
+              relative to each other at every size. */}
+          <RevealGroup className="flex w-full flex-col items-center gap-[calc(var(--hero-video)*0.418)] [container-type:inline-size]">
             <div className="flex flex-col items-center gap-3xl">
               <WelcomeTag />
               <RevealText
                 as="h1"
-                className="whitespace-pre text-center text-display text-foreground-primary"
+                className="text-center text-display text-foreground-primary"
                 srText={`${site.name} — ${site.role}`}
+                style={displayFitStyle(HERO_TITLE)}
               >
-                {`Product \nDesigner`}
+                {HERO_TITLE}
               </RevealText>
             </div>
             <RevealText
@@ -46,10 +54,13 @@ export function HomePage() {
           <HeroFamily />
           <LogosTicker />
         </div>
+        {/* The vertical offset is 27.26px of the original 316px, kept as a
+            proportion of --hero-video so the character holds its place in the
+            composition at every size. */}
         <video
           aria-hidden
           autoPlay
-          className="pointer-events-none absolute top-[calc(50%+27.26px)] left-1/2 z-10 size-[316px] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover"
+          className="pointer-events-none absolute top-[calc(50%+var(--hero-video)*0.0863)] left-1/2 z-10 size-[var(--hero-video)] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover"
           data-prerender="strip"
           disablePictureInPicture
           height={316}
@@ -63,7 +74,7 @@ export function HomePage() {
         />
       </section>
 
-      <section className="flex w-full flex-col items-center justify-center bg-background-primary p-4xl">
+      <section className="flex w-full flex-col items-center justify-center bg-background-primary px-gutter py-4xl">
         <RevealGroup className="flex w-full flex-col items-center gap-4xl">
           <SectionHeader caption="Selected work from 2023 to 2026" title="Work" />
           <WorkGrid>
@@ -81,8 +92,8 @@ export function HomePage() {
         </RevealGroup>
       </section>
 
-      <section className="flex w-full flex-col items-center justify-center bg-background-primary px-[10px] py-[164px]">
-        <RevealGroup className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-[120px] px-3xl py-4xl">
+      <section className="flex w-full flex-col items-center justify-center bg-background-primary px-gutter py-[clamp(72px,12vw,164px)]">
+        <RevealGroup className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-[clamp(56px,9vw,120px)] py-4xl">
           <div className="flex flex-col items-center gap-xl text-center">
             <RevealText
               as="h2"
@@ -91,21 +102,16 @@ export function HomePage() {
             >
               About Me
             </RevealText>
-            <RevealText as="p" className="w-[640px] text-h2 leading-[1.2] text-foreground-primary">
+            <RevealText as="p" className="w-full max-w-[640px] text-h2 leading-[1.2] text-foreground-primary">
               {site.blurb}
             </RevealText>
           </div>
           <div className="flex w-full max-w-[1176px] flex-col items-start gap-4xl">
             <div className="flex w-full flex-col items-stretch">
-              <div className="flex h-[380px] w-full items-start">
-                {valueCards.map((card, index) => (
+              <div className="grid w-full grid-cols-1 border-t border-l border-solid border-stroke-secondary md:grid-cols-3">
+                {valueCards.map((card) => (
                   <div
-                    className={[
-                      'flex h-full min-w-px flex-1 flex-col items-start justify-between p-xl',
-                      index === valueCards.length - 1
-                        ? 'border border-solid border-stroke-secondary'
-                        : 'border-t border-b border-l border-solid border-stroke-secondary',
-                    ].join(' ')}
+                    className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-xl md:min-h-[380px]"
                     key={card.title}
                   >
                     <RevealBlock>

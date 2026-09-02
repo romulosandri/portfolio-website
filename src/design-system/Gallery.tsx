@@ -37,7 +37,7 @@ function Tile({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col items-start gap-sm">
       {children}
-      <span className="font-mono text-body-small text-foreground-quaternary">{label}</span>
+      <span className="text-body-small text-foreground-quaternary">{label}</span>
     </div>
   )
 }
@@ -55,13 +55,13 @@ export function DesignSystemGallery() {
     <div className="min-h-full overflow-auto bg-background-primary text-foreground-primary">
       <main className="mx-auto flex max-w-[1200px] flex-col gap-4xl px-2xl py-3xl">
         <header className="flex flex-col gap-md">
-          <p className="font-mono text-body-small text-foreground-tertiary">
+          <p className="text-body-small text-foreground-tertiary">
             Design system
           </p>
           <h1 className="text-h2">Portfolio 2026</h1>
           <p className="max-w-[640px] text-body-default text-foreground-secondary">
             Components, logos, letters, and icons from Figma. Interactive states
-            respond to hover. Open this view with <code className="font-mono">?ds=1</code>.
+            respond to hover. Open this view with <code>?ds=1</code>.
           </p>
         </header>
 
@@ -219,7 +219,7 @@ export function DesignSystemGallery() {
             </div>
             {LETTER_CHARS.map((letter) => (
               <div className="flex flex-col gap-sm" key={letter}>
-                <p className="font-mono text-body-small uppercase text-foreground-tertiary">
+                <p className="text-body-small uppercase text-foreground-tertiary">
                   {letter}
                 </p>
                 <div className="flex flex-wrap items-end gap-xl">

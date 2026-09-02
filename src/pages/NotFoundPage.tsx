@@ -13,7 +13,7 @@ export function NotFoundPage() {
   return (
     <PageLayout>
       <DisplayHero srText="Page not found">404</DisplayHero>
-      <section className="flex w-full flex-col items-center justify-center bg-background-primary px-4xl pt-none pb-[164px]">
+      <section className="flex w-full flex-col items-center justify-center bg-background-primary px-gutter pt-none pb-[clamp(72px,12vw,164px)]">
         <RevealGroup className="flex w-full flex-col items-center gap-4xl">
           <SectionHeader
             caption="This URL is not a page on this site"
@@ -26,16 +26,14 @@ export function NotFoundPage() {
             >
               Browse the work, look at side projects, or get in touch. The rest of the site is still here.
             </RevealText>
-            <nav aria-label="Suggested pages" className="flex h-[380px] w-full items-stretch">
-              {destinations.map((item, index) => (
+            <nav
+              aria-label="Suggested pages"
+              className="grid w-full grid-cols-1 border-t border-l border-solid border-stroke-secondary xs:grid-cols-2 lg:grid-cols-4"
+            >
+              {destinations.map((item) => (
                 <a
                   aria-label={item.label}
-                  className={[
-                    'flex h-full min-w-px flex-1 flex-col items-start justify-between p-2xl no-underline',
-                    index === 0
-                      ? 'border border-solid border-stroke-secondary'
-                      : 'border-t border-r border-b border-solid border-stroke-secondary',
-                  ].join(' ')}
+                  className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-2xl no-underline xs:min-h-[180px] lg:min-h-[380px]"
                   href={item.href}
                   key={item.href}
                 >

@@ -59,24 +59,30 @@ export function FooterSection({ className }: FooterSectionProps) {
   return (
     <footer
       className={[
-        'relative flex w-full flex-col items-center bg-background-secondary px-4xl pt-4xl pb-[200px]',
+        // Bottom padding is the Pluto sprite's own scaled height, so the
+        // clearance under it can never drift from the sprite it clears.
+        'relative flex w-full flex-col items-center bg-background-secondary px-gutter pt-4xl pb-[calc(207px*var(--pluto-scale)-7px)]',
+        '[--pluto-scale:0.5] md:[--pluto-scale:0.75] xl:[--pluto-scale:1]',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="flex h-[560px] w-full items-end justify-between bg-background-white p-4xl">
-        <div className="flex h-full shrink-0 flex-col items-start justify-between">
+      {/* Four columns across only at xl. Their combined minimum is ~930px, which
+          leaves no usable gap until about 1280px, so below that they reflow to a
+          two-column grid and then to a single stack. */}
+      <div className="grid w-full grid-cols-1 items-start gap-4xl bg-background-white p-4xl xs:grid-cols-2 xl:flex xl:h-[560px] xl:items-end xl:justify-between xl:gap-none">
+        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-2xl xs:col-span-2 xl:col-span-1">
           <p className="whitespace-nowrap text-h3 text-foreground-secondary">Let’s Talk</p>
           <div className="flex flex-col items-start gap-1xl">
             <SocialLinks />
-            <p className="whitespace-nowrap text-body-small text-foreground-tertiary">
+            <p className="text-body-small text-foreground-tertiary">
               Designed by Romulo Sandri. Palmas, Brazil
             </p>
           </div>
         </div>
 
-        <div className="flex h-full shrink-0 flex-col items-start justify-between border-l border-solid border-stroke-secondary pl-2xl">
+        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-2xl border-solid border-stroke-secondary xl:border-l xl:pl-2xl">
           <p className="text-body-small text-foreground-tertiary">Work</p>
           <div className="flex flex-col items-start gap-md">
             {workItems.map((item) => (
@@ -85,7 +91,7 @@ export function FooterSection({ className }: FooterSectionProps) {
           </div>
         </div>
 
-        <div className="flex h-full shrink-0 flex-col items-start justify-between border-l border-solid border-stroke-secondary pl-2xl">
+        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-2xl border-solid border-stroke-secondary xl:border-l xl:pl-2xl">
           <p className="text-body-small text-foreground-tertiary">Projects</p>
           <div className="flex flex-col items-start gap-md">
             {projectItems.map((item) => (
@@ -94,11 +100,9 @@ export function FooterSection({ className }: FooterSectionProps) {
           </div>
         </div>
 
-        <div className="flex h-full w-[508px] shrink-0 flex-col items-start justify-between">
-          <div className="flex w-full items-center gap-2xl">
-            <p className="whitespace-nowrap text-h5 text-foreground-secondary">
-              Ask about Rômulo Sandri on
-            </p>
+        <div className="flex h-full w-full shrink-0 flex-col items-start justify-between gap-2xl xs:col-span-2 xl:w-[508px] xl:col-span-1">
+          <div className="flex w-full flex-wrap items-center gap-x-2xl gap-y-lg">
+            <p className="text-h5 text-foreground-secondary">Ask about Rômulo Sandri on</p>
             <div className="flex items-center gap-md">
               {aiButtons.map((item) => (
                 <AiButton href={item.href} key={item.name} label={item.label} name={item.name} />

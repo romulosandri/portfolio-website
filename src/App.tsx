@@ -125,7 +125,11 @@ function App() {
   return (
     <div className={transitioning ? 'flex h-svh flex-col overflow-hidden' : undefined}>
       {hideNav ? null : (
-        <div className="relative z-30 shrink-0" ref={navRef}>
+        /* Sticky only below the nav breakpoint, so the menu button stays
+           reachable after scrolling. Sticky stays in flow, so the
+           ResizeObserver above and the hero's negative top margin both keep
+           measuring the same box. */
+        <div className="sticky top-0 z-30 shrink-0 nav:static" ref={navRef}>
           <NavBar
             className={isHomeChrome(chrome) ? 'bg-background-secondary' : undefined}
             pathname={chrome.pathname}

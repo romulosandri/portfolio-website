@@ -110,14 +110,14 @@ export function ContactStatusVisual({ status }: ContactStatusVisualProps) {
   )
 
   return (
-    <div className="relative shrink-0 overflow-clip" ref={rootRef}>
+    <div className="relative w-full max-w-[904px] shrink-0 overflow-clip lg:w-auto" ref={rootRef}>
       <div className="origin-center will-change-transform" ref={mediaRef}>
         <WorkImageSequence />
       </div>
       <div
         aria-hidden={status !== 'error'}
         className={[
-          'invisible absolute inset-0 z-10 flex flex-col items-center justify-center gap-2xl bg-foreground-primary/80 px-4xl text-center opacity-0',
+          'invisible absolute inset-0 z-10 flex flex-col items-center justify-center gap-2xl bg-foreground-primary/80 px-gutter text-center opacity-0',
           status === 'error' ? 'pointer-events-auto' : 'pointer-events-none',
         ].join(' ')}
         ref={overlayRef}

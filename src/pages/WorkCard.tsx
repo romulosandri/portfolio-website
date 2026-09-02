@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { RevealBlock, RevealGroup, RevealLine, RevealText, useScrollSkew } from '../motion-system'
 import { gsap, useGSAP } from '../motion-system/gsap'
+import { displayFitStyle } from '../lib/displayFit'
 
 const HOVER_PREVIEW_COUNT = 5
 const HOVER_PREVIEW_INTERVAL_MS = 1000
@@ -122,7 +123,11 @@ export function WorkCard({ title, year, cover, href, images = [], className, com
     { scope: mediaRef, dependencies: [cover, primed, previewImages] },
   )
 
+  // Priming mounts up to four extra full-size AVIFs per card. On a touch device
+  // there is no hover to reveal them, so the fetch would be pure waste -- and
+  // `focus` fires on tap, which is what would otherwise trigger it.
   const startPreview = () => {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
     hoveredRef.current = true
     setPrimed(true)
     startCycle()
@@ -205,7 +210,7 @@ export function WorkGrid({ children }: { children: ReactNode }) {
   useScrollSkew(rootRef, 'a')
 
   return (
-    <div className="grid w-full grid-cols-2 gap-x-xl gap-y-2xl" ref={rootRef}>
+    <div className="grid w-full grid-cols-1 gap-x-xl gap-y-2xl md:grid-cols-2" ref={rootRef}>
       {children}
     </div>
   )
@@ -220,12 +225,15 @@ export function SectionHeader({ title, caption }: SectionHeaderProps) {
   return (
     <div className="flex w-full flex-col gap-2xl">
       <RevealLine />
-      <div className="flex w-full items-center justify-center gap-[10px]">
-        <RevealText as="h2" className="min-w-px flex-1 text-h2 text-foreground-primary">
+      <div className="flex w-full flex-col items-start justify-center gap-lg md:flex-row md:items-center md:gap-[10px]">
+        <RevealText as="h2" className="w-full text-h2 text-foreground-primary md:min-w-px md:flex-1">
           {title}
         </RevealText>
         {caption ? (
-          <RevealText as="p" className="whitespace-nowrap text-body-large text-foreground-tertiary">
+          <RevealText
+            as="p"
+            className="text-body-large text-foreground-tertiary md:whitespace-nowrap"
+          >
             {caption}
           </RevealText>
         ) : null}
@@ -241,11 +249,15 @@ type DisplayHeroProps = {
 
 export function DisplayHero({ children, srText }: DisplayHeroProps) {
   return (
-    <RevealGroup className="flex h-[560px] w-full shrink-0 flex-col items-center justify-center bg-background-primary p-4xl">
+    /* min-h rather than h: a title long enough to wrap has to be able to push
+       the block taller. Desktop keeps the original 560px. */
+    <RevealGroup className="flex min-h-[280px] w-full shrink-0 flex-col items-center justify-center bg-background-primary px-gutter py-4xl md:min-h-[400px] lg:min-h-[560px] [container-type:inline-size]">
       <RevealText
         as="h1"
-        className="whitespace-nowrap text-center text-display text-foreground-primary"
+        centerLines
+        className="text-center text-display text-foreground-primary"
         srText={srText}
+        style={displayFitStyle(children)}
       >
         {children}
       </RevealText>

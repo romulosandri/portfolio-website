@@ -288,18 +288,20 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
   return (
     <PageLayout>
       <DisplayHero>{item.title}</DisplayHero>
-      <section className="flex w-full items-center justify-center bg-background-primary px-4xl pt-4xl pb-[164px]">
-        <div className="flex min-w-px flex-1 items-start justify-center gap-4xl">
-          <RevealGroup className="sticky top-4xl flex w-[480px] shrink-0 flex-col items-start self-start">
+      <section className="flex w-full items-center justify-center bg-background-primary px-gutter pt-4xl pb-[clamp(72px,12vw,164px)]">
+        <div className="flex min-w-px flex-1 flex-col items-start justify-center gap-4xl lg:flex-row">
+          {/* Only sticky once it sits beside the gallery. Stacked above it, a
+              sticky sidebar would pin over the images as you scroll past. */}
+          <RevealGroup className="flex w-full shrink-0 flex-col items-start lg:sticky lg:top-4xl lg:w-[400px] lg:self-start xl:w-[480px]">
             <RevealLine />
             <div className="flex w-full flex-col items-start justify-center gap-3xl pt-2xl">
               <MetaField label="Description" value={item.description} className="w-full" />
               <div className="flex w-full items-start gap-xl">
-                <MetaField className="w-[160px] shrink-0" label="Client" value={item.client} />
+                <MetaField className="w-[120px] shrink-0 xs:w-[160px]" label="Client" value={item.client} />
                 <MetaField className="min-w-px flex-1" label="Role" value={item.role} />
               </div>
               <div className="flex w-full items-start gap-xl">
-                <MetaField className="w-[160px] shrink-0" label="Year" value={item.year} />
+                <MetaField className="w-[120px] shrink-0 xs:w-[160px]" label="Year" value={item.year} />
                 <MetaField className="min-w-px flex-1" label="Duration" value={item.duration} />
               </div>
               {item.url ? (
@@ -323,7 +325,7 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
         </div>
       </section>
       <section
-        className="flex w-full flex-col items-center justify-center overflow-clip bg-background-secondary p-4xl"
+        className="flex w-full flex-col items-center justify-center overflow-clip bg-background-secondary px-gutter py-4xl"
         ref={galleryRef}
       >
         <RevealGroup className="flex w-full flex-col items-center gap-4xl">
@@ -331,7 +333,7 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
           <DragScroll>
             {related.map((card) => (
               <WorkCard
-                className="w-[853px] shrink-0"
+                className="w-[min(85vw,853px)] shrink-0"
                 cover={card.cover}
                 href={card.href}
                 images={card.images}

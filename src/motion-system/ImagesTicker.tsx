@@ -6,13 +6,17 @@ type ImagesTickerProps = {
   className?: string
 }
 
+/**
+ * Height-driven with an auto width, so a phone decodes a fraction of the pixel
+ * area for what is a purely decorative marquee.
+ */
 function ImageTrack({ copy, images }: { copy: number; images: TickerImage[] }) {
   return (
     <div aria-hidden={copy > 0} className="flex items-center gap-[10px]">
       {images.map((image) => (
         <img
           alt=""
-          className="h-[640px] w-[853px] shrink-0 object-cover"
+          className="h-[clamp(220px,45vh,640px)] w-auto shrink-0 object-cover"
           decoding="async"
           height={640}
           key={`${copy}-${image.src}`}

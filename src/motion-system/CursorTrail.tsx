@@ -1,13 +1,33 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { trailImages } from '../content/portfolio'
 import { gsap, useGSAP } from './gsap'
 
 const GAP = 100
 const TRAIL_COUNT = 18
+const TRAIL_QUERY =
+  '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)'
 
+/**
+ * Gating the render, not just the animation, is what keeps 18 image requests
+ * off phones -- a hidden <img> still has a src and still downloads.
+ *
+ * This is the one place a JS branch is safe despite the no-branching rule: the
+ * trail is absolutely positioned and `pointer-events-none`, so it contributes
+ * no layout for the desktop branch to get wrong. Starting false also means
+ * scripts/prerender.mjs, which emulates reduced motion, serialises none of them.
+ */
 export function CursorTrail() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [images] = useState(() => trailImages(TRAIL_COUNT))
+  const [enabled, setEnabled] = useState(false)
+
+  useEffect(() => {
+    const query = window.matchMedia(TRAIL_QUERY)
+    const sync = () => setEnabled(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
 
   useGSAP(
     (_context, contextSafe) => {
@@ -17,7 +37,7 @@ export function CursorTrail() {
       const mm = gsap.matchMedia()
 
       mm.add(
-        '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)',
+        TRAIL_QUERY,
         () => {
           const flair = gsap.utils.toArray<HTMLImageElement>('img', root)
           if (flair.length === 0) return
@@ -112,10 +132,10 @@ export function CursorTrail() {
 
       return () => mm.revert()
     },
-    { scope: rootRef, dependencies: [images] },
+    { scope: rootRef, dependencies: [images, enabled] },
   )
 
-  if (images.length === 0) return null
+  if (!enabled || images.length === 0) return null
 
   return (
     <div

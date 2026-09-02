@@ -94,7 +94,7 @@ export function WorkImageSequence() {
   return (
     <div
       aria-hidden
-      className="relative h-[678px] w-[904px] shrink-0 overflow-clip"
+      className="relative aspect-[904/678] w-full max-w-[904px] shrink-0 overflow-clip"
       ref={rootRef}
     >
       <img
