@@ -1,4 +1,5 @@
 import { useRef, type ReactNode } from 'react'
+import { CopyEmail } from '../design-system'
 import { site } from '../content/site'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { MOTION, prefersReducedMotion } from '../motion-system/tokens'
@@ -25,9 +26,9 @@ const COPY: Record<
     body: (
       <>
         Something went wrong.{' '}
-        <a className="text-background-primary underline" href={`mailto:${site.email}`}>
+        <CopyEmail className="text-background-primary underline">
           Email me at {site.email}
-        </a>
+        </CopyEmail>
       </>
     ),
     announcement: `Something went wrong. Email me directly at ${site.email}.`,

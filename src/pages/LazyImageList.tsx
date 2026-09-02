@@ -74,6 +74,7 @@ export function LazyImageList({ images, title, alts }: LazyImageListProps) {
       ))}
       {lightboxIndex !== null ? (
         <ImageLightbox
+          alts={alts}
           images={images}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}

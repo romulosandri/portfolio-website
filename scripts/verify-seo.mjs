@@ -69,12 +69,29 @@ for (const file of files.sort()) {
     }
   }
 
+  const isNotFound = relative === '404.html'
+
   if (text.length < 400 && route !== '/game') fail(`${route}: only ${text.length} chars of text`)
   if (h1s.length !== 1) fail(`${route}: expected 1 <h1>, found ${h1s.length}`)
   if (hidden > 0) fail(`${route}: ${hidden} hidden-style declarations remain`)
   if (!/<meta name="description"/.test(html)) fail(`${route}: no meta description`)
-  if (!/<link rel="canonical"/.test(html)) fail(`${route}: no canonical`)
+  if (isNotFound) {
+    if (!/noindex/.test(html)) fail(`${route}: expected noindex`)
+    if (/<link rel="canonical"/.test(html)) fail(`${route}: 404 must not self-canonicalise`)
+  } else if (!/<link rel="canonical"/.test(html)) {
+    fail(`${route}: no canonical`)
+  }
   if (!/<meta property="og:image"/.test(html)) fail(`${route}: no og:image`)
+
+  if (route === '/' && ldMatch) {
+    try {
+      const person = JSON.parse(ldMatch[1])['@graph']?.find((node) => node['@type'] === 'Person')
+      const imageUrl = typeof person?.image === 'string' ? person.image : person?.image?.url
+      if (!imageUrl) fail('/: Person JSON-LD has no image')
+    } catch {
+      // Parse failure is already reported above.
+    }
+  }
 
   rows.push({
     route,
@@ -115,10 +132,46 @@ for (const name of required) {
 }
 
 try {
-  JSON.parse(await readFile(path.join(DIST, 'resume.json'), 'utf8'))
+  const resume = JSON.parse(await readFile(path.join(DIST, 'resume.json'), 'utf8'))
   console.log('  ok    resume.json parses as JSON')
+  if (!resume.basics?.image) fail('resume.json: basics.image is missing')
+  const siteUrl = resume.basics?.url?.replace(/\/$/, '') ?? ''
+  for (const job of resume.work ?? []) {
+    if (!job.url) continue
+    let pathname
+    try {
+      pathname = new URL(job.url).pathname
+    } catch {
+      fail(`resume.json ${job.name}: url is not absolute (${job.url})`)
+      continue
+    }
+    if (siteUrl && !job.url.startsWith(siteUrl)) {
+      fail(`resume.json ${job.name}: url is off-site (${job.url})`)
+      continue
+    }
+    const twin = `${pathname.replace(/^\//, '')}.md`
+    try {
+      await readFile(path.join(DIST, twin), 'utf8')
+    } catch {
+      fail(`resume.json ${job.name}: ${job.url} has no matching ${twin}`)
+    }
+  }
 } catch {
   fail('resume.json is not valid JSON')
+}
+
+const home = files.find((file) => path.relative(DIST, file).replace(/\\/g, '/') === 'index.html')
+if (home) {
+  const html = await readFile(home, 'utf8')
+  const leftover = (html.match(/data-prerender=/g) ?? []).length
+  const family = (html.match(/data-family-frame/g) ?? []).length
+  const pluto = (html.match(/data-pluto-frame/g) ?? []).length
+  const logos = (html.match(/data-ticker-logo/g) ?? []).length
+  if (leftover > 0) fail(`/: ${leftover} data-prerender markers left in the HTML`)
+  if (family > 0) fail(`/: ${family} family sprite frames still in the HTML`)
+  if (pluto > 0) fail(`/: ${pluto} footer Pluto frames still in the HTML`)
+  if (html.includes('hero-character.webm')) fail('/: hero video still in the HTML')
+  if (logos > 24) fail(`/: logo ticker still duplicated (${logos} logos)`)
 }
 
 console.log(failures === 0 ? '\nAll checks passed.' : `\n${failures} check(s) failed.`)

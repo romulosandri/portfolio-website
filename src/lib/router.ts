@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { projectBySlug, workBySlug } from '../content/portfolio'
 
 export type Route =
   | { name: 'home' }
@@ -20,10 +21,18 @@ export function parseLocation(pathname: string, search: string): Route {
   if (path === '/') return { name: 'home' }
   if (path === '/work') return { name: 'work' }
   const workDetail = path.match(/^\/work\/([^/]+)$/)
-  if (workDetail) return { name: 'workDetail', slug: workDetail[1] }
+  if (workDetail) {
+    return workBySlug(workDetail[1])
+      ? { name: 'workDetail', slug: workDetail[1] }
+      : { name: 'notFound' }
+  }
   if (path === '/projects') return { name: 'projects' }
   const projectDetail = path.match(/^\/projects\/([^/]+)$/)
-  if (projectDetail) return { name: 'projectDetail', slug: projectDetail[1] }
+  if (projectDetail) {
+    return projectBySlug(projectDetail[1])
+      ? { name: 'projectDetail', slug: projectDetail[1] }
+      : { name: 'notFound' }
+  }
   if (path === '/how-i-use-ai') return { name: 'howAi' }
   if (path === '/contact') return { name: 'contact' }
   if (path === '/game') return { name: 'game' }

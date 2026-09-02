@@ -6,8 +6,6 @@
  * education anywhere -- career facts only existed implicitly inside case study
  * prose. Everything here is emitted into JSON-LD, /resume.json (JSON Resume
  * schema), and /resume.md.
- *
- * Fields marked TODO are placeholders that need real values.
  */
 
 export type SkillGroup = {
@@ -320,6 +318,7 @@ export const certificates: CertificateEntry[] = [
   },
 ]
 
+/** Confirmed 2 Sep 2026. Spanish not listed. Ships in `/resume.json` and JSON-LD `knowsLanguage`. */
 export const languages: LanguageEntry[] = [
   { language: 'Portuguese', fluency: 'Native speaker' },
   { language: 'English', fluency: 'Fluent' },
@@ -328,8 +327,8 @@ export const languages: LanguageEntry[] = [
 /**
  * Availability, stated plainly. This is the single most common question a
  * recruitment agent needs answered and the hardest thing to infer from a portfolio.
+ * Confirmed 2 Sep 2026. Ships in `/resume.json` under `meta.availability`.
  */
-// TODO: confirm all of these before deploying -- they are guesses.
 export const availability = {
   openToWork: true,
   openToRemote: true,

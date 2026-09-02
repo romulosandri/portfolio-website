@@ -19,7 +19,7 @@ type PendingTransition = {
 }
 
 function isHomeChrome(page: PageKey) {
-  return page.route.name === 'home' || page.route.name === 'notFound'
+  return page.route.name === 'home'
 }
 
 /**

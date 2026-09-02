@@ -30,6 +30,13 @@ const CONCURRENCY = 4
 
 /** Runs inside the page, immediately before serialization. */
 function sanitize() {
+  // Motion-only nodes: cursor trail, family sprites, footer Pluto, image ticker,
+  // hero video. Strip them before un-hiding opacity, otherwise GSAP's
+  // autoAlpha:0 images serialise as a pile of visible <img> tags.
+  document.querySelectorAll('[data-prerender="strip"]').forEach((node) => node.remove())
+  // Infinite-scroll tickers render a second copy of the track. Keep one.
+  document.querySelectorAll('[data-prerender="clone"]').forEach((node) => node.remove())
+
   // With reduced motion the reveals should already be visible, but GSAP also
   // writes inline styles from hover, ticker, and panel-transition timelines.
   // Anything left at zero opacity would read as hidden text to a crawler.
@@ -117,6 +124,10 @@ function outputPath(routePath) {
 async function main() {
   const routePaths = await withContent(async ({ routes }) => routes.routePaths)
 
+  // 404.html is Netlify's custom error page. It is not in routes.ts so it never
+  // lands in the sitemap. Visiting /404 still hits the SPA, which renders the
+  // not-found page; writing that HTML here is what unknown URLs actually serve.
+
   const server = await preview({
     preview: { port: 4183, strictPort: false, open: false },
     logLevel: 'error',
@@ -126,7 +137,7 @@ async function main() {
   const browser = await chromium.launch()
   const results = new Map()
   const warnings = []
-  const queue = [...routePaths]
+  const queue = [...routePaths, '/404']
 
   const worker = async () => {
     for (;;) {

@@ -4,6 +4,7 @@ import { ContactPage } from './ContactPage'
 import { GamePage } from './GamePage'
 import { HomePage } from './HomePage'
 import { HowIUseAiPage } from './HowIUseAiPage'
+import { NotFoundPage } from './NotFoundPage'
 import { ProjectDetailPage } from './ProjectDetailPage'
 import { ProjectsGalleryPage } from './ProjectsGalleryPage'
 import { WorkGalleryPage } from './WorkGalleryPage'
@@ -44,9 +45,11 @@ export function renderPage({ route }: PageKey) {
       return <ContactPage />
     case 'game':
       return <GamePage />
+    case 'home':
+      return <HomePage />
     case 'notFound':
-      return <HomePage />
+      return <NotFoundPage />
     default:
-      return <HomePage />
+      return <NotFoundPage />
   }
 }

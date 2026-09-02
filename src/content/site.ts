@@ -7,6 +7,8 @@ export function absoluteUrl(path: string) {
   return new URL(path, SITE_URL).toString()
 }
 
+// Public address shown on the site. Clicking it copies this value. Form
+// submissions are delivered to CONTACT_TO_EMAIL (Gmail), not this inbox.
 const EMAIL = 'contact@romulosandri.com'
 export const BLOG_URL = 'https://sandriromulo.substack.com/'
 
@@ -37,10 +39,11 @@ export const socialLinks: SocialLink[] = [
 
 const profileLinks = socialLinks.filter((link) => link.type !== 'email')
 
-// `role` is the canonical job title. It is repeated in the home <h1> sr-text,
-// the footer prose, page titles, and the JSON-LD Person entity; they must agree
-// or entity extraction resolves them as different people. `roles` is the full
-// set of titles that are also accurate — JSON-LD `jobTitle` and agent docs
+// `role` is the canonical job title (Senior Product Designer). It is repeated
+// in the home <h1> sr-text, the footer prose, page titles, and the JSON-LD
+// Person entity; they must agree or entity extraction resolves them as different
+// people. `roles` is that title plus the fallbacks that are also accurate
+// (Product Designer, Design Engineer) — JSON-LD `jobTitle` and agent docs
 // publish all of them, with `role` first.
 export const site = {
   name: 'Rômulo Sandri',
@@ -69,4 +72,6 @@ export const site = {
   // Feeds JSON-LD `sameAs`, the strongest signal search engines and LLMs use to
   // resolve this site to a real person.
   sameAs: [...profileLinks.map((link) => link.href), BLOG_URL],
+  // Square JPEG used as JSON-LD Person.image and JSON Resume basics.image.
+  image: '/images/romulo-sandri.jpg',
 }

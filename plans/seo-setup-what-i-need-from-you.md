@@ -14,7 +14,7 @@ blocks and I will wire them in — most are one-line changes.
 ### 1.1 The production domain
 
 - **File:** [src/content/site.ts](../src/content/site.ts) line 5
-- **Now:** `SITE_URL = 'https://romulosandri.com'` (I guessed)
+- **Now:** `SITE_URL = 'https://romulosandri.com'` (confirmed)
 - **Why it matters:** every canonical tag, every `sitemap.xml` entry, every
   Open Graph URL, and every JSON-LD `@id` is derived from this one constant. If it
   is wrong, Google indexes URLs that do not exist and the whole entity graph points
@@ -22,7 +22,7 @@ blocks and I will wire them in — most are one-line changes.
 
 **Your answer:**
 ```
-Domain:
+Domain: https://romulosandri.com
 ```
 
 ---
@@ -42,11 +42,12 @@ Domain:
 
 **Your answer:**
 ```
-LinkedIn:
-GitHub:
-X / Twitter:
-Instagram:
-Dribbble / Behance / Read.cv (optional):
+LinkedIn: https://www.linkedin.com/in/romulo-sandri/
+GitHub: https://github.com/romulosandri
+X / Twitter: https://x.com/sandri_romulo
+Instagram: https://www.instagram.com/rom_bunnyhop/
+Substack: https://sandriromulo.substack.com/
+Dribbble / Behance / Read.cv (optional): skip
 ```
 
 ---
@@ -212,17 +213,8 @@ Want to do this? (yes / later / skip):
 
 Not SEO issues, just things that look unintentional:
 
-- [src/design-system/FooterSection.tsx](../src/design-system/FooterSection.tsx) line 28 lists
-  **"Kessera (WIP)"** in the footer projects nav, linking to `/projects`. There is no Kessera in
-  `projectItems`, so it is a dead-end link to a project that does not exist on the site.
-- The footer nav is a hardcoded list that duplicates `workItems` / `projectItems`. It will drift
-  the next time you add a case study. I can make it read from the content files.
-
-**Your answer:**
-```
-Kessera — remove, or add a real case study?
-Make footer nav dynamic? (yes/no):
-```
+- **"Kessera (WIP)"** was a dead footer link with no case study. **Removed for now** (2 Sep 2026).
+- The footer nav now maps `workItems` / `projectItems`, so it will not drift.
 
 ---
 
@@ -235,8 +227,8 @@ Chromium before prerendering are already committed. Once you have a domain:
 2. Point the domain at it.
 3. Add the three contact form variables from `.env.example` under Site configuration →
    Environment variables.
-4. Update `SITE_URL` (item 1.1) and rebuild.
-5. Submit `https://<domain>/sitemap.xml` in Google Search Console.
+4. `SITE_URL` is already `https://romulosandri.com` (confirmed). Rebuild after deploy.
+5. Submit `https://romulosandri.com/sitemap.xml` in Google Search Console.
 
 Useful commands:
 

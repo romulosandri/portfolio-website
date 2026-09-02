@@ -11,12 +11,11 @@
 # Static files win over this rule, so a prerendered dist/work/pacelane.html is
 # served directly and only genuinely unknown paths reach the fallback. Because
 # every route in src/content/routes.ts is prerendered to its own file, anything
-# landing here really is missing -- hence 404 rather than 200. The body is still
-# the app shell, so the client router boots and renders its not-found state,
-# while crawlers get a status that keeps the URL out of the index.
+# landing here really is missing. Serve the dedicated 404 page (not the app
+# shell) so humans see an explanation and crawlers still get a 404 status.
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/404.html"
   status = 404
 
 # Netlify already serves .md as text/markdown; these rules only add the charset,
@@ -46,3 +45,8 @@
   for = "/*"
   [headers.values]
     X-Robots-Tag = "index, follow"
+
+[[headers]]
+  for = "/404.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

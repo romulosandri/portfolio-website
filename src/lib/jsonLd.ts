@@ -33,6 +33,13 @@ function personNode(): JsonLdNode {
     '@id': PERSON_ID,
     name: site.name,
     url: SITE_URL,
+    image: {
+      '@type': 'ImageObject',
+      url: absoluteUrl(site.image),
+      contentUrl: absoluteUrl(site.image),
+      caption: `${site.name}, ${site.role}`,
+      encodingFormat: 'image/jpeg',
+    },
     jobTitle: [...site.roles],
     description: site.blurb,
     email: `mailto:${site.email}`,
@@ -133,7 +140,22 @@ function caseStudyNode(item: WorkItem): JsonLdNode {
     inLanguage: 'en',
     about: item.tags,
     ...(item.client && item.client !== 'Freelance'
-      ? { sourceOrganization: { '@type': 'Organization', name: item.client } }
+      ? {
+          sourceOrganization: {
+            '@type': 'Organization',
+            name: item.client,
+            ...(item.url ? { url: item.url } : {}),
+          },
+        }
+      : {}),
+    ...(item.url
+      ? {
+          isBasedOn: {
+            '@type': 'WebSite',
+            name: item.title,
+            url: item.url,
+          },
+        }
       : {}),
     // `delivered` carries the substance of the case study. Without it the only
     // machine-readable content here would be a single paragraph.
@@ -178,7 +200,6 @@ export function buildJsonLd(route: Route, meta: PageMeta): string {
 
   switch (route.name) {
     case 'home':
-    case 'notFound':
       graph.push({
         '@type': 'ProfilePage',
         '@id': `${SITE_URL}/#profilepage`,
@@ -188,6 +209,9 @@ export function buildJsonLd(route: Route, meta: PageMeta): string {
         isPartOf: { '@id': WEBSITE_ID },
         mainEntity: { '@id': PERSON_ID },
       })
+      break
+
+    case 'notFound':
       break
 
     case 'work':

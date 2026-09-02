@@ -200,6 +200,7 @@ export function HeroFamily() {
     <div
       aria-hidden
       className="pointer-events-none absolute inset-x-0 bottom-full overflow-hidden"
+      data-prerender="strip"
       ref={trackRef}
       style={{ height: TRACK_HEIGHT }}
     >

@@ -16,9 +16,9 @@ Items are ordered by how much they block going live, not by how long they take.
 
 The architecture is in place: prerendered HTML, JSON-LD, `llms.txt`, `agents.md`, `resume.json`, per-page markdown, sitemap, robots, contact function, Netlify config.
 
-What is **not** done is the last mile: real content confirmation, a mobile layout, a proper favicon/social-image set, licensed fonts, security headers, and a rebuild so `dist/` matches `src/`.
+What is **not** done is the last mile: remaining content confirmation, a mobile layout, a proper favicon/social-image set, licensed fonts, and security headers.
 
-`dist/` is out of date relative to `src/content/`. The prerendered HTML still says Product Designer, still emails `romulosandrirodrigues@gmail.com`, and still links social icons to `github.com` / `x.com` / `linkedin.com` / `instagram.com`. Source already has Senior Product Designer, `contact@romulosandri.com`, and real profile URLs. Do not judge the live site from `dist/` until `npm run build` runs again.
+`dist/` was rebuilt 2 Sep 2026, so prerendered HTML now matches source for social URLs, `contact@romulosandri.com`, and Senior Product Designer.
 
 ---
 
@@ -28,57 +28,50 @@ What is **not** done is the last mile: real content confirmation, a mobile layou
 
 | # | What | Where | Why it matters | Status |
 | --- | --- | --- | --- | --- |
-| 1.1 | Confirm the production domain | `src/content/site.ts` → `SITE_URL` | Every canonical, sitemap URL, OG URL, and JSON-LD `@id` is derived from this. Wrong domain = Google indexes URLs that do not exist. | **You.** Currently `https://romulosandri.com` (guessed). |
-| 1.2 | Confirm availability | `src/content/resume.ts` lines 332–349 | The file still says these are guesses. `noticePeriod` is now “Immediate — can start right away”. The rest (`openToWork`, remote, contract, full-time, 8 years, preferred roles) has never been confirmed. | **You.** Ships in `/resume.json` under `meta.availability`. |
-| 1.3 | Resend + contact email | `.env.example` | Contact form will 500 until `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, and `CONTACT_TO_EMAIL` are set in Netlify. `contact@romulosandri.com` only works as a From address after the domain is verified in Resend. | **You.** |
+| 1.1 | Confirm the production domain | `src/content/site.ts` → `SITE_URL` | Every canonical, sitemap URL, OG URL, and JSON-LD `@id` is derived from this. Wrong domain = Google indexes URLs that do not exist. | **Done.** Confirmed `https://romulosandri.com`. |
+| 1.2 | Confirm availability | `src/content/resume.ts` lines 332–349 | Confirmed 2 Sep 2026. Open to work, remote, contract, and full-time; not open to relocation; Senior, 8 years; immediate start. Preferred roles include Product Designer (not only Senior) for companies that skip the senior title. | **Done.** Ships in `/resume.json` under `meta.availability`. |
+| 1.3 | Resend + contact email | `.env.example` | Public address is `contact@romulosandri.com` (copy on click + snackbar). Form delivers to `romulosandrirodrigues@gmail.com`. Form will 500 until `RESEND_API_KEY` and `CONTACT_FROM_EMAIL` are set in Netlify. `contact@romulosandri.com` only works as a From address after the domain is verified in Resend. | **Done** for inbox vs public address. **You** for Resend keys. |
 
 ### Important for recruiters and agents
 
 | # | What | Where | Why it matters | Status |
 | --- | --- | --- | --- | --- |
-| 1.4 | Impact metrics on case studies | `portfolio.ts` `delivered[]` | Almost every `delivered` line is an activity (“Product strategy”, “User testing”), not a result. Fotospin is the exception (7,000 downloads / $2,000). Meltwater has 19 products / ~$1B ARR / 20,000+ clients in the prose, not as a delivered line. | **You.** Even rough numbers help. |
+| 1.4 | Impact metrics on case studies | `portfolio.ts` `delivered[]` | Almost every `delivered` line is an activity (“Product strategy”, “User testing”), not a result. Fotospin is the exception (7,000 downloads / $2,000). Meltwater has 19 products / ~$1B ARR / 20,000+ clients in the prose, not as a delivered line. | **Deferred.** No other numbers right now. Ship with Fotospin + Meltwater context as-is. Revisit if numbers appear. |
 | 1.5 | Live product URLs | `portfolio.ts` (no `url` field exists yet) | Pacelane.ai, Fotospin (App Store / Play / site), Spiiine (App Store), Gemhaus, Stream Stakes — none of the case studies link out to the actual product. | **You**, then **Code**. |
 | 1.6 | What “Life” in the nav should do | `NavBar.tsx` → `href="#life"` | There is no `id="life"` anywhere. The link is a dead hash. Is it the game, a future page, the About block, or should it be removed? | **You**. |
 | 1.7 | Skills list review | `resume.ts` `skillGroups` | ~80 skills across 8 categories, inferred from case studies. This becomes JSON-LD `knowsAbout` and `/resume.json`. Delete anything you would not want to be interviewed on; add what is missing. | **You**. |
-| 1.8 | Education years | `resume.ts` | UCSD Interaction Design Professional Certificate is in progress, no start year. Google UX and IDF certificates have no dates. | **You**, optional. |
+| 1.8 | Education years | `resume.ts` | UCSD Interaction Design Professional Certificate is in progress, no start year. Google UX and IDF certificates have no dates. | **Skip.** Leave as-is. |
 
 ### Optional / later
 
 | # | What | Status |
 | --- | --- | --- |
 | 1.9 | Per-image alt text | **You**, later. ~245 images. Fallbacks like “Pacelane.ai — … work, image 7 of 40” are already generated. Real alts for 3–5 hero images per case study would be enough. |
-| 1.10 | Language fluency | English is “Fluent”, Portuguese “Native”. Confirm or add Spanish. |
-| 1.11 | Kessera | **Done in source.** Footer now maps `projectItems`, so Kessera is gone. `dist/` still shows “Kessera (WIP)” → `/projects` until rebuild. |
-| 1.12 | Social profile URLs | **Done in source.** GitHub, X, LinkedIn, Instagram, Substack are real. `dist/` HTML still has the placeholder homepages. |
-| 1.13 | Canonical title | **Done in source.** `Senior Product Designer`, with Product Designer and Design Engineer as additional `roles`. `dist/` and `index.html` still say Product Designer. |
-| 1.14 | Contact-page social icons | **Done in source.** They are wrapped in `<a>`. `dist/` is stale. |
+| 1.10 | Language fluency | English is “Fluent”, Portuguese “Native”. Confirm or add Spanish. | **Done.** Confirmed 2 Sep 2026. Portuguese native, English fluent. No Spanish. |
+| 1.11 | Kessera | **Removed for now.** Confirmed 2 Sep 2026. No case study, not in `projectItems`, not in the footer. Revisit later if a cover and write-up exist. |
+| 1.12 | Social profile URLs | **Done.** Confirmed from the contact page: GitHub `romulosandri`, X `@sandri_romulo`, LinkedIn `/in/romulo-sandri/`, Instagram `@rom_bunnyhop`, Substack `sandriromulo`. Footer, JSON-LD `sameAs`, and `/resume.json` use the same URLs. Rebuilt so `dist/` no longer points at bare homepages. |
+| 1.13 | Canonical title | **Done.** Main: `Senior Product Designer`. Fallbacks: Product Designer, Design Engineer (`site.roles`). `index.html` shell title matches. |
+| 1.14 | Contact-page social icons | **Done.** Tested 2 Sep 2026. Icons are `<a>` links to the real profiles. |
 
 Copy-paste answers:
 
 ```
-Domain (1.1):
-Availability corrections (1.2):
-Notice period: Immediate — can start right away   [keep / change]
+Domain (1.1): https://romulosandri.com
+Availability (1.2): confirmed. Open to work / remote / contract / full-time; not relocation; 8 years Senior; immediate start. Preferred roles include Product Designer as well as Senior Product Designer.
 Resend From address verified? (1.3): yes / not yet
-Metrics (1.4):
-  Pacelane:
-  Gemhaus:
-  Meltwater:
-  Cinépolis:
-  Stream Stakes:
-  Spiiine:
-  AI Workshops:
-  Bunnyhop:
+Public email (1.3): contact@romulosandri.com — shown on the site, copied on click
+Form inbox (1.3): romulosandrirodrigues@gmail.com
+Metrics (1.4): none beyond Fotospin (7,000 downloads / $2,000) and Meltwater prose. Skip for launch.
 Live URLs (1.5):
   Pacelane:
   Fotospin:
   Spiiine:
   others:
-Life nav (1.6): game / about / new page / remove
+Life nav (1.6): later — hidden from nav until a page exists
 Skills (1.7) remove / add:
-Education years (1.8):
+Education years (1.8): skip — no dates to add
 Alt text (1.9): later / skip
-Languages (1.10):
+Languages (1.10): confirmed. Portuguese native, English fluent. No Spanish.
 ```
 
 ---
@@ -89,7 +82,7 @@ There are **no breakpoint classes** in the app (`sm:`, `md:`, `lg:` never appear
 
 ### Nav
 
-- Header is one row: letter-mark name + Play Game chip + Work / Life / Projects / Blog / Contact Me, `gap-3xl`, `px-4xl`.
+- Header is one row: letter-mark name + Play Game chip + Work / Projects / Blog / Contact Me, `gap-3xl`, `px-4xl`. (Life is deferred and not in the nav.)
 - No hamburger, no wrap, no shrinking. Name logo plus five items will overflow below ~1100px.
 - `whitespace-nowrap` on most labels, so they never wrap.
 
@@ -147,7 +140,7 @@ Checked against current **source**. `dist/` HTML is older and still has several 
 | Name logo | `/` | OK |
 | Play Game | `/game` | OK |
 | Work | `/work` | OK |
-| Life | `#life` | **Broken.** No target on any page. |
+| Life | (removed from nav) | **Later.** Hidden until a page exists. Was a dead `#life` hash. |
 | Projects | `/projects` | OK |
 | Blog | Substack (`site.blog.href`) | OK in source, opens a new tab. Missing from stale `dist/` nav. |
 | Contact Me | `/contact` | OK |
@@ -155,13 +148,13 @@ Checked against current **source**. `dist/` HTML is older and still has several 
 | Home How I use AI | `/how-i-use-ai` | OK |
 | Home Let’s Talk | `/contact` | OK |
 | Footer work list | each `workItems` href | OK in source. Stale `dist/` is missing Random Selection. |
-| Footer project list | each `projectItems` href | OK in source. Stale `dist/` still has Kessera → `/projects`. |
-| Footer social icons | real profiles | OK in source. Stale `dist/` still points at bare homepages. |
-| Contact social icons | same as footer | OK in source |
-| WhatsApp / email on contact | `wa.me/…` / `mailto:` | OK |
+| Footer project list | each `projectItems` href | OK. Fotospin.ai, Spiiine, Bunnyhop, AI Workshops. Kessera removed for now. |
+| Footer social icons | real profiles | OK. Same URLs as the contact page. |
+| Contact social icons | same as footer | OK |
+| WhatsApp / email on contact | `wa.me/…` / copy `contact@romulosandri.com` | OK. Email copies to clipboard and shows a snackbar. WhatsApp stays `wa.me`. |
 | Footer `/llms.txt`, `/agents.md`, `/resume.json` | static files | OK — router lets `.{ext}` through |
 | Footer AI buttons (ChatGPT, Claude, Grok, Perplexity) | generic homepages | **Clickable but wrong intent.** Label is “Ask about Rômulo Sandri on …” but the URL is `https://chatgpt.com` with no query. They also do not `target="_blank"` or `rel="noopener noreferrer"`. |
-| Image ticker | none | **Not clickable.** `TickerImage` has an `href` that is never used. |
+| Image ticker | none | **Done.** Decorative only — not clickable, by design. Unused `href` removed from `TickerImage`. Logo ticker is the same: logos are not links. |
 | Case study “See next” / related cards | other case studies | OK |
 | Unknown work/project slug | in-page “Not found” | OK for `/work/nope` |
 | Any other unknown URL | Home page content, Netlify 404 status | **Wrong UX.** Crawlers get 404 (good). Humans land on the homepage with no explanation. |
@@ -169,7 +162,7 @@ Checked against current **source**. `dist/` HTML is older and still has several 
 
 External profile links in the footer and contact page do not open in a new tab. Only the Blog nav item and the Resend credit do.
 
-**Code** for Life, 404 page, AI-ask URLs, ticker links, `rel`/`target` on externals. **You** for what Life should be, and whether AI buttons should deep-link a prompt.
+**Code** for 404 page, AI-ask URLs, `rel`/`target` on externals. **You** for whether AI buttons should deep-link a prompt. Life is later. Image ticker stays decorative.
 
 ---
 
@@ -189,8 +182,7 @@ Still missing or wrong:
 
 | Gap | Detail |
 | --- | --- |
-| Stale prerender | `dist/index.html` still titles and describes you as Product Designer, old email, old `sameAs`. Rebuild is required before indexing. |
-| `index.html` fallback title | Hardcoded “Rômulo Sandri, Product Designer”. Shown before JS, and in the SPA shell for 404s. |
+| `index.html` fallback title | **Done.** Shell title is “Rômulo Sandri — Senior Product Designer”, matching `site.role`. |
 | Person `image` | JSON-LD Person has no `image`. Google’s person rich results and Knowledge Graph want a photo. **You:** a square headshot you are happy to be the public face. |
 | Open Graph image quality | See §6. Home uses `/images/home/hero-character.png` (a 316px character, not a 1200×630 card). Case studies use full PNG covers, some 2–4 MB. |
 | Missing OG extras | No `og:image:width`, `og:image:height`, `og:image:alt`, `og:image:type`. No `twitter:site` / `twitter:creator` (`@sandri_romulo`). |
@@ -218,7 +210,7 @@ Still missing or wrong:
 | --- | --- |
 | `resume.json` case-study URLs | `scripts/generate-seo-assets.mjs` always writes `${SITE_URL}/work/${slug}`. Fotospin, Spiiine, Bunnyhop, AI Workshops therefore point at `/work/fotospin` etc., which 404. Should use each item’s real `href`. **Code.** |
 | AI “ask about me” buttons | Should be prompt URLs, e.g. ChatGPT / Perplexity with `q=` pointing at the live domain + `/llms.txt`. Right now they dump the visitor on an empty chatbot homepage. **Code**, after 1.1. |
-| Impact numbers | Agents quote `delivered` and `summary`. Without results, they will describe you as someone who “did research and Figma”. **You** (1.4). |
+| Impact numbers | Agents quote `delivered` and `summary`. Without results, they will describe you as someone who “did research and Figma”. **Deferred** (1.4) — no extra metrics for launch. Fotospin + Meltwater stay as-is. |
 | Availability still marked TODO in source | Comment in `resume.ts` says the block is guesses. Agents will still publish it. **You** (1.2). |
 | No `Person.image` | Same as SEO. Helps image-capable agents attach a face. |
 | Prerender HTML is noisy | Home HTML still includes 18 cursor-trail images, duplicated logo ticker, family sprite frames, and hidden opacity styles. Crawlers that do execute JS are fine; ones that ingest raw HTML get a huge blob. The prerender sanitiser is not stripping decorative nodes the way `plans/agent-readable-portfolio.md` described. **Code.** |
@@ -325,8 +317,8 @@ The desktop experience is motion-heavy on purpose. These are the things that wil
 2. **Rebuild** so `dist/` matches source (socials, title, footer, contact links).
 3. **Favicon pack + one 1200×630 home OG image** — shares and browser tabs stop looking unfinished.
 4. **Responsive pass** — the site is not shippable on a phone today.
-5. **Fix known bugs** while that happens: Life nav, 404 page, `resume.json` project URLs, AI-ask prompt links, game debug off, security headers, font 404s / licences, Phaser code-split, prerender sanitise.
-6. **Metrics + live URLs + Person photo** when you have them — biggest remaining GEO/recruiter gap.
+5. **Fix known bugs** while that happens: 404 page, `resume.json` project URLs, AI-ask prompt links, game debug off, security headers, font 404s / licences, Phaser code-split, prerender sanitise. (Life is later.)
+6. **Live URLs + Person photo** when you have them — biggest remaining GEO/recruiter gap. Metrics (1.4) deferred until numbers exist.
 7. **Search Console** after the domain is live.
 
-If you only do three things this week: confirm the domain, drop in a 1200×630 share image, and tell me what Life should be so the nav stops being a dead link.
+If you only do three things this week: confirm the domain, drop in a 1200×630 share image, and a responsive pass so the site works on a phone.

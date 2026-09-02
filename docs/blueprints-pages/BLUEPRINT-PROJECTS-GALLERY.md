@@ -18,7 +18,7 @@ ROOT: ProjectsGallery
 ├── [ELEMENT] TitleBlock “Projects” display, height 560px
 ├── [ELEMENT] GridSection padding 0 48px 164px
 │   └── 2-col grid WorkCard pattern
-│       Fotospin.ai, Spiiine, Bunnyhop, Kessera, AI Workshops
+│       Fotospin.ai, Spiiine, Bunnyhop, AI Workshops
 │       (Figma frame reuses work placeholders; implement with project covers)
 └── [COMPONENT] FooterSection
 ```
@@ -33,7 +33,7 @@ Identical to work-gallery title block. Content: “Projects”.
 ### 2. GRID
 **Node ID:** `123:704`
 
-Same card layout as work (image 2048/1536, title `text-h4`, year `text-body-large`). Use project covers under `/images/projects/{slug}/avif/{slug}-cover.avif`. Skip slugs with no cover (Kessera).
+Same card layout as work (image 2048/1536, title `text-h4`, year `text-body-large`). Use project covers under `/images/projects/{slug}/avif/{slug}-cover.avif`. Kessera is omitted for now.
 
 ## Static Assets Mapping
 

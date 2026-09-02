@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { SendButton, SocialIcon } from '../design-system'
+import { CopyEmail, SendButton, SocialLinks } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
-import { site, socialLinks } from '../content/site'
+import { site } from '../content/site'
 import { ContactStatusVisual, type ContactStatus } from './ContactStatusVisual'
 import { PageLayout } from './PageLayout'
 
@@ -168,19 +168,11 @@ export function ContactPage() {
               <p>
                 Email
                 {'\n\n'}
-                <a className="no-underline" href={`mailto:${site.email}`}>
-                  {site.email}
-                </a>
+                <CopyEmail className="no-underline">{site.email}</CopyEmail>
               </p>
             </div>
           </RevealGroup>
-          <div className="flex items-center gap-xl">
-            {socialLinks.map((item) => (
-              <a aria-label={item.label} href={item.href} key={item.type}>
-                <SocialIcon type={item.type} />
-              </a>
-            ))}
-          </div>
+          <SocialLinks />
         </form>
         <ContactStatusVisual status={status} />
       </section>

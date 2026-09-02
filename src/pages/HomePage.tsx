@@ -50,6 +50,7 @@ export function HomePage() {
           aria-hidden
           autoPlay
           className="pointer-events-none absolute top-[calc(50%+27.26px)] left-1/2 z-10 size-[316px] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover"
+          data-prerender="strip"
           disablePictureInPicture
           height={316}
           loop

@@ -147,7 +147,9 @@ export function LogosTicker({ className }: LogosTickerProps) {
     >
       <div className="flex w-max items-center" ref={trackRef}>
         <LogoTrack />
-        <LogoTrack />
+        <div data-prerender="clone">
+          <LogoTrack />
+        </div>
       </div>
     </div>
   )

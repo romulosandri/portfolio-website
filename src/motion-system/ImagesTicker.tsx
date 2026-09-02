@@ -53,6 +53,7 @@ export function ImagesTicker({ className }: ImagesTickerProps) {
       className={['flex w-full items-center overflow-clip py-4xl', className]
         .filter(Boolean)
         .join(' ')}
+      data-prerender="strip"
       ref={rootRef}
     >
       <div className="flex w-max items-center gap-[10px] will-change-transform" ref={trackRef}>

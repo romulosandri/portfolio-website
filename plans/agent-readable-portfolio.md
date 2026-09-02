@@ -147,11 +147,11 @@ Phases 1-2 are the unblocking work and can ship alone. Phase 3 is authoring effo
 
 These are facts only you have. Each is marked `TODO` in the source.
 
-- `SITE_URL` in [src/content/site.ts](../src/content/site.ts) — currently `https://romulosandri.com`. Every canonical tag, sitemap entry, and JSON-LD `@id` derives from it.
+- `SITE_URL` in [src/content/site.ts](../src/content/site.ts) — confirmed `https://romulosandri.com`. Every canonical tag, sitemap entry, and JSON-LD `@id` derives from it.
 - `site.sameAs` — empty. Real LinkedIn/GitHub/X/Dribbble URLs. The same placeholders (`https://github.com`, etc.) are still in `FooterSection.tsx` and `ContactPage.tsx`.
 - `site.role` — currently "Product Designer". Now the single source: the home `<h1>`, footer prose, page titles, and JSON-LD all read from it.
 - `education` in [src/content/resume.ts](../src/content/resume.ts) — empty array; JSON-LD omits `alumniOf` while it stays empty.
-- `availability` in `resume.ts` — the flags are guesses.
+- `availability` in `resume.ts` — confirmed 2 Sep 2026 (open to work, remote, contract, full-time; not relocation; immediate start; preferred roles include Product Designer).
 - `delivered` on each case study in [src/content/portfolio.ts](../src/content/portfolio.ts) — currently lists activities. Where you have real metrics (users, revenue, adoption, ratings), adding them here is the single biggest upgrade for recruiter-facing screening.
 - Per-image alt text — `imageAlts` is optional; `imageAltFor` generates positional fallbacks until it's filled in.
 

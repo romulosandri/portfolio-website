@@ -82,10 +82,10 @@ export default async (request: Request, context: Context) => {
 
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.CONTACT_FROM_EMAIL
-  const to = process.env.CONTACT_TO_EMAIL
+  const to = process.env.CONTACT_TO_EMAIL || 'romulosandrirodrigues@gmail.com'
 
-  if (!apiKey || !from || !to) {
-    console.error('Contact form is missing RESEND_API_KEY, CONTACT_FROM_EMAIL, or CONTACT_TO_EMAIL.')
+  if (!apiKey || !from) {
+    console.error('Contact form is missing RESEND_API_KEY or CONTACT_FROM_EMAIL.')
     return json({ error: 'The contact form is not configured yet.' }, 500)
   }
 

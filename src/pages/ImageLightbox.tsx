@@ -13,6 +13,7 @@ type ImageLightboxProps = {
   images: string[]
   index: number
   title: string
+  alts?: string[]
   onClose: () => void
   onIndexChange: (index: number) => void
 }
@@ -63,6 +64,7 @@ export function ImageLightbox({
   images,
   index,
   title,
+  alts,
   onClose,
   onIndexChange,
 }: ImageLightboxProps) {
@@ -346,7 +348,7 @@ export function ImageLightbox({
           }}
         >
           <img
-            alt={title}
+            alt={alts?.[index] ?? title}
             className="max-h-[calc(100vh-240px)] max-w-[min(calc(100vw-240px),1400px)] select-none object-contain"
             decoding="async"
             draggable={false}

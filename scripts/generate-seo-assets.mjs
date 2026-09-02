@@ -113,6 +113,18 @@ function certificateLine(entry) {
   return entry.date ? `- ${core} (${entry.date})` : `- ${core}`
 }
 
+function productHost(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
+}
+
+function websiteLine(item) {
+  return item.url ? `- **Website:** [${productHost(item.url)}](${item.url})\n` : ''
+}
+
 function caseStudyMarkdown(item, site, collection) {
   return `---
 title: "${item.title}"
@@ -122,7 +134,7 @@ role: "${item.role}"
 start_date: "${item.startDate}"
 end_date: ${item.endDate ? `"${item.endDate}"` : 'null'}
 duration: "${item.duration}"
-tags: [${item.tags.map((tag) => `"${tag}"`).join(', ')}]
+${item.url ? `url: "${item.url}"\n` : ''}tags: [${item.tags.map((tag) => `"${tag}"`).join(', ')}]
 tools: [${item.tools.map((tool) => `"${tool}"`).join(', ')}]
 author: "${site.name}"
 ---
@@ -138,7 +150,7 @@ ${item.description}
 ## Details
 
 - **Client:** ${item.client}
-- **Role:** ${item.role}
+${websiteLine(item)}- **Role:** ${item.role}
 - **Period:** ${dateRange(item.startDate, item.endDate)}
 - **Duration:** ${item.duration}
 - **Tools:** ${item.tools.join(', ')}
@@ -207,7 +219,7 @@ ${items
     (item) => `## [${item.title}](${item.href})
 
 - **Client:** ${item.client}
-- **Role:** ${item.role}
+${websiteLine(item)}- **Role:** ${item.role}
 - **Period:** ${dateRange(item.startDate, item.endDate)}
 - **Tags:** ${item.tags.join(', ')}
 
@@ -272,13 +284,15 @@ ${site.socials
 
 /* ------------------------------------------------------------------ resume */
 
-function resumeMarkdown(site, resume) {
+function resumeMarkdown(SITE_URL, site, resume, itemsBySlug) {
   return `---
 title: "Résumé — ${site.name}"
 type: resume
 ---
 
 # ${site.name}
+
+![${site.name}](${SITE_URL}${site.image})
 
 ${site.role} · ${site.location.city}, ${site.location.region}, ${site.location.country}
 ${site.email} · ${site.whatsapp}
@@ -289,15 +303,16 @@ ${site.blurb}
 ## Experience
 
 ${resume.experience
-  .map(
-    (entry) => `### ${entry.position}, ${entry.company}
+  .map((entry) => {
+    const live = entry.caseStudy ? itemsBySlug.get(entry.caseStudy)?.url : undefined
+    return `### ${entry.position}, ${entry.company}
 
 *${dateRange(entry.startDate, entry.endDate)} · ${entry.location}*
-
+${live ? `\nWebsite: [${productHost(live)}](${live})\n` : ''}
 ${entry.summary}
 
-${entry.highlights.map((line) => `- ${line}`).join('\n')}`,
-  )
+${entry.highlights.map((line) => `- ${line}`).join('\n')}`
+  })
   .join('\n\n')}
 
 ## Skills
@@ -331,13 +346,14 @@ ${
 }
 
 /** https://jsonresume.org/schema — parsed directly by a lot of recruiting tooling. */
-function resumeJson(SITE_URL, site, resume) {
+function resumeJson(SITE_URL, site, resume, itemsBySlug) {
   return JSON.stringify(
     {
       $schema: 'https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json',
       basics: {
         name: site.name,
         label: site.role,
+        image: `${SITE_URL}${site.image}`,
         email: site.email,
         phone: site.whatsapp,
         url: SITE_URL,
@@ -362,16 +378,19 @@ function resumeJson(SITE_URL, site, resume) {
           },
         ],
       },
-      work: resume.experience.map((entry) => ({
-        name: entry.company,
-        position: entry.position,
-        startDate: entry.startDate,
-        ...(entry.endDate ? { endDate: entry.endDate } : {}),
-        location: entry.location,
-        summary: entry.summary,
-        highlights: entry.highlights,
-        ...(entry.caseStudy ? { url: `${SITE_URL}/work/${entry.caseStudy}` } : {}),
-      })),
+      work: resume.experience.map((entry) => {
+        const caseStudy = entry.caseStudy ? itemsBySlug.get(entry.caseStudy) : undefined
+        return {
+          name: entry.company,
+          position: entry.position,
+          startDate: entry.startDate,
+          ...(entry.endDate ? { endDate: entry.endDate } : {}),
+          location: entry.location,
+          summary: entry.summary,
+          highlights: entry.highlights,
+          ...(caseStudy ? { url: `${SITE_URL}${caseStudy.href}` } : {}),
+        }
+      }),
       education: resume.education.map((entry) => ({
         institution: entry.institution,
         area: entry.area,
@@ -413,11 +432,11 @@ ${site.blurb}
 
 ## Work
 
-${workItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md): ${item.summary}`).join('\n')}
+${workItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md)${item.url ? ` — live: ${item.url}` : ''}: ${item.summary}`).join('\n')}
 
 ## Projects
 
-${projectItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md): ${item.summary}`).join('\n')}
+${projectItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md)${item.url ? ` — live: ${item.url}` : ''}: ${item.summary}`).join('\n')}
 
 ## About
 
@@ -451,6 +470,7 @@ ${site.name}.
 - **Seniority:** ${resume.availability.seniority}
 - **Email:** ${site.email}
 - **WhatsApp:** ${site.whatsapp}
+- **Photo:** ${SITE_URL}${site.image}
 ${site.sameAs.length > 0 ? `- **Profiles:** ${site.sameAs.join(', ')}` : ''}
 
 ## If you are screening for a role
@@ -500,6 +520,7 @@ async function main() {
   await withContent(async ({ routes, portfolio, site: siteMod, resume }) => {
     const { SITE_URL, site } = siteMod
     const { workItems, projectItems, valueCards, toolCards, modelRows } = portfolio
+    const itemsBySlug = new Map([...workItems, ...projectItems].map((item) => [item.slug, item]))
     const written = []
 
     written.push(await emit('robots.txt', buildRobots(SITE_URL)))
@@ -524,8 +545,8 @@ async function main() {
       written.push(await emit(file, body))
     }
 
-    written.push(await emit('resume.md', resumeMarkdown(site, resume)))
-    written.push(await emit('resume.json', resumeJson(SITE_URL, site, resume)))
+    written.push(await emit('resume.md', resumeMarkdown(SITE_URL, site, resume, itemsBySlug)))
+    written.push(await emit('resume.json', resumeJson(SITE_URL, site, resume, itemsBySlug)))
     written.push(
       await emit('llms.txt', buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems)),
     )
@@ -535,7 +556,7 @@ async function main() {
     const fullParts = [
       `# ${site.name} — complete site content\n\nGenerated ${new Date().toISOString()}. Canonical site: ${SITE_URL}\n`,
       ...[...markdownByPath.values()],
-      resumeMarkdown(site, resume),
+      resumeMarkdown(SITE_URL, site, resume, itemsBySlug),
     ]
     written.push(await emit('llms-full.txt', fullParts.join('\n\n---\n\n')))
 

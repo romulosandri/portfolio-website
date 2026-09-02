@@ -236,12 +236,17 @@ export function SectionHeader({ title, caption }: SectionHeaderProps) {
 
 type DisplayHeroProps = {
   children: string
+  srText?: string
 }
 
-export function DisplayHero({ children }: DisplayHeroProps) {
+export function DisplayHero({ children, srText }: DisplayHeroProps) {
   return (
     <RevealGroup className="flex h-[560px] w-full shrink-0 flex-col items-center justify-center bg-background-primary p-4xl">
-      <RevealText as="h1" className="whitespace-nowrap text-center text-display text-foreground-primary">
+      <RevealText
+        as="h1"
+        className="whitespace-nowrap text-center text-display text-foreground-primary"
+        srText={srText}
+      >
         {children}
       </RevealText>
     </RevealGroup>

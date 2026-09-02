@@ -8,8 +8,16 @@ import {
   RevealText,
 } from '../motion-system'
 import { gsap, ScrollTrigger, useGSAP } from '../motion-system/gsap'
-import { imageAltFor, projectBySlug, projectItems, workBySlug, workItems } from '../content/portfolio'
+import {
+  imageAltFor,
+  productHost,
+  projectBySlug,
+  projectItems,
+  workBySlug,
+  workItems,
+} from '../content/portfolio'
 import { LazyImageList } from './LazyImageList'
+import { NotFoundPage } from './NotFoundPage'
 import { PageLayout } from './PageLayout'
 import { DisplayHero, SectionHeader, WorkCard } from './WorkCard'
 
@@ -20,16 +28,42 @@ type ProjectDetailPageProps = {
 
 // Rendered as a description list so crawlers read client, role, year, and
 // duration as labelled key-value pairs instead of four unrelated paragraphs.
-function MetaField({ label, value, className }: { label: string; value: string; className?: string }) {
+function MetaField({
+  label,
+  value,
+  href,
+  className,
+}: {
+  label: string
+  value: string
+  href?: string
+  className?: string
+}) {
   return (
     <RevealBlock>
       <dl className={['flex flex-col items-start gap-[10px]', className].filter(Boolean).join(' ')}>
         <RevealText as="dt" className="whitespace-nowrap text-body-small text-foreground-tertiary">
           {label}
         </RevealText>
-        <RevealText as="dd" className="m-0 w-full text-body-default text-foreground-primary">
-          {value}
-        </RevealText>
+        {href ? (
+          <dd className="m-0 w-full">
+            <a
+              aria-label={`${value} (opens in a new tab)`}
+              className="text-body-default text-foreground-primary no-underline hover:underline"
+              href={href}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <RevealText as="span" className="text-body-default text-foreground-primary">
+                {value}
+              </RevealText>
+            </a>
+          </dd>
+        ) : (
+          <RevealText as="dd" className="m-0 w-full text-body-default text-foreground-primary">
+            {value}
+          </RevealText>
+        )}
       </dl>
     </RevealBlock>
   )
@@ -246,11 +280,7 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
   )
 
   if (!item) {
-    return (
-      <PageLayout>
-        <DisplayHero>Not found</DisplayHero>
-      </PageLayout>
-    )
+    return <NotFoundPage />
   }
 
   const upcoming = nextItems(related, item.slug, SEE_NEXT_COUNT)
@@ -272,6 +302,14 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
                 <MetaField className="w-[160px] shrink-0" label="Year" value={item.year} />
                 <MetaField className="min-w-px flex-1" label="Duration" value={item.duration} />
               </div>
+              {item.url ? (
+                <MetaField
+                  className="w-full"
+                  href={item.url}
+                  label="Website"
+                  value={productHost(item.url)}
+                />
+              ) : null}
               <MetaList items={item.delivered} label="Delivered" />
             </div>
             <SeeNextSection items={upcoming} rootRef={seeNextRef} />

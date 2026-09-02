@@ -106,7 +106,7 @@ IntroColumn is a 225px-wide column, `justify-content: space-between`, heading `t
 Work and Projects columns: `border-l` stroke-secondary, `pl-2xl`, space-between. Labels `text-body-small` / `foreground-tertiary`. Lists gap `spacing-md`.
 
 Work: Pacelane.ai, Gemhaus, Meltwater, Cinepolis, Stream Stakes.  
-Projects: Fotospin.ai, Spiiine, Bunnyhop, Kessera, AI Workshops.
+Projects: Fotospin.ai, Spiiine, Bunnyhop, AI Workshops. (Kessera removed for now.)
 
 AgentsColumn width 508px. Ask-ai row: “Ask about Rômulo Sandri on” (`text-h5`), AiButtons openai / claude / grok / perplexity, live `HH:mm BRT (UTC-3)` (`text-body-default`). Agent copy is `text-body-small` / `foreground-tertiary`, paragraphs separated by blank lines.
 

@@ -2,16 +2,17 @@ import { useEffect, useState } from 'react'
 import { AiButton } from './AiButton'
 import { FooterButton } from './FooterButton'
 import { FooterPluto } from '../motion-system/FooterPluto'
-import { SocialIcon } from './SocialIcon'
+import { SocialLinks } from './SocialLinks'
 import type { AiLogoName } from './AiLogo'
-import { site, socialLinks } from '../content/site'
+import { aiAskLinks } from '../content/aiAsk'
+import { site } from '../content/site'
 import { projectItems, workItems } from '../content/portfolio'
 
-const aiButtons: Array<{ name: AiLogoName; href: string }> = [
-  { name: 'openai', href: 'https://chatgpt.com' },
-  { name: 'claude', href: 'https://claude.ai' },
-  { name: 'grok', href: 'https://grok.com' },
-  { name: 'perplexity', href: 'https://www.perplexity.ai' },
+const aiButtons: Array<{ name: AiLogoName; href: string; label: string }> = [
+  { name: 'openai', ...aiAskLinks.openai },
+  { name: 'claude', ...aiAskLinks.claude },
+  { name: 'grok', ...aiAskLinks.grok },
+  { name: 'perplexity', ...aiAskLinks.perplexity },
 ]
 
 const BRASILIA_TIME_ZONE = 'America/Sao_Paulo'
@@ -68,13 +69,7 @@ export function FooterSection({ className }: FooterSectionProps) {
         <div className="flex h-full shrink-0 flex-col items-start justify-between">
           <p className="whitespace-nowrap text-h3 text-foreground-secondary">Let’s Talk</p>
           <div className="flex flex-col items-start gap-1xl">
-            <div className="flex items-center gap-xl">
-              {socialLinks.map((item) => (
-                <a aria-label={item.label} href={item.href} key={item.type}>
-                  <SocialIcon type={item.type} />
-                </a>
-              ))}
-            </div>
+            <SocialLinks />
             <p className="whitespace-nowrap text-body-small text-foreground-tertiary">
               Designed by Romulo Sandri. Palmas, Brazil
             </p>
@@ -106,7 +101,7 @@ export function FooterSection({ className }: FooterSectionProps) {
             </p>
             <div className="flex items-center gap-md">
               {aiButtons.map((item) => (
-                <AiButton href={item.href} key={item.name} name={item.name} />
+                <AiButton href={item.href} key={item.name} label={item.label} name={item.name} />
               ))}
             </div>
             <time
