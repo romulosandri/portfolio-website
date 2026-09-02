@@ -199,6 +199,21 @@ export const allSkills = skillGroups.flatMap((group) => group.skills)
  */
 export const experience: ExperienceEntry[] = [
   {
+    company: 'Bunnyhop',
+    position: 'Founder',
+    startDate: '2026',
+    endDate: null,
+    location: 'Remote',
+    summary:
+      'Building Bunnyhop, an in-progress web design system with thousands of components, 300 colour palettes, hundreds of motion-ready sections, and an MCP server for designers.',
+    highlights: [
+      'Designing and implementing a large web design system in Figma and React',
+      'Library of 300 colour palettes and hundreds of motion-ready website sections',
+      'MCP server and CMS back-end in progress',
+    ],
+    caseStudies: ['bunnyhop'],
+  },
+  {
     company: 'Andela',
     position: 'Workshop Instructor',
     startDate: '2026',
@@ -253,6 +268,21 @@ export const experience: ExperienceEntry[] = [
       'Worked daily with data scientists, engineers, and product managers on data-heavy products',
     ],
     caseStudies: ['meltwater'],
+  },
+  {
+    company: 'Spiiine',
+    position: 'Founder',
+    startDate: '2024',
+    endDate: '2024',
+    location: 'Remote',
+    summary:
+      'Founded and shipped Spiiine to the App Store, an iOS app that aggregates brand collaboration opportunities for UGC creators into a single feed.',
+    highlights: [
+      'Shipped to the App Store as a solo founder',
+      'Built brand, product, Flutter iOS app, and a Supabase back-end',
+      'Designed the marketing site in Framer',
+    ],
+    caseStudies: ['spiiine'],
   },
   {
     company: 'Andela',

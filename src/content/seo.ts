@@ -1,5 +1,4 @@
 import type { Route } from '../lib/router'
-import { toPngSrc } from '../lib/images'
 import { projectBySlug, projectItems, workBySlug, workItems } from './portfolio'
 import { absoluteUrl, site } from './site'
 
@@ -31,24 +30,52 @@ function clamp(text: string, max = MAX_DESCRIPTION) {
 }
 
 /**
- * Social preview images must be PNG or JPEG -- no major crawler decodes AVIF,
- * and every cover in portfolio.ts is AVIF. The PNG twins already exist on disk.
+ * Designed 1200×630 share cards, exported at 2×. File convention is
+ * `/images/og/og-{slug}.png` for every work and project case study.
  */
-function socialImage(avifPath: string) {
-  return toPngSrc(avifPath)
-}
-
-const HOME_OG = {
-  ogImage: '/images/og/home.png',
-  ogImageWidth: 1024,
-  ogImageHeight: 537,
-  ogImageType: 'image/png',
-  ogImageAlt:
-    'Rômulo Sandri, Product Designer, with an illustration of him and his dog Pluto, UI screenshots, and logos of companies he has worked with.',
+const OG = {
+  width: 2400,
+  height: 1260,
+  type: 'image/png',
 } as const
 
-/** Fallback for pages that do not yet have a dedicated share card. */
-const DEFAULT_OG_IMAGE = HOME_OG.ogImage
+const CASE_STUDY_OG_SLUGS = new Set([
+  'pacelane',
+  'gemhaus',
+  'meltwater',
+  'cinepolis',
+  'stream-stakes',
+  'random-selection',
+  'fotospin',
+  'spiiine',
+  'bunnyhop',
+  'ai-workshops',
+])
+
+type OgFields = Pick<PageMeta, 'ogImage' | 'ogImageWidth' | 'ogImageHeight' | 'ogImageType' | 'ogImageAlt'>
+
+function ogCard(image: string, alt: string): OgFields {
+  return {
+    ogImage: image,
+    ogImageWidth: OG.width,
+    ogImageHeight: OG.height,
+    ogImageType: OG.type,
+    ogImageAlt: alt,
+  }
+}
+
+const HOME_OG = ogCard(
+  '/images/og/og-home.png',
+  'Rômulo Sandri, Product Designer, with an illustration of him and his dog Pluto, UI screenshots, and logos of companies he has worked with.',
+)
+
+function ogForItem(item: { slug: string; title: string }): OgFields {
+  if (!CASE_STUDY_OG_SLUGS.has(item.slug)) return HOME_OG
+  return ogCard(
+    `/images/og/og-${item.slug}.png`,
+    `${site.name} — ${item.title} case study, with product screenshots and logos of companies he has worked with.`,
+  )
+}
 
 export function getPageMeta(route: Route): PageMeta {
   switch (route.name) {
@@ -61,7 +88,7 @@ export function getPageMeta(route: Route): PageMeta {
             .map((item) => item.title)
             .join(', ')}.`,
         ),
-        ogImage: socialImage(workItems[0]?.cover ?? DEFAULT_OG_IMAGE),
+        ...HOME_OG,
         ogType: 'website',
         path: '/work',
         breadcrumbs: [
@@ -79,7 +106,7 @@ export function getPageMeta(route: Route): PageMeta {
             .map((item) => item.title)
             .join(', ')}.`,
         ),
-        ogImage: socialImage(projectItems[0]?.cover ?? DEFAULT_OG_IMAGE),
+        ...HOME_OG,
         ogType: 'website',
         path: '/projects',
         breadcrumbs: [
@@ -100,7 +127,7 @@ export function getPageMeta(route: Route): PageMeta {
       return {
         title: `${item.title} — ${item.role} — ${site.name}`,
         description: clamp(item.summary || item.description),
-        ogImage: socialImage(item.cover),
+        ...ogForItem(item),
         ogType: 'article',
         path: item.href,
         breadcrumbs: [

@@ -9,7 +9,6 @@ import {
 } from '../content/resume'
 import type { PageMeta } from '../content/seo'
 import { absoluteUrl, site, SITE_URL } from '../content/site'
-import { toPngSrc } from './images'
 import type { Route } from './router'
 
 /**
@@ -121,7 +120,7 @@ function breadcrumbNode(meta: PageMeta): JsonLdNode | null {
   }
 }
 
-function caseStudyNode(item: WorkItem): JsonLdNode {
+function caseStudyNode(item: WorkItem, meta: PageMeta): JsonLdNode {
   return {
     '@type': 'CreativeWork',
     '@id': `${absoluteUrl(item.href)}#work`,
@@ -136,7 +135,7 @@ function caseStudyNode(item: WorkItem): JsonLdNode {
     author: { '@id': PERSON_ID },
     dateCreated: item.startDate,
     ...(item.endDate ? { datePublished: item.endDate } : {}),
-    image: absoluteUrl(toPngSrc(item.cover)),
+    image: absoluteUrl(meta.ogImage),
     inLanguage: 'en',
     about: item.tags,
     ...(item.client && item.client !== 'Freelance'
@@ -224,13 +223,13 @@ export function buildJsonLd(route: Route, meta: PageMeta): string {
 
     case 'workDetail': {
       const item = workBySlug(route.slug)
-      if (item) graph.push(caseStudyNode(item))
+      if (item) graph.push(caseStudyNode(item, meta))
       break
     }
 
     case 'projectDetail': {
       const item = projectBySlug(route.slug)
-      if (item) graph.push(caseStudyNode(item))
+      if (item) graph.push(caseStudyNode(item, meta))
       break
     }
 
