@@ -110,6 +110,35 @@ export function cellName(col: number, row: number): string {
   return `${colName(col)}-${row + 1}`
 }
 
+/** Inverse of `colName`. A → 0, L → 11, AA → 26. */
+export function parseColName(name: string): number {
+  let n = 0
+  for (let i = 0; i < name.length; i += 1) {
+    const code = name.charCodeAt(i)
+    if (code < 65 || code > 90) {
+      throw new Error(`Invalid column name: ${name}`)
+    }
+    n = n * 26 + (code - 64)
+  }
+  return n - 1
+}
+
+/** Inverse of `cellName`. `L-15` → `{ col: 11, row: 14 }`. */
+export function parseCellName(name: string): { col: number; row: number } {
+  const match = name.match(/^([A-Z]+)-(\d+)$/)
+  if (!match) {
+    throw new Error(`Invalid cell name: ${name}`)
+  }
+  return { col: parseColName(match[1]), row: Number(match[2]) - 1 }
+}
+
+export function cellCenter(col: number, row: number) {
+  return {
+    x: col * CELL_SIZE + CELL_SIZE / 2,
+    y: row * CELL_SIZE + CELL_SIZE / 2,
+  }
+}
+
 export const SPAWN_COL = 17
 export const SPAWN_ROW = 11
 

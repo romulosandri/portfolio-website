@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { BackToTop, NavBar } from './design-system'
+import { BackToTop, ChatWidget, NavBar } from './design-system'
 import { useRoute } from './lib/router'
 import { useDocumentHead } from './lib/useDocumentHead'
 import { PanelTransition, type PanelTransitionMode } from './motion-system/PanelTransition'
@@ -159,6 +159,9 @@ function App() {
           )}
         </div>
         {hideBackToTop ? null : <BackToTop />}
+        {/* Stays mounted across route changes so an open conversation survives
+            navigation. Hidden only on the design-system gallery. */}
+        {hideNav ? null : <ChatWidget />}
       </div>
     </GameModalProvider>
   )

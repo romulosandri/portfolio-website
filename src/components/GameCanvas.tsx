@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { track } from '../lib/analytics'
+import { GameControls } from './GameControls'
 
 type PhaserGame = {
   destroy: (removeCanvas: boolean) => void
@@ -57,10 +58,13 @@ export function GameCanvas() {
   }
 
   return (
-    <div
-      ref={parentRef}
-      className="absolute inset-0 overflow-hidden bg-game-bezel [&_canvas]:block"
-      aria-label="Portfolio mini game"
-    />
+    <div className="absolute inset-0 overflow-hidden bg-game-bezel">
+      <div
+        ref={parentRef}
+        className="absolute inset-0 [&_canvas]:block"
+        aria-label="Portfolio mini game"
+      />
+      <GameControls />
+    </div>
   )
 }

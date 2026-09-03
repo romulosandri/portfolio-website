@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { GameCanvas } from '../components/GameCanvas'
+import { GAME_OPEN_PROJECT_EVENT } from '../game/hotspots'
 import { navigate } from '../lib/router'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { pauseSmoothScroll, resumeSmoothScroll } from '../motion-system/smoothScroll'
@@ -42,9 +43,10 @@ export function GameModalProvider({ children, gameRoute }: GameModalProviderProp
 
   const openGame = useCallback(() => setOpen(true), [])
 
-  const close = useCallback(() => {
+  const close = useCallback((href?: string) => {
     setOpen(false)
-    if (gameRoute) navigate('/')
+    if (href) navigate(href)
+    else if (gameRoute) navigate('/')
   }, [gameRoute])
 
   return (
@@ -55,7 +57,7 @@ export function GameModalProvider({ children, gameRoute }: GameModalProviderProp
   )
 }
 
-function GameModalDialog({ onClose }: { onClose: () => void }) {
+function GameModalDialog({ onClose }: { onClose: (href?: string) => void }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const closingRef = useRef(false)
@@ -76,12 +78,12 @@ function GameModalDialog({ onClose }: { onClose: () => void }) {
     { scope: rootRef },
   )
 
-  const requestClose = useCallback(() => {
+  const requestClose = useCallback((href?: string) => {
     if (closingRef.current) return
     closingRef.current = true
     const root = rootRef.current
     if (!root) {
-      onCloseRef.current()
+      onCloseRef.current(href)
       return
     }
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -89,7 +91,7 @@ function GameModalDialog({ onClose }: { onClose: () => void }) {
       autoAlpha: 0,
       duration: reduced ? 0 : 0.2,
       ease: 'power2.in',
-      onComplete: () => onCloseRef.current(),
+      onComplete: () => onCloseRef.current(href),
     })
   }, [])
 
@@ -109,7 +111,8 @@ function GameModalDialog({ onClose }: { onClose: () => void }) {
       app.setAttribute('aria-hidden', 'true')
       app.inert = true
     }
-    closeRef.current?.focus()
+    closeRef.current?.blur()
+    rootRef.current?.focus()
 
     return () => {
       resumeSmoothScroll()
@@ -126,33 +129,49 @@ function GameModalDialog({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      event.preventDefault()
-      requestClose()
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        requestClose()
+        return
+      }
+      if (event.key === ' ' || event.code === 'Space') {
+        event.preventDefault()
+      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
+  }, [requestClose])
+
+  useEffect(() => {
+    const onOpenProject = (event: Event) => {
+      const href = (event as CustomEvent<{ href?: string }>).detail?.href
+      if (!href?.startsWith('/') || href.startsWith('//')) return
+      requestClose(href)
+    }
+    window.addEventListener(GAME_OPEN_PROJECT_EVENT, onOpenProject)
+    return () => window.removeEventListener(GAME_OPEN_PROJECT_EVENT, onOpenProject)
   }, [requestClose])
 
   return createPortal(
     <div
       aria-labelledby="game-modal-title"
       aria-modal="true"
-      className="fixed inset-0 z-100"
+      className="fixed inset-0 z-100 outline-none"
       ref={rootRef}
       role="dialog"
+      tabIndex={-1}
     >
       <button
         aria-label="Close game"
         className="absolute inset-0 cursor-default bg-cobblestone-950/80"
-        onClick={requestClose}
+        onClick={() => requestClose()}
         type="button"
       />
       <h2 className="sr-only" id="game-modal-title">
         My life game
       </h2>
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="pointer-events-auto relative h-[80dvh] w-[80dvw] overflow-hidden rounded-lg">
+        <div className="pointer-events-auto relative h-[95dvh] w-[95dvw] overflow-hidden rounded-lg">
           <GameCanvas />
         </div>
       </div>
@@ -161,7 +180,7 @@ function GameModalDialog({ onClose }: { onClose: () => void }) {
           <button
             aria-label="Close"
             className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 md:size-14"
-            onClick={requestClose}
+            onClick={() => requestClose()}
             ref={closeRef}
             type="button"
           >

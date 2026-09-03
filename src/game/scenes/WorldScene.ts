@@ -24,6 +24,9 @@ import {
   forEachCell,
   type CellKind,
 } from '../grid'
+import { hotspotNear, setActiveHotspot } from '../hotspots'
+import { ProjectPrompt } from '../projectPrompt'
+import { clearVirtualPad, getVirtualPad } from '../virtualPad'
 
 const DEBUG_FILL: Record<CellKind, { color: number; alpha: number }> = {
   regular: { color: 0x000000, alpha: 0.12 },
@@ -33,14 +36,16 @@ const DEBUG_FILL: Record<CellKind, { color: number; alpha: number }> = {
 
 export class WorldScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite
-  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
-  private wasd!: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>
+  private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
+  private wasd?: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>
   private blocked: Phaser.Physics.Arcade.StaticBody[] = []
   private debugGrid!: Phaser.GameObjects.Graphics
   private debugLabels!: Phaser.GameObjects.Image
   private debugFeet!: Phaser.GameObjects.Rectangle
   private debugVisible = true
   private walking = false
+  private prompt!: ProjectPrompt
+  private shutDown = false
   private readonly cameraZoom = { value: CAMERA_ZOOM }
   private cameraZoomTween?: ReturnType<typeof gsap.to>
 
@@ -59,6 +64,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.createBlockedCells()
     this.createPlayer()
+    this.prompt = new ProjectPrompt(this)
     this.createInput()
     this.createDebugGrid()
 
@@ -82,15 +88,21 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private onShutdown() {
+    if (this.shutDown) return
+    this.shutDown = true
     this.scale.off(Phaser.Scale.Events.RESIZE, this.fitCameraToGame, this)
     this.killCameraZoomTween()
+    this.prompt?.destroy()
+    setActiveHotspot(null)
+    clearVirtualPad()
   }
 
   update() {
-    const left = this.cursors.left.isDown || this.wasd.A.isDown
-    const right = this.cursors.right.isDown || this.wasd.D.isDown
-    const up = this.cursors.up.isDown || this.wasd.W.isDown
-    const down = this.cursors.down.isDown || this.wasd.S.isDown
+    const pad = getVirtualPad()
+    const left = this.cursors?.left.isDown || this.wasd?.A.isDown || pad.left
+    const right = this.cursors?.right.isDown || this.wasd?.D.isDown || pad.right
+    const up = this.cursors?.up.isDown || this.wasd?.W.isDown || pad.up
+    const down = this.cursors?.down.isDown || this.wasd?.S.isDown || pad.down
 
     let vx = 0
     let vy = 0
@@ -115,7 +127,14 @@ export class WorldScene extends Phaser.Scene {
     else if (vx > 0) this.player.setFlipX(false)
 
     this.updatePlayerDepth()
+    this.updateHotspot()
     this.updateDebugFeet()
+  }
+
+  private updateHotspot() {
+    const next = hotspotNear(this.player.x, this.player.y)
+    setActiveHotspot(next)
+    this.prompt.setHotspot(next)
   }
 
   private addLayer(key: string, depth: number) {
@@ -270,12 +289,15 @@ export class WorldScene extends Phaser.Scene {
 
   private createInput() {
     const keyboard = this.input.keyboard
-    if (!keyboard) {
-      throw new Error('Keyboard plugin is not available')
-    }
+    if (!keyboard) return
 
     this.cursors = keyboard.createCursorKeys()
     this.wasd = keyboard.addKeys('W,A,S,D') as typeof this.wasd
+
+    keyboard.on('keydown-SPACE', (event: KeyboardEvent) => {
+      event.preventDefault()
+      this.prompt.tryOpen()
+    })
 
     keyboard.on('keydown-G', () => {
       this.debugVisible = !this.debugVisible
