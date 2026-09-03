@@ -160,7 +160,7 @@ export function NavMenu({ items, open, pathname, onClose }: NavMenuProps) {
             />
           ))}
         </nav>
-        <GameButton href="/game" />
+        <GameButton href="/game" size="lg" />
       </div>
     </div>
   )

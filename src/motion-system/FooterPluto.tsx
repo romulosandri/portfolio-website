@@ -12,8 +12,15 @@ const PLUTO_HEIGHT = 207
 const PLUTO_WIDTH = 424
 const FRAME_DURATION = 0.1
 const RUN_PX_PER_SECOND = 520
+const RUN_PX_PER_SECOND_MOBILE = 260
+const FRAME_TIME_SCALE_MOBILE = 0.5
+const MOBILE_MQ = '(max-width: 767.98px)'
 const REPEAT_DELAY = 2.8
 const REST_X = 37
+
+function isMobileFooter() {
+  return window.matchMedia(MOBILE_MQ).matches
+}
 
 /**
  * Scaled in CSS rather than in JS so the run animation stays correct: it reads
@@ -64,16 +71,19 @@ export function FooterPluto() {
         const startRun = () => {
           const startX = -pluto.offsetWidth
           const endX = track.offsetWidth
+          const mobile = isMobileFooter()
+          const speed = mobile ? RUN_PX_PER_SECOND_MOBILE : RUN_PX_PER_SECOND
           runTween?.kill()
           gsap.set(pluto, { x: startX, autoAlpha: 1 })
           runTween = gsap.to(pluto, {
             x: endX,
-            duration: Math.max((endX - startX) / RUN_PX_PER_SECOND, 0.5),
+            duration: Math.max((endX - startX) / speed, 0.5),
             ease: 'none',
             repeat: -1,
             repeatDelay: REPEAT_DELAY,
             paused: !playing,
           })
+          frameTl.timeScale(mobile ? FRAME_TIME_SCALE_MOBILE : 1)
         }
 
         const setPlaying = (next: boolean) => {

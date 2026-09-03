@@ -8,6 +8,8 @@ type GameButtonProps = {
   href?: string
   forceHover?: boolean
   className?: string
+  /** Overlay menus pass `lg` so the chip isn't the same 43px as the header row. */
+  size?: 'sm' | 'lg'
 }
 
 const MAGNET_STRENGTH = 0.18
@@ -17,6 +19,7 @@ export function GameButton({
   href = '/game',
   forceHover = false,
   className,
+  size = 'sm',
 }: GameButtonProps) {
   const rootRef = useRef<HTMLAnchorElement>(null)
   const innerRef = useRef<HTMLSpanElement>(null)
@@ -79,6 +82,7 @@ export function GameButton({
     <a
       className={[
         'group inline-flex items-center rounded-xsm bg-background-white py-xsm pr-md pl-sm no-underline will-change-transform',
+        size === 'lg' ? 'self-start [zoom:1.75]' : undefined,
         className,
       ]
         .filter(Boolean)

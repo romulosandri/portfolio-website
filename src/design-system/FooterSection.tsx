@@ -73,7 +73,10 @@ export function FooterSection({ className }: FooterSectionProps) {
           two-column grid and then to a single stack. */}
       <div className="grid w-full grid-cols-1 items-start gap-x-4xl gap-y-[64px] bg-background-white p-4xl xs:grid-cols-2 xl:flex xl:h-[560px] xl:items-end xl:justify-between xl:gap-none">
         <div className="flex h-full shrink-0 flex-col items-start justify-between gap-[64px] xs:col-span-2 xl:col-span-1 xl:gap-2xl">
-          <p className="whitespace-nowrap text-h3 text-foreground-secondary">Let’s Talk</p>
+          <div className="flex flex-col items-start gap-md">
+            <p className="whitespace-nowrap text-h3 text-foreground-secondary">Let’s Talk</p>
+            <FooterButton href="/contact" label="Contact Me" />
+          </div>
           <div className="flex flex-col items-start gap-1xl">
             <SocialLinks />
             <p className="text-body-small text-foreground-tertiary">

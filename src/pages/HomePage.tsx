@@ -24,46 +24,23 @@ const HERO_TITLE = 'Product\nDesigner'
 export function HomePage() {
   return (
     <div className="flex min-h-full w-full flex-col bg-background-primary">
-      <section className="hero-stage relative -mt-[var(--site-nav-height,0px)] flex h-svh w-full flex-col items-start overflow-clip bg-background-secondary pt-[var(--site-nav-height,0px)] [container-type:inline-size]">
+      <section className="hero-stage relative -mt-[var(--site-nav-height,0px)] flex h-auto w-full flex-col items-start overflow-clip bg-background-secondary pt-[var(--site-nav-height,0px)] nav:h-svh [container-type:inline-size]">
         <CursorTrail />
-        <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center justify-start px-gutter pt-xl pb-gutter md:static md:justify-center md:p-gutter">
+        <div className="relative z-10 flex min-h-0 w-full flex-none flex-col items-center justify-start px-gutter pt-2xl pb-gutter nav:flex-1 nav:justify-center nav:p-gutter">
           {/* 132px of the original 316px video, so the gap tracks the character
               rather than the viewport and the three pieces hold their spacing
               relative to each other at every size. */}
           <RevealGroup className="flex w-full flex-col items-center gap-[calc(var(--hero-video)*0.418)] [container-type:inline-size]">
             <div className="flex flex-col items-center gap-3xl">
               <WelcomeTag />
-              {/*
-                On small screens the video is pinned to the title so they stay
-                overlapped when this block sits under the nav. `md:contents`
-                drops the wrapper so the video positions against the stage at
-                50%, which is the original desktop composition.
-              */}
-              <div className="relative md:contents">
-                <RevealText
-                  as="h1"
-                  className="text-center text-display text-foreground-primary"
-                  srText={`${site.name} — ${site.role}`}
-                  style={displayFitStyle(HERO_TITLE)}
-                >
-                  {HERO_TITLE}
-                </RevealText>
-                <video
-                  aria-hidden
-                  autoPlay
-                  className="pointer-events-none absolute top-[60%] left-1/2 z-10 size-[var(--hero-video)] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover md:top-[calc(50%+var(--hero-video)*0.0863)]"
-                  data-prerender="strip"
-                  disablePictureInPicture
-                  height={316}
-                  loop
-                  muted
-                  playsInline
-                  poster="/images/home/hero-character.png"
-                  preload="auto"
-                  src="/videos/hero-character.webm"
-                  width={316}
-                />
-              </div>
+              <RevealText
+                as="h1"
+                className="text-center text-display text-foreground-primary"
+                srText={`${site.name} — ${site.role}`}
+                style={displayFitStyle(HERO_TITLE)}
+              >
+                {HERO_TITLE}
+              </RevealText>
             </div>
             <RevealText
               as="p"
@@ -73,10 +50,30 @@ export function HomePage() {
             </RevealText>
           </RevealGroup>
         </div>
-        <div className="relative z-20 w-full shrink-0 max-md:-mt-[200px]">
+        <div className="relative z-20 w-full shrink-0">
           <HeroFamily />
           <LogosTicker />
         </div>
+        {/*
+          On small screens the title sits under the nav, so the character is
+          placed in the lower half of the stage (not glued to the heading).
+          Desktop keeps the original 50% composition.
+        */}
+        <video
+          aria-hidden
+          autoPlay
+          className="pointer-events-none absolute top-[calc(47%+var(--hero-video)*0.0863)] left-1/2 z-10 size-[var(--hero-video)] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover nav:top-[calc(50%+var(--hero-video)*0.0863)]"
+          data-prerender="strip"
+          disablePictureInPicture
+          height={316}
+          loop
+          muted
+          playsInline
+          poster="/images/home/hero-character.png"
+          preload="auto"
+          src="/videos/hero-character.webm"
+          width={316}
+        />
       </section>
 
       <section className="flex w-full flex-col items-center justify-center bg-background-primary px-gutter py-4xl">
