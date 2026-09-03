@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { identifyVisitor, track, trackException } from '../lib/analytics'
-import { CopyEmail, SendButton, SocialLinks } from '../design-system'
+import { BookingButton, CopyEmail, SendButton, SocialLinks } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
 import { site } from '../content/site'
 import { ContactStatusVisual, type ContactStatus } from './ContactStatusVisual'
@@ -116,10 +116,10 @@ export function ContactPage() {
 
   return (
     <PageLayout>
-      <section className="flex w-full flex-col items-center justify-center gap-4xl bg-background-primary px-gutter py-[clamp(72px,12vw,164px)] lg:flex-row lg:gap-30">
+      <section className="flex w-full flex-col items-center justify-center gap-4xl bg-background-primary px-gutter py-[clamp(72px,12vw,164px)] xl:flex-row xl:items-center xl:gap-30">
         <form
           aria-busy={status === 'sending'}
-          className="flex w-full min-w-px flex-col items-start gap-4xl lg:flex-1"
+          className="flex w-full min-w-0 flex-col items-start gap-4xl xl:min-w-80 xl:flex-1"
           onSubmit={onSubmit}
         >
           <RevealGroup>
@@ -189,7 +189,10 @@ export function ContactPage() {
               </p>
             </div>
           </RevealGroup>
-          <SocialLinks />
+          <div className="flex flex-col items-start gap-xl">
+            <SocialLinks />
+            <BookingButton />
+          </div>
         </form>
         <ContactStatusVisual status={status} />
       </section>

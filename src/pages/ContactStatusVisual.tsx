@@ -110,7 +110,7 @@ export function ContactStatusVisual({ status }: ContactStatusVisualProps) {
   )
 
   return (
-    <div className="relative w-full max-w-226 shrink-0 overflow-clip lg:w-auto" ref={rootRef}>
+    <div className="relative w-full min-w-0 max-w-226 overflow-clip xl:flex-1" ref={rootRef}>
       <div className="origin-center will-change-transform" ref={mediaRef}>
         <WorkImageSequence />
       </div>

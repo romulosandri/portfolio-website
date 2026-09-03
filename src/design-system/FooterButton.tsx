@@ -9,11 +9,16 @@ type FooterButtonProps = {
   className?: string
 }
 
+function isExternalHref(href: string) {
+  return /^https?:\/\//i.test(href)
+}
+
 export function FooterButton({
   label,
   href = '#',
   className,
 }: FooterButtonProps) {
+  const external = isExternalHref(href)
   const rootRef = useRef<HTMLAnchorElement>(null)
   const lineRef = useRef<HTMLSpanElement>(null)
 
@@ -65,6 +70,7 @@ export function FooterButton({
 
   return (
     <a
+      aria-label={external ? `${label} (opens in a new tab)` : undefined}
       className={[
         'group inline-flex items-center px-none py-xsm text-body-default text-foreground-secondary no-underline hover:text-foreground-primary focus-visible:text-foreground-primary motion-reduce:hover:underline motion-reduce:focus-visible:underline',
         className,
@@ -80,6 +86,8 @@ export function FooterButton({
         })
       }
       ref={rootRef}
+      rel={external ? 'noopener noreferrer' : undefined}
+      target={external ? '_blank' : undefined}
     >
       <span className="relative inline-flex">
         <RollingText text={label} />

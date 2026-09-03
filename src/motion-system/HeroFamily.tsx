@@ -100,7 +100,6 @@ const RUN_PX_PER_SECOND_MOBILE = 240
 const FRAME_TIME_SCALE_MOBILE = 0.6
 const MOBILE_MQ = '(max-width: 767.98px)'
 const REPEAT_DELAY = 2.8
-const REST_X = 48
 
 function isMobileHero() {
   return window.matchMedia(MOBILE_MQ).matches
@@ -133,12 +132,9 @@ export function HeroFamily() {
       const mm = gsap.matchMedia()
 
       mm.add('(prefers-reduced-motion: reduce)', () => {
-        for (const member of members) {
-          const frames = Array.from(member.querySelectorAll<HTMLElement>('[data-family-frame]'))
-          gsap.set(frames, { autoAlpha: 0 })
-          gsap.set(frames[2] ?? frames[0], { autoAlpha: 1 })
-        }
-        gsap.set(pack, { x: REST_X, autoAlpha: 1 })
+        // The pack is a crossing, not a posed illustration. If it cannot run,
+        // park it off-screen and hidden rather than frozen mid-hero.
+        gsap.set(pack, { x: -pack.offsetWidth, autoAlpha: 0 })
       })
 
       mm.add('(prefers-reduced-motion: no-preference)', () => {
@@ -226,7 +222,7 @@ export function HeroFamily() {
       style={{ height: scaled(BASE_HEIGHT) }}
     >
       <div
-        className="absolute bottom-0 left-0 flex flex-row-reverse items-end will-change-transform"
+        className="absolute bottom-0 left-0 flex flex-row-reverse items-end opacity-0 will-change-transform"
         ref={packRef}
         style={{
           gap: scaled(PACK_GAP),

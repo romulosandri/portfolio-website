@@ -6,6 +6,7 @@ import { navigate } from '../lib/router'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { MOTION, prefersReducedMotion } from '../motion-system/tokens'
 import { site } from '../content/site'
+import { RobotImage } from './RobotImage'
 
 const PANEL_ID = 'site-chat-panel'
 const THREAD_KEY = 'chat:thread'
@@ -19,6 +20,7 @@ const SUGGESTIONS = [
   'Tell me about Pacelane.ai and Fotospin.',
   'Is he available for work?',
   'I want to send Rômulo a message.',
+  'Schedule a meeting with Rômulo.',
 ]
 
 /**
@@ -29,6 +31,10 @@ const SUGGESTIONS = [
  * visible history and the agent's server-side memory of that thread always
  * agree: reloading a tab keeps both, and a new tab starts both over. The
  * visitor id outlives the thread, so return visits are still recognisable.
+ *
+ * Only the newest user message is posted. Mastra Memory already reloads the
+ * thread from storage; sending the full transcript duplicates it and the
+ * model starts answering every earlier question again.
  */
 function readId(storage: Storage, key: string) {
   try {
@@ -65,9 +71,21 @@ function readStoredMessages(): UIMessage[] {
 /** Tool calls are surfaced as a status line rather than raw JSON. */
 function toolLabel(type: string) {
   if (type.includes('knowledge')) return 'Looking through his work...'
+  if (type.includes('available_slots')) return 'Checking his calendar...'
+  if (type.includes('create_booking')) return 'Booking the call...'
   if (type.includes('contact')) return 'Sending your message...'
   if (type.includes('navigate')) return 'Opening the page...'
   return 'Working on it...'
+}
+
+function CalendarIcon() {
+  return (
+    <svg aria-hidden className="block" fill="none" height="16" viewBox="0 0 16 16" width="16">
+      <rect height="10.5" rx="1.25" stroke="currentColor" strokeWidth="1.5" width="12" x="2" y="3.5" />
+      <path d="M2 6.5h12" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M5.25 2v3M10.75 2v3" stroke="currentColor" strokeLinecap="square" strokeWidth="1.5" />
+    </svg>
+  )
 }
 
 type NavigatePayload = {
@@ -107,21 +125,39 @@ function handledKeysFor(messages: UIMessage[]) {
   return keys
 }
 
-const PAGE_LINK =
-  /https:\/\/(?:www\.)?romulosandri\.com(\/[^\s<)\]"'.,!?]*)|(\/(?:work|projects|how-i-use-ai|contact|game)(?:\/[a-z0-9-]+)?)/gi
+const CHAT_LINK =
+  /https:\/\/(?:www\.)?romulosandri\.com(\/[^\s<)\]"'.,!?]*)|https:\/\/(?:app\.)?cal\.com\/[^\s<)\]"'.,!?]+|https:\/\/meet\.google\.com\/[^\s<)\]"'.,!?]+|(\/(?:work|projects|how-i-use-ai|contact|game)(?:\/[a-z0-9-]+)?)/gi
+
+function chatLinkHref(raw: string) {
+  if (raw.startsWith('/')) return raw
+  if (raw.includes('romulosandri.com')) {
+    try {
+      return new URL(raw).pathname || '/'
+    } catch {
+      return raw
+    }
+  }
+  return raw
+}
 
 function ChatText({ text }: { text: string }) {
   const nodes: ReactNode[] = []
   let cursor = 0
-  const matches = text.matchAll(PAGE_LINK)
+  const matches = text.matchAll(CHAT_LINK)
 
   for (const match of matches) {
     const index = match.index ?? 0
     if (index > cursor) nodes.push(text.slice(cursor, index))
 
-    const href = match[1] ?? match[2] ?? match[0]
+    const href = chatLinkHref(match[0])
+    const external = href.startsWith('https://')
     nodes.push(
-      <a className="underline decoration-stroke-secondary underline-offset-2" href={href} key={`${href}:${index}`}>
+      <a
+        className="underline decoration-stroke-secondary underline-offset-2"
+        href={href}
+        key={`${href}:${index}`}
+        {...(external ? { rel: 'noreferrer', target: '_blank' } : {})}
+      >
         {match[0]}
       </a>,
     )
@@ -152,9 +188,10 @@ export function ChatWidget() {
       new DefaultChatTransport({
         api: '/api/chat',
         prepareSendMessagesRequest({ messages }) {
+          const latest = messages.at(-1)
           return {
             body: {
-              messages,
+              messages: latest ? [latest] : [],
               memory: { thread: ids?.thread, resource: ids?.resource },
             },
           }
@@ -303,17 +340,29 @@ export function ChatWidget() {
                 Answers come from his site
               </p>
             </div>
-            <button
-              aria-label="Close chat"
-              className="-mr-md inline-flex size-11 shrink-0 cursor-pointer items-center justify-center"
-              onClick={() => setOpen(false)}
-              type="button"
-            >
-              <span className="relative block size-3.5">
-                <span className="absolute top-1/2 left-0 block h-[1.5px] w-full rotate-45 bg-foreground-primary" />
-                <span className="absolute top-1/2 left-0 block h-[1.5px] w-full -rotate-45 bg-foreground-primary" />
-              </span>
-            </button>
+            <div className="-mr-md flex shrink-0 items-center">
+              <a
+                aria-label={site.booking.label}
+                className="inline-flex size-11 items-center justify-center text-foreground-primary hover:bg-background-secondary"
+                href={site.booking.href}
+                onClick={() => track('chat_booking_opened', { href: site.booking.href })}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <CalendarIcon />
+              </a>
+              <button
+                aria-label="Close chat"
+                className="inline-flex size-11 cursor-pointer items-center justify-center"
+                onClick={() => setOpen(false)}
+                type="button"
+              >
+                <span className="relative block size-3.5">
+                  <span className="absolute top-1/2 left-0 block h-[1.5px] w-full rotate-45 bg-foreground-primary" />
+                  <span className="absolute top-1/2 left-0 block h-[1.5px] w-full -rotate-45 bg-foreground-primary" />
+                </span>
+              </button>
+            </div>
           </header>
 
           <div
@@ -325,7 +374,7 @@ export function ChatWidget() {
               <div className="flex flex-col gap-lg">
                 <p className="text-body-default text-foreground-tertiary">
                   Ask about his work, his projects, or whether he is available. You can also
-                  leave him a message.
+                  leave him a message or book a call.
                 </p>
                 <div className="flex flex-col items-start gap-md">
                   {SUGGESTIONS.map((suggestion) => (
@@ -335,7 +384,10 @@ export function ChatWidget() {
                       onClick={() => {
                         if (busy || !ids) return
                         sendMessage({ text: suggestion })
-                        track('chat_message_sent', { suggestion: true })
+                        track('chat_message_sent', {
+                          suggestion: true,
+                          booking: suggestion.startsWith('Schedule'),
+                        })
                       }}
                       type="button"
                     >
@@ -437,7 +489,7 @@ export function ChatWidget() {
       <button
         aria-controls={open ? PANEL_ID : undefined}
         aria-expanded={open}
-        aria-label={open ? 'Close chat' : `Ask about ${site.name}`}
+        aria-label={open ? 'Close chat' : `Ask AI about ${site.name}`}
         className="pointer-events-auto inline-flex cursor-pointer items-center gap-md border border-solid border-stroke-secondary bg-background-primary px-xl py-lg text-body-default text-foreground-primary hover:bg-background-secondary"
         onClick={() => {
           setOpen((current) => {
@@ -447,7 +499,14 @@ export function ChatWidget() {
         }}
         type="button"
       >
-        {open ? 'Close' : 'Ask about me'}
+        {open ? (
+          'Close'
+        ) : (
+          <>
+            <RobotImage />
+            Ask AI about me
+          </>
+        )}
       </button>
     </div>
   )

@@ -55,6 +55,10 @@ export const site = {
   email: EMAIL,
   whatsapp: '+5563984602704',
   whatsappHref: 'https://wa.me/5563984602704',
+  booking: {
+    href: 'https://cal.com/romulo-sandri-rodrigues-pxfqen/meet-romulo',
+    label: 'Schedule a Call',
+  },
   location: {
     city: 'Palmas',
     region: 'Tocantins',

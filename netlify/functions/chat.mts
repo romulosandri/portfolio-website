@@ -88,7 +88,13 @@ export default async (request: Request, context: Context) => {
   if (messages.length > MAX_MESSAGES) {
     return json({ error: 'This conversation is too long. Start a new one.' }, 400)
   }
-  if (textLength(messages) > MAX_MESSAGE_LENGTH) {
+
+  // Mastra Memory reloads the thread from storage. Forward only the newest
+  // message so a stale client cannot duplicate history into the model context.
+  const latest = messages[messages.length - 1]
+  const outbound = [latest]
+
+  if (textLength(outbound) > MAX_MESSAGE_LENGTH) {
     return json({ error: 'That message is too long.' }, 400)
   }
 
@@ -115,7 +121,7 @@ export default async (request: Request, context: Context) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ messages, memory: { thread, resource } }),
+      body: JSON.stringify({ messages: outbound, memory: { thread, resource } }),
       signal: request.signal,
     })
   } catch (error) {
