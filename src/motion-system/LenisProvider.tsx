@@ -50,6 +50,9 @@ export function LenisProvider({ children }: LenisProviderProps) {
         lerp: 0.1,
         wheelMultiplier: 0.9,
         anchors: true,
+        // The chat panel has its own overflow. Without this, Lenis treats a
+        // wheel over that panel as a request to scroll the page behind it.
+        prevent: (node) => Boolean(node.closest('#site-chat-panel')),
       }}
       root
     >

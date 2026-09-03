@@ -1,7 +1,8 @@
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { track } from '../lib/analytics'
+import { navigate } from '../lib/router'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { MOTION, prefersReducedMotion } from '../motion-system/tokens'
 import { site } from '../content/site'
@@ -65,7 +66,70 @@ function readStoredMessages(): UIMessage[] {
 function toolLabel(type: string) {
   if (type.includes('knowledge')) return 'Looking through his work...'
   if (type.includes('contact')) return 'Sending your message...'
+  if (type.includes('navigate')) return 'Opening the page...'
   return 'Working on it...'
+}
+
+type NavigatePayload = {
+  ok?: unknown
+  path?: unknown
+}
+
+function pathFromUnknown(value: unknown): string | null {
+  if (!value || typeof value !== 'object') return null
+  const { ok, path } = value as NavigatePayload
+  if (ok === false) return null
+  return typeof path === 'string' && path.startsWith('/') ? path : null
+}
+
+/** The agent writes a `data-navigate` part and also returns the same payload as the tool result. */
+function navigatePath(part: UIMessage['parts'][number]): string | null {
+  if (part.type === 'data-navigate' && 'data' in part) {
+    return pathFromUnknown(part.data)
+  }
+
+  if (part.type === 'tool-navigate_to_page' || part.type === 'dynamic-tool') {
+    if (part.type === 'dynamic-tool' && part.toolName !== 'navigate_to_page') return null
+    if (part.state === 'output-available') return pathFromUnknown(part.output)
+  }
+
+  return null
+}
+
+function handledKeysFor(messages: UIMessage[]) {
+  const keys = new Set<string>()
+  for (const message of messages) {
+    message.parts.forEach((part, index) => {
+      const path = navigatePath(part)
+      if (path) keys.add(`${message.id}:${index}:${path}`)
+    })
+  }
+  return keys
+}
+
+const PAGE_LINK =
+  /https:\/\/(?:www\.)?romulosandri\.com(\/[^\s<)\]"'.,!?]*)|(\/(?:work|projects|how-i-use-ai|contact|game)(?:\/[a-z0-9-]+)?)/gi
+
+function ChatText({ text }: { text: string }) {
+  const nodes: ReactNode[] = []
+  let cursor = 0
+  const matches = text.matchAll(PAGE_LINK)
+
+  for (const match of matches) {
+    const index = match.index ?? 0
+    if (index > cursor) nodes.push(text.slice(cursor, index))
+
+    const href = match[1] ?? match[2] ?? match[0]
+    nodes.push(
+      <a className="underline decoration-stroke-secondary underline-offset-2" href={href} key={`${href}:${index}`}>
+        {match[0]}
+      </a>,
+    )
+    cursor = index + match[0].length
+  }
+
+  if (cursor < text.length) nodes.push(text.slice(cursor))
+  return <p className="whitespace-pre-wrap text-body-default text-foreground-primary">{nodes}</p>
 }
 
 export function ChatWidget() {
@@ -81,6 +145,7 @@ export function ChatWidget() {
   const panelRef = useRef<HTMLDivElement>(null)
   const logRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const handledNavigations = useRef(handledKeysFor(restored))
 
   const transport = useMemo(
     () =>
@@ -101,9 +166,32 @@ export function ChatWidget() {
   const { messages, sendMessage, status, error, stop } = useChat({
     transport,
     messages: restored,
+    onData: (part) => {
+      if (part.type !== 'data-navigate') return
+      const path = pathFromUnknown(part.data)
+      if (!path) return
+      navigate(path)
+      track('chat_navigated', { path })
+    },
   })
 
   const busy = status === 'submitted' || status === 'streaming'
+
+  useEffect(() => {
+    if (busy) return
+
+    for (const message of messages) {
+      message.parts.forEach((part, index) => {
+        const path = navigatePath(part)
+        if (!path) return
+        const key = `${message.id}:${index}:${path}`
+        if (handledNavigations.current.has(key)) return
+        handledNavigations.current.add(key)
+        navigate(path)
+        track('chat_navigated', { path })
+      })
+    }
+  }, [messages, busy])
 
   useEffect(() => {
     if (busy) return
@@ -147,6 +235,37 @@ export function ChatWidget() {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [open])
 
+  // Lenis is skipped on touch, so the panel still has to absorb wheel and
+  // overscroll itself or the page behind it moves with the transcript.
+  useEffect(() => {
+    const panel = panelRef.current
+    if (!open || !panel) return
+
+    const absorb = (event: WheelEvent | TouchEvent) => {
+      event.stopPropagation()
+      const log = logRef.current
+      if (!log) {
+        event.preventDefault()
+        return
+      }
+
+      if (event instanceof WheelEvent) {
+        const atTop = log.scrollTop <= 0
+        const atBottom = log.scrollTop + log.clientHeight >= log.scrollHeight - 1
+        if ((event.deltaY < 0 && atTop) || (event.deltaY > 0 && atBottom)) {
+          event.preventDefault()
+        }
+      }
+    }
+
+    panel.addEventListener('wheel', absorb, { passive: false })
+    panel.addEventListener('touchmove', absorb, { passive: false })
+    return () => {
+      panel.removeEventListener('wheel', absorb)
+      panel.removeEventListener('touchmove', absorb)
+    }
+  }, [open])
+
   useGSAP(
     () => {
       const panel = panelRef.current
@@ -172,7 +291,7 @@ export function ChatWidget() {
         <div
           aria-label={`Chat about ${site.name}`}
           aria-modal="false"
-          className="pointer-events-auto flex h-[min(560px,calc(100svh-8rem))] w-[min(384px,calc(100vw-2rem))] flex-col border border-solid border-stroke-secondary bg-background-primary shadow-[0_18px_40px_rgba(14,9,7,0.18)]"
+          className="pointer-events-auto flex h-[min(560px,calc(100svh-8rem))] w-[min(384px,calc(100vw-2rem))] flex-col overflow-hidden overscroll-contain border border-solid border-stroke-secondary bg-background-primary shadow-[0_18px_40px_rgba(14,9,7,0.18)]"
           id={PANEL_ID}
           ref={panelRef}
           role="dialog"
@@ -199,7 +318,7 @@ export function ChatWidget() {
 
           <div
             aria-live="polite"
-            className="scrollbar-none flex min-h-0 flex-1 flex-col gap-xl overflow-y-auto px-xl py-xl"
+            className="scrollbar-none flex min-h-0 flex-1 flex-col gap-xl overflow-y-auto overscroll-contain px-xl py-xl"
             ref={logRef}
           >
             {messages.length === 0 ? (
@@ -243,9 +362,7 @@ export function ChatWidget() {
                     {message.role === 'user' ? 'You' : site.name}
                   </p>
                   {text ? (
-                    <p className="whitespace-pre-wrap text-body-default text-foreground-primary">
-                      {text}
-                    </p>
+                    <ChatText text={text} />
                   ) : (
                     <p className="text-body-default text-foreground-quaternary">
                       {toolLabel(tool!.type)}
