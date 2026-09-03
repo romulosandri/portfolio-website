@@ -25,11 +25,11 @@ export const DEPTH = {
   sceneAbove: 5,
   playerFront: 6,
   prompt: 12,
-  debug: 20,
 } as const
 
 export const PROMPT = {
-  proximity: CELL_SIZE * 2.5,
+  /** Chebyshev reach in cells. 6 means any square within 6 of the hotspot. */
+  proximity: 6,
   cream: 0xfbfbf8,
   ink: 0x0e0907,
   /** Ground marker. Flattened into an ellipse to sit in the scene's perspective. */

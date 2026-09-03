@@ -14,5 +14,6 @@ export {
   MOTION,
   prefersReducedMotion,
   REVEAL,
+  revealScroller,
   type RevealVariant,
 } from './tokens'

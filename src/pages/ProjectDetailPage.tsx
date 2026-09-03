@@ -6,6 +6,7 @@ import {
   RevealGroup,
   RevealLine,
   RevealText,
+  revealScroller,
 } from '../motion-system'
 import { gsap, ScrollTrigger, useGSAP } from '../motion-system/gsap'
 import {
@@ -248,6 +249,7 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
 
       const trigger = ScrollTrigger.create({
         trigger: gallery,
+        scroller: revealScroller(gallery),
         start: 'top bottom',
         onEnter: () => hide.play(),
         onLeaveBack: () => hide.reverse(),

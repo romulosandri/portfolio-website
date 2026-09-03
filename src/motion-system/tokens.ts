@@ -55,7 +55,18 @@ export function isFrozenPanel(node: Element) {
   return Boolean(node.closest('[data-panel-transition]'))
 }
 
+/** Scroll container for nested overlays, e.g. the game work modal. */
+export function revealScroller(node: Element) {
+  const root = node.closest('[data-reveal-scroller]')
+  return root instanceof HTMLElement ? root : undefined
+}
+
 export function isRevealInView(node: Element) {
   const rect = node.getBoundingClientRect()
-  return rect.top < window.innerHeight * 0.85 && rect.bottom > 0
+  const scroller = revealScroller(node)
+  if (!scroller) {
+    return rect.top < window.innerHeight * 0.85 && rect.bottom > 0
+  }
+  const root = scroller.getBoundingClientRect()
+  return rect.top < root.top + scroller.clientHeight * 0.85 && rect.bottom > root.top
 }

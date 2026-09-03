@@ -15,6 +15,7 @@ import {
   isRevealInView,
   prefersReducedMotion,
   REVEAL,
+  revealScroller,
   type RevealVariant,
 } from './tokens'
 
@@ -118,6 +119,7 @@ function armTrigger(root: Element, play: () => void) {
 
   ScrollTrigger.create({
     trigger: root,
+    scroller: revealScroller(root),
     start: REVEAL.triggerStart,
     once: true,
     onEnter: play,

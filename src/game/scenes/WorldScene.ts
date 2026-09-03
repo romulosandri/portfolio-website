@@ -20,29 +20,17 @@ import {
   WORLD_HEIGHT,
   WORLD_WIDTH,
   cellKindAt,
-  cellName,
   forEachCell,
-  type CellKind,
 } from '../grid'
-import { hotspotNear, setActiveHotspot } from '../hotspots'
+import { hotspotNear, isProjectModalOpen, setActiveHotspot } from '../hotspots'
 import { ProjectPrompt } from '../projectPrompt'
 import { clearVirtualPad, getVirtualPad } from '../virtualPad'
-
-const DEBUG_FILL: Record<CellKind, { color: number; alpha: number }> = {
-  regular: { color: 0x000000, alpha: 0.12 },
-  blocked: { color: 0xc43c4a, alpha: 0.42 },
-  'scene-above': { color: 0x2ec9c0, alpha: 0.38 },
-}
 
 export class WorldScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys
   private wasd?: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>
   private blocked: Phaser.Physics.Arcade.StaticBody[] = []
-  private debugGrid!: Phaser.GameObjects.Graphics
-  private debugLabels!: Phaser.GameObjects.Image
-  private debugFeet!: Phaser.GameObjects.Rectangle
-  private debugVisible = true
   private walking = false
   private prompt!: ProjectPrompt
   private shutDown = false
@@ -66,7 +54,6 @@ export class WorldScene extends Phaser.Scene {
     this.createPlayer()
     this.prompt = new ProjectPrompt(this)
     this.createInput()
-    this.createDebugGrid()
 
     this.physics.add.collider(this.player, this.blocked)
 
@@ -98,6 +85,12 @@ export class WorldScene extends Phaser.Scene {
   }
 
   update() {
+    if (isProjectModalOpen()) {
+      this.player.setVelocity(0, 0)
+      this.setPlayerMoving(false)
+      return
+    }
+
     const pad = getVirtualPad()
     const left = this.cursors?.left.isDown || this.wasd?.A.isDown || pad.left
     const right = this.cursors?.right.isDown || this.wasd?.D.isDown || pad.right
@@ -128,7 +121,6 @@ export class WorldScene extends Phaser.Scene {
 
     this.updatePlayerDepth()
     this.updateHotspot()
-    this.updateDebugFeet()
   }
 
   private updateHotspot() {
@@ -295,93 +287,10 @@ export class WorldScene extends Phaser.Scene {
     this.wasd = keyboard.addKeys('W,A,S,D') as typeof this.wasd
 
     keyboard.on('keydown-SPACE', (event: KeyboardEvent) => {
+      if (isProjectModalOpen()) return
       event.preventDefault()
       this.prompt.tryOpen()
     })
-
-    keyboard.on('keydown-G', () => {
-      this.debugVisible = !this.debugVisible
-      this.debugGrid.setVisible(this.debugVisible)
-      this.debugLabels.setVisible(this.debugVisible)
-      this.debugFeet.setVisible(this.debugVisible)
-    })
-  }
-
-  private createDebugGrid() {
-    this.debugGrid = this.add.graphics().setDepth(DEPTH.debug)
-    this.debugGrid.setVisible(this.debugVisible)
-
-    this.debugFeet = this.add
-      .rectangle(0, 0, CELL_SIZE, CELL_SIZE, 0xffe14d, 0.28)
-      .setStrokeStyle(1, 0xffe14d, 0.95)
-      .setOrigin(0.5, 1)
-      .setDepth(DEPTH.debug)
-      .setVisible(this.debugVisible)
-
-    forEachCell((col, row, kind) => {
-      const { color, alpha } = DEBUG_FILL[kind]
-      this.debugGrid.fillStyle(color, alpha)
-      this.debugGrid.fillRect(
-        col * CELL_SIZE,
-        row * CELL_SIZE,
-        CELL_SIZE,
-        CELL_SIZE,
-      )
-      this.debugGrid.lineStyle(1, 0x000000, 0.35)
-      this.debugGrid.strokeRect(
-        col * CELL_SIZE,
-        row * CELL_SIZE,
-        CELL_SIZE,
-        CELL_SIZE,
-      )
-    })
-
-    this.debugLabels = this.createDebugLabels()
-  }
-
-  private createDebugLabels() {
-    const scale = 2
-    const canvas = document.createElement('canvas')
-    canvas.width = WORLD_WIDTH * scale
-    canvas.height = WORLD_HEIGHT * scale
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      throw new Error('Could not create a 2D canvas context')
-    }
-
-    ctx.scale(scale, scale)
-    ctx.font = '7px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.lineWidth = 2
-    ctx.lineJoin = 'round'
-
-    forEachCell((col, row) => {
-      const label = cellName(col, row)
-      const x = col * CELL_SIZE + CELL_SIZE / 2
-      const y = row * CELL_SIZE + CELL_SIZE / 2
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.85)'
-      ctx.strokeText(label, x, y)
-      ctx.fillStyle = '#ffffff'
-      ctx.fillText(label, x, y)
-    })
-
-    if (this.textures.exists('debug-labels')) {
-      this.textures.remove('debug-labels')
-    }
-    this.textures.addCanvas('debug-labels', canvas)
-
-    return this.add
-      .image(0, 0, 'debug-labels')
-      .setOrigin(0, 0)
-      .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
-      .setDepth(DEPTH.debug)
-      .setVisible(this.debugVisible)
-  }
-
-  private updateDebugFeet() {
-    if (!this.debugVisible) return
-    this.debugFeet.setPosition(this.player.x, this.player.y)
   }
 }
 

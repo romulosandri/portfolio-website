@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { gsap, ScrollTrigger, useGSAP } from './gsap'
+import { revealScroller } from './tokens'
 
 const RUN_FRAMES = [
   '/design-system/game/sprites/pluto/sprite-1.png',
@@ -100,6 +101,7 @@ export function FooterPluto() {
 
         const trigger = ScrollTrigger.create({
           trigger: track,
+          scroller: revealScroller(track),
           start: 'top bottom',
           end: 'bottom top',
           onToggle: (self) => setPlaying(self.isActive),

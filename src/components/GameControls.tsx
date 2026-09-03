@@ -7,8 +7,10 @@ import {
 } from 'react'
 import {
   getActiveHotspot,
+  isProjectModalOpen,
   requestOpenProject,
   subscribeActiveHotspot,
+  subscribeProjectModal,
   type ResolvedHotspot,
 } from '../game/hotspots'
 import {
@@ -18,12 +20,15 @@ import {
 } from '../game/virtualPad'
 
 export function GameControls() {
+  const [projectOpen, setProjectOpen] = useState(isProjectModalOpen)
+
+  useEffect(() => subscribeProjectModal(setProjectOpen), [])
   useEffect(() => clearVirtualPad, [])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== ' ' && event.code !== 'Space') return
-      if (event.repeat) return
+      if (event.repeat || isProjectModalOpen()) return
       const hotspot = getActiveHotspot()
       if (!hotspot) return
       event.preventDefault()
@@ -32,6 +37,8 @@ export function GameControls() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
+
+  if (projectOpen) return null
 
   return (
     <>

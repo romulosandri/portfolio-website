@@ -228,6 +228,7 @@ export function ImageLightbox({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
+        event.stopImmediatePropagation()
         requestClose()
         return
       }
@@ -257,8 +258,8 @@ export function ImageLightbox({
       }
     }
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('keydown', onKeyDown, true)
+    return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [goTo, index, requestClose, resetView, zoomBy])
 
   useEffect(() => {
@@ -503,7 +504,7 @@ export function ImageLightbox({
     <div
       aria-label={`${title}, image ${index + 1} of ${count}`}
       aria-modal="true"
-      className="fixed inset-0 z-100 touch-none"
+      className="fixed inset-0 z-110 touch-none"
       ref={rootRef}
       role="dialog"
     >

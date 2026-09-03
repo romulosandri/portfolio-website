@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { track } from '../lib/analytics'
-import { useScrollSkew } from '../motion-system'
+import { revealScroller, useScrollSkew } from '../motion-system'
 import { ImageLightbox } from './ImageLightbox'
 
 const BATCH_SIZE = 5
@@ -25,8 +25,12 @@ export function LazyImageList({ images, title, alts }: LazyImageListProps) {
     const sentinel = sentinelRef.current
     if (!sentinel) return
 
+    const scroller = revealScroller(sentinel)
     const maybeLoad = () => {
-      if (sentinel.getBoundingClientRect().top < window.innerHeight + 400) {
+      const limit = scroller
+        ? scroller.getBoundingClientRect().bottom + 400
+        : window.innerHeight + 400
+      if (sentinel.getBoundingClientRect().top < limit) {
         setLoadedCount((count) => Math.min(count + BATCH_SIZE, images.length))
       }
     }
@@ -35,16 +39,17 @@ export function LazyImageList({ images, title, alts }: LazyImageListProps) {
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) maybeLoad()
       },
-      { rootMargin: '400px 0px' },
+      { root: scroller, rootMargin: '400px 0px' },
     )
 
     observer.observe(sentinel)
-    window.addEventListener('scroll', maybeLoad, { passive: true })
+    const scrollTarget = scroller ?? window
+    scrollTarget.addEventListener('scroll', maybeLoad, { passive: true })
     maybeLoad()
 
     return () => {
       observer.disconnect()
-      window.removeEventListener('scroll', maybeLoad)
+      scrollTarget.removeEventListener('scroll', maybeLoad)
     }
   }, [images.length, loadedCount])
 

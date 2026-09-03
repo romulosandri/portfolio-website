@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import { gsap } from '../motion-system/gsap'
 import { DEPTH, PROMPT } from './constants'
-import { requestOpenProject, type ResolvedHotspot } from './hotspots'
+import { GAME_PROJECT_CLOSED_EVENT, requestOpenProject, type ResolvedHotspot } from './hotspots'
 
 const SPACE_KEY_TEXTURE = 'prompt-space-key'
 const KEY_SOURCE_WIDTH = 76
@@ -126,6 +126,8 @@ export class ProjectPrompt {
     )
     if (this.pool.input) this.pool.input.cursor = 'pointer'
 
+    window.addEventListener(GAME_PROJECT_CLOSED_EVENT, this.onProjectClosed)
+
     if (this.reducedMotion) {
       this.ripples.forEach((ripple) => ripple.setVisible(false))
       this.sparks.forEach((spark) => spark.dot.setVisible(false))
@@ -162,9 +164,14 @@ export class ProjectPrompt {
   destroy() {
     if (this.destroyed) return
     this.destroyed = true
+    window.removeEventListener(GAME_PROJECT_CLOSED_EVENT, this.onProjectClosed)
     this.appearTween?.kill()
     this.clockTween?.kill()
     this.root.destroy(true)
+  }
+
+  private readonly onProjectClosed = () => {
+    this.opening = false
   }
 
   /**

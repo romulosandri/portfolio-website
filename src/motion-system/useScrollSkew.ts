@@ -1,5 +1,6 @@
 import { type RefObject } from 'react'
 import { gsap, ScrollTrigger, useGSAP } from './gsap'
+import { revealScroller } from './tokens'
 
 const SCROLL_SKEW = {
   max: 1.5,
@@ -32,6 +33,7 @@ export function useScrollSkew(
         gsap.set(items, { transformOrigin: SCROLL_SKEW.transformOrigin, force3D: true })
 
         ScrollTrigger.create({
+          scroller: root ? revealScroller(root) : undefined,
           onUpdate: (self) => {
             const skew = clamp(self.getVelocity() / SCROLL_SKEW.velocity)
             if (Math.abs(skew) <= Math.abs(proxy.skew)) return
