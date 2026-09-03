@@ -1,7 +1,6 @@
 import { DesignSystemGallery } from '../design-system'
 import type { Route } from '../lib/router'
 import { ContactPage } from './ContactPage'
-import { GamePage } from './GamePage'
 import { HomePage } from './HomePage'
 import { HowIUseAiPage } from './HowIUseAiPage'
 import { NotFoundPage } from './NotFoundPage'
@@ -44,7 +43,6 @@ export function renderPage({ route }: PageKey) {
     case 'contact':
       return <ContactPage />
     case 'game':
-      return <GamePage />
     case 'home':
       return <HomePage />
     case 'notFound':

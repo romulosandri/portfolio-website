@@ -76,7 +76,7 @@ function ControlButton({
   return (
     <button
       aria-label={label}
-      className="inline-flex size-[44px] shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 disabled:cursor-not-allowed disabled:opacity-40 md:size-[56px]"
+      className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 disabled:cursor-not-allowed disabled:opacity-40 md:size-14"
       disabled={disabled}
       onClick={onClick}
       type="button"
@@ -503,13 +503,13 @@ export function ImageLightbox({
     <div
       aria-label={`${title}, image ${index + 1} of ${count}`}
       aria-modal="true"
-      className="fixed inset-0 z-[100] touch-none"
+      className="fixed inset-0 z-100 touch-none"
       ref={rootRef}
       role="dialog"
     >
       <div className="absolute inset-0 bg-cobblestone-950/80" />
       <div
-        className="absolute inset-0 flex touch-none items-center justify-center px-xl py-[88px] md:px-[120px] md:py-[112px]"
+        className="absolute inset-0 flex touch-none items-center justify-center px-xl py-22 md:px-30 md:py-28"
         onClick={onBackdropClick}
         ref={overlayRef}
       >
@@ -539,7 +539,7 @@ export function ImageLightbox({
         <div className="pointer-events-auto absolute top-4xl right-4xl">
           <button
             aria-label="Close"
-            className="inline-flex size-[44px] shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 md:size-[56px]"
+            className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-all bg-cobblestone-800 text-cobblestone-50 hover:bg-cobblestone-700 focus-visible:bg-cobblestone-700 md:size-14"
             onClick={requestClose}
             ref={closeRef}
             type="button"
@@ -610,7 +610,7 @@ export function ImageLightbox({
               />
             </Icon>
           </ControlButton>
-          <p className="min-w-[72px] text-center text-body-small text-cobblestone-200">
+          <p className="min-w-18 text-center text-body-small text-cobblestone-200">
             {Math.round(scale * 100)}%
           </p>
           <ControlButton disabled={atMaxZoom} label="Zoom in" onClick={() => zoomBy(ZOOM_STEP)}>

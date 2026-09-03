@@ -38,7 +38,7 @@ function MetaField({
 }) {
   return (
     <RevealBlock>
-      <dl className={['flex flex-col items-start gap-[10px]', className].filter(Boolean).join(' ')}>
+      <dl className={['flex flex-col items-start gap-2.5', className].filter(Boolean).join(' ')}>
         <RevealText as="dt" className="whitespace-nowrap text-body-small text-foreground-tertiary">
           {label}
         </RevealText>
@@ -55,7 +55,7 @@ function MetaList({ label, items }: { label: string; items: string[] }) {
   if (items.length === 0) return null
 
   return (
-    <div className="flex w-full flex-col items-start gap-[10px]">
+    <div className="flex w-full flex-col items-start gap-2.5">
       <RevealText as="h2" className="whitespace-nowrap text-body-small text-foreground-tertiary" variant="blur">
         {label}
       </RevealText>
@@ -111,7 +111,7 @@ function SeeNextSection({
 
   return (
     <div className="w-full pt-4xl" ref={rootRef}>
-      <div className="flex w-full flex-col items-start gap-[10px] will-change-transform">
+      <div className="flex w-full flex-col items-start gap-2.5 will-change-transform">
         <RevealText as="p" className="whitespace-nowrap text-body-small text-foreground-tertiary">
           See next
         </RevealText>
@@ -215,7 +215,7 @@ function DragScroll({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="flex w-full cursor-grab items-start gap-[10px] overflow-x-auto overscroll-x-contain scrollbar-none select-none active:cursor-grabbing [&_a]:cursor-grab [&_a]:active:cursor-grabbing"
+      className="flex w-full cursor-grab items-start gap-2.5 overflow-x-auto overscroll-x-contain scrollbar-none select-none active:cursor-grabbing [&_a]:cursor-grab [&_a]:active:cursor-grabbing"
       ref={ref}
     >
       {children}
@@ -273,16 +273,16 @@ export function ProjectDetailPage({ slug, collection }: ProjectDetailPageProps) 
         <div className="flex w-full min-w-px flex-1 flex-col justify-center gap-4xl lg:flex-row lg:items-start">
           {/* Only sticky once it sits beside the gallery. Stacked above it, a
               sticky sidebar would pin over the images as you scroll past. */}
-          <RevealGroup className="flex w-full shrink-0 flex-col items-start lg:sticky lg:top-4xl lg:w-[400px] lg:self-start xl:w-[480px]">
+          <RevealGroup className="flex w-full shrink-0 flex-col items-start lg:sticky lg:top-4xl lg:w-100 lg:self-start xl:w-120">
             <RevealLine />
             <div className="flex w-full flex-col items-start justify-center gap-3xl pt-2xl">
               <MetaField label="Description" value={item.description} className="w-full" />
               <div className="flex w-full items-start gap-xl">
-                <MetaField className="w-[120px] shrink-0 xs:w-[160px]" label="Client" value={item.client} />
+                <MetaField className="w-30 shrink-0 xs:w-40" label="Client" value={item.client} />
                 <MetaField className="min-w-px flex-1" label="Role" value={item.role} />
               </div>
               <div className="flex w-full items-start gap-xl">
-                <MetaField className="w-[120px] shrink-0 xs:w-[160px]" label="Year" value={item.year} />
+                <MetaField className="w-30 shrink-0 xs:w-40" label="Year" value={item.year} />
                 <MetaField className="min-w-px flex-1" label="Duration" value={item.duration} />
               </div>
               <MetaList items={item.delivered} label="Delivered" />

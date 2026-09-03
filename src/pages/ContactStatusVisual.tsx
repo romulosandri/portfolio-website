@@ -110,7 +110,7 @@ export function ContactStatusVisual({ status }: ContactStatusVisualProps) {
   )
 
   return (
-    <div className="relative w-full max-w-[904px] shrink-0 overflow-clip lg:w-auto" ref={rootRef}>
+    <div className="relative w-full max-w-226 shrink-0 overflow-clip lg:w-auto" ref={rootRef}>
       <div className="origin-center will-change-transform" ref={mediaRef}>
         <WorkImageSequence />
       </div>
@@ -124,7 +124,7 @@ export function ContactStatusVisual({ status }: ContactStatusVisualProps) {
         role={status === 'error' ? 'alert' : undefined}
       >
         {copy ? (
-          <div className="flex max-w-[520px] flex-col items-center gap-2xl" key={status} ref={copyRef}>
+          <div className="flex max-w-130 flex-col items-center gap-2xl" key={status} ref={copyRef}>
             <p className="text-h1 text-background-primary" data-status-title="">
               {copy.title}
             </p>

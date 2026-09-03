@@ -23,7 +23,7 @@ export function AiButton({
   className,
 }: AiButtonProps) {
   const classes = [
-    'inline-flex size-[32px] shrink-0 items-center justify-center border border-solid border-stroke-secondary bg-background-secondary p-sm hover:bg-background-tertiary',
+    'inline-flex size-8 shrink-0 items-center justify-center border border-solid border-stroke-secondary bg-background-secondary p-sm hover:bg-background-tertiary',
     className,
   ]
     .filter(Boolean)

@@ -96,7 +96,7 @@ export function WelcomeTag({ className }: WelcomeTagProps) {
   return (
     <span
       className={[
-        'inline-flex items-center justify-center gap-[10px] rounded-sm px-xl py-md',
+        'inline-flex items-center justify-center gap-2.5 rounded-sm px-xl py-md',
         className,
       ]
         .filter(Boolean)

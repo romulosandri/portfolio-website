@@ -144,7 +144,7 @@ export function WorkCard({ title, year, cover, href, images = [], className, com
     <a
       className={[
         'flex flex-col items-start no-underline will-change-transform',
-        compact ? 'gap-[10px]' : 'gap-2xl',
+        compact ? 'gap-2.5' : 'gap-2xl',
         className || 'w-full',
       ]
         .filter(Boolean)
@@ -163,7 +163,7 @@ export function WorkCard({ title, year, cover, href, images = [], className, com
       onMouseEnter={startPreview}
       onMouseLeave={stopPreview}
     >
-      <span className="relative block aspect-[2048/1536] w-full overflow-clip" ref={mediaRef}>
+      <span className="relative block aspect-2048/1536 w-full overflow-clip" ref={mediaRef}>
         <img
           alt={`${title} — project cover`}
           className={FRAME_CLASS}
@@ -234,7 +234,7 @@ export function SectionHeader({ title, caption }: SectionHeaderProps) {
   return (
     <div className="flex w-full flex-col gap-2xl">
       <RevealLine />
-      <div className="flex w-full flex-col items-start justify-center gap-lg md:flex-row md:items-center md:gap-[10px]">
+      <div className="flex w-full flex-col items-start justify-center gap-lg md:flex-row md:items-center md:gap-2.5">
         <RevealText as="h2" className="w-full text-h2 text-foreground-primary md:min-w-px md:flex-1">
           {title}
         </RevealText>
@@ -260,7 +260,7 @@ export function DisplayHero({ children, srText }: DisplayHeroProps) {
   return (
     /* min-h rather than h: a title long enough to wrap has to be able to push
        the block taller. Desktop keeps the original 560px. */
-    <RevealGroup className="flex min-h-[280px] w-full shrink-0 flex-col items-center justify-center bg-background-primary px-gutter py-4xl md:min-h-[400px] lg:min-h-[560px] [container-type:inline-size]">
+    <RevealGroup className="flex min-h-70 w-full shrink-0 flex-col items-center justify-center bg-background-primary px-gutter py-4xl md:min-h-100 lg:min-h-140 @container">
       <RevealText
         as="h1"
         centerLines

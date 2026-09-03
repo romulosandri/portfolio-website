@@ -14,7 +14,7 @@ type ImagesTickerProps = {
  */
 function ImageTrack({ copy, images }: { copy: number; images: TickerImage[] }) {
   return (
-    <div aria-hidden={copy > 0} className="flex items-center gap-[10px]">
+    <div aria-hidden={copy > 0} className="flex items-center gap-2.5">
       {images.map((image) => (
         <div
           className="relative h-[clamp(220px,45vh,640px)] w-[clamp(calc(220px*853/640),calc(45vh*853/640),853px)] shrink-0 overflow-clip"
@@ -66,7 +66,7 @@ export function ImagesTicker({ className }: ImagesTickerProps) {
       data-prerender="strip"
       ref={rootRef}
     >
-      <div className="flex w-max items-center gap-[10px] will-change-transform" ref={trackRef}>
+      <div className="flex w-max items-center gap-2.5 will-change-transform" ref={trackRef}>
         <ImageTrack copy={0} images={images} />
         <ImageTrack copy={1} images={images} />
       </div>

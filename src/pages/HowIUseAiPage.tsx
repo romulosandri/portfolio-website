@@ -23,7 +23,7 @@ export function HowIUseAiPage() {
               <div
                 // No minimum height in the single-column stack: a fixed 300px
                 // per card is mostly dead space once the cards are full width.
-                className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-2xl xs:min-h-[320px] lg:min-h-[380px]"
+                className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-2xl xs:min-h-80 lg:min-h-95"
                 key={tool.name}
               >
                 <AppLogo name={tool.name} size={32} />
@@ -58,10 +58,10 @@ export function HowIUseAiPage() {
                       : 'border-r border-b border-l border-solid border-stroke-secondary',
                   ].join(' ')}
                 >
-                  <RevealText as="p" className="w-full text-body-large text-foreground-secondary md:w-[120px] md:shrink-0">
+                  <RevealText as="p" className="w-full text-body-large text-foreground-secondary md:w-30 md:shrink-0">
                     {row.provider}
                   </RevealText>
-                  <RevealText as="p" className="w-full text-body-large text-foreground-primary md:w-[280px] md:shrink-0">
+                  <RevealText as="p" className="w-full text-body-large text-foreground-primary md:w-70 md:shrink-0">
                     {row.name}
                   </RevealText>
                   <RevealText as="p" className="text-body-default text-foreground-tertiary">

@@ -22,7 +22,7 @@ export function NotFoundPage() {
           <div className="flex w-full flex-col items-start gap-4xl">
             <RevealText
               as="p"
-              className="w-full max-w-[640px] text-h2 leading-[1.2] text-foreground-primary"
+              className="w-full max-w-160 text-h2 leading-[1.2] text-foreground-primary"
             >
               Browse the work, look at side projects, or get in touch. The rest of the site is still here.
             </RevealText>
@@ -33,7 +33,7 @@ export function NotFoundPage() {
               {destinations.map((item) => (
                 <a
                   aria-label={item.label}
-                  className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-2xl no-underline xs:min-h-[180px] lg:min-h-[380px]"
+                  className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-2xl no-underline xs:min-h-45 lg:min-h-95"
                   href={item.href}
                   key={item.href}
                 >

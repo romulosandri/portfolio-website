@@ -1,6 +1,7 @@
-import { useRef } from 'react'
+import { useRef, type MouseEvent } from 'react'
 import { track } from '../lib/analytics'
 import { gsap, useGSAP } from '../motion-system/gsap'
+import { useGameModal } from '../pages/GameModal'
 import { DsImage } from './DsImage'
 import { GameThumbnailImage } from './GameThumbnailImage'
 
@@ -10,6 +11,7 @@ type GameButtonProps = {
   className?: string
   /** Overlay menus pass `lg` so the chip isn't the same 43px as the header row. */
   size?: 'sm' | 'lg'
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 }
 
 const MAGNET_STRENGTH = 0.18
@@ -20,9 +22,11 @@ export function GameButton({
   forceHover = false,
   className,
   size = 'sm',
+  onClick,
 }: GameButtonProps) {
   const rootRef = useRef<HTMLAnchorElement>(null)
   const innerRef = useRef<HTMLSpanElement>(null)
+  const { open } = useGameModal()
 
   useGSAP(
     (_context, contextSafe) => {
@@ -82,23 +86,27 @@ export function GameButton({
     <a
       className={[
         'group inline-flex items-center rounded-xsm bg-background-white py-xsm pr-md pl-sm no-underline will-change-transform',
-        size === 'lg' ? 'self-start [zoom:1.75]' : undefined,
+        size === 'lg' ? 'self-start zoom-[1.75]' : undefined,
         className,
       ]
         .filter(Boolean)
         .join(' ')}
       data-hover={forceHover ? 'true' : undefined}
       href={href}
-      onClick={() =>
+      onClick={(event) => {
         track('game_cta_clicked', {
           href,
           pathname: window.location.pathname,
         })
-      }
+        onClick?.(event)
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+        event.preventDefault()
+        open()
+      }}
       ref={rootRef}
     >
       <span
-        className="inline-flex items-center gap-[7px] will-change-transform"
+        className="inline-flex items-center gap-1.75 will-change-transform"
         ref={innerRef}
       >
         <GameThumbnailImage />
@@ -119,10 +127,10 @@ export function GameButton({
             />
           </span>
         </span>
-        <span className="inline-flex size-[21px] shrink-0 items-center justify-center overflow-visible">
+        <span className="inline-flex size-5.25 shrink-0 items-center justify-center overflow-visible">
           <DsImage
             alt=""
-            className="origin-center transition-transform duration-200 group-hover:rotate-[24deg] group-focus-visible:rotate-[24deg] group-data-[hover=true]:rotate-[24deg]"
+            className="origin-center transition-transform duration-200 group-hover:rotate-24 group-focus-visible:rotate-24 group-data-[hover=true]:rotate-24"
             height={16}
             src="/design-system/icons/joystick.svg"
             width={16}

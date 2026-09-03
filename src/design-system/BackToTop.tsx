@@ -169,7 +169,7 @@ export function BackToTop() {
 
   return (
     <div
-      className="pointer-events-none fixed right-gutter bottom-gutter z-50 size-[56px] md:right-4xl md:bottom-4xl md:size-[80px]"
+      className="pointer-events-none fixed right-gutter bottom-gutter z-50 size-14 md:right-4xl md:bottom-4xl md:size-20"
       ref={rootRef}
     >
       <span
@@ -183,7 +183,7 @@ export function BackToTop() {
         ref={buttonRef}
         type="button"
       >
-        <span className="relative size-[32px] shrink-0">
+        <span className="relative size-8 shrink-0">
           <span className="absolute inset-0" ref={darkIconRef}>
             <DsImage
               alt=""

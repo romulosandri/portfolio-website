@@ -71,8 +71,8 @@ export function FooterSection({ className }: FooterSectionProps) {
       {/* Four columns across only at xl. Their combined minimum is ~930px, which
           leaves no usable gap until about 1280px, so below that they reflow to a
           two-column grid and then to a single stack. */}
-      <div className="grid w-full grid-cols-1 items-start gap-x-4xl gap-y-[64px] bg-background-white p-4xl xs:grid-cols-2 xl:flex xl:h-[560px] xl:items-end xl:justify-between xl:gap-none">
-        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-[64px] xs:col-span-2 xl:col-span-1 xl:gap-2xl">
+      <div className="grid w-full grid-cols-1 items-start gap-x-4xl gap-y-16 bg-background-white p-4xl xs:grid-cols-2 xl:flex xl:h-140 xl:items-end xl:justify-between xl:gap-none">
+        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-16 xs:col-span-2 xl:col-span-1 xl:gap-2xl">
           <div className="flex flex-col items-start gap-md">
             <p className="whitespace-nowrap text-h3 text-foreground-secondary">Let’s Talk</p>
             <FooterButton href="/contact" label="Contact Me" />
@@ -85,7 +85,7 @@ export function FooterSection({ className }: FooterSectionProps) {
           </div>
         </div>
 
-        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-[32px] border-solid border-stroke-secondary xl:gap-2xl xl:border-l xl:pl-2xl">
+        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-8 border-solid border-stroke-secondary xl:gap-2xl xl:border-l xl:pl-2xl">
           <p className="text-body-small text-foreground-tertiary">Work</p>
           <div className="flex flex-col items-start gap-md">
             {workItems.map((item) => (
@@ -94,7 +94,7 @@ export function FooterSection({ className }: FooterSectionProps) {
           </div>
         </div>
 
-        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-[32px] border-solid border-stroke-secondary xl:gap-2xl xl:border-l xl:pl-2xl">
+        <div className="flex h-full shrink-0 flex-col items-start justify-between gap-8 border-solid border-stroke-secondary xl:gap-2xl xl:border-l xl:pl-2xl">
           <p className="text-body-small text-foreground-tertiary">Projects</p>
           <div className="flex flex-col items-start gap-md">
             {projectItems.map((item) => (
@@ -103,7 +103,7 @@ export function FooterSection({ className }: FooterSectionProps) {
           </div>
         </div>
 
-        <div className="flex h-full w-full shrink-0 flex-col items-start justify-between gap-[32px] xs:col-span-2 xl:w-[508px] xl:col-span-1 xl:gap-2xl">
+        <div className="flex h-full w-full shrink-0 flex-col items-start justify-between gap-8 xs:col-span-2 xl:w-127 xl:col-span-1 xl:gap-2xl">
           <div className="flex w-full flex-wrap items-center gap-x-2xl gap-y-2xl">
             <p className="text-h5 text-foreground-secondary">Ask about Rômulo Sandri on</p>
             <div className="flex items-center gap-md">

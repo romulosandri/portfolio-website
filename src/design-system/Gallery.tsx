@@ -53,13 +53,13 @@ function Bleed({ children }: { children: ReactNode }) {
 export function DesignSystemGallery() {
   return (
     <div className="min-h-full overflow-auto bg-background-primary text-foreground-primary">
-      <main className="mx-auto flex max-w-[1200px] flex-col gap-4xl px-2xl py-3xl">
+      <main className="mx-auto flex max-w-300 flex-col gap-4xl px-2xl py-3xl">
         <header className="flex flex-col gap-md">
           <p className="text-body-small text-foreground-tertiary">
             Design system
           </p>
           <h1 className="text-h2">Portfolio 2026</h1>
-          <p className="max-w-[640px] text-body-default text-foreground-secondary">
+          <p className="max-w-160 text-body-default text-foreground-secondary">
             Components, logos, letters, and icons from Figma. Interactive states
             respond to hover. Open this view with <code>?ds=1</code>.
           </p>
@@ -165,12 +165,12 @@ export function DesignSystemGallery() {
         <Section title="How AI">
           <div className="flex flex-col gap-xl">
             <Tile label="state=default">
-              <div className="w-full min-w-[720px]">
+              <div className="w-full min-w-180">
                 <HowAi />
               </div>
             </Tile>
             <Tile label="state=hover">
-              <div className="w-full min-w-[720px]">
+              <div className="w-full min-w-180">
                 <HowAi forceHover />
               </div>
             </Tile>
@@ -180,12 +180,12 @@ export function DesignSystemGallery() {
         <Section title="Talk button">
           <div className="flex flex-col gap-xl">
             <Tile label="state=default">
-              <div className="w-full min-w-[720px]">
+              <div className="w-full min-w-180">
                 <TalkButton />
               </div>
             </Tile>
             <Tile label="state=hover">
-              <div className="w-full min-w-[720px]">
+              <div className="w-full min-w-180">
                 <TalkButton forceHover />
               </div>
             </Tile>

@@ -35,9 +35,9 @@ export function NavBar({ className, pathname = '/' }: NavBarProps) {
         --site-nav-height of top padding for this row, and that gap only reads
         as the header if the wordmark and toggle actually paint over the panel.
       */}
-      <div className="relative z-[60] flex w-full items-center justify-between py-md nav:py-2xl">
+      <div className="relative z-60 flex w-full items-center justify-between py-md nav:py-2xl">
         {/* NameLogo drops to the first name below `nav:` on its own, in CSS. */}
-        <NameLogo className="[zoom:0.855]" href="/" />
+        <NameLogo className="zoom-[0.855]" href="/" />
         <nav aria-label="Primary" className="hidden items-center gap-3xl nav:flex">
           <GameButton href="/game" />
           {items.map((item) => (

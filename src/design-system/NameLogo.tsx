@@ -46,7 +46,7 @@ function NameRow({
   styles: LetterStyle[]
 }) {
   return (
-    <span className="inline-flex items-center gap-[14px]">
+    <span className="inline-flex items-center gap-3.5">
       {letters.map((letter, index) => (
         <span className="inline-flex" key={`${letter}-${index}`}>
           <Letter letter={letter} style={styles[index]!} />

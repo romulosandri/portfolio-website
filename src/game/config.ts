@@ -1,5 +1,4 @@
 import Phaser from 'phaser'
-import { GAME_HEIGHT, GAME_WIDTH } from './constants'
 import { BootScene } from './scenes/BootScene'
 import { WorldScene } from './scenes/WorldScene'
 
@@ -11,16 +10,15 @@ export function createGameConfig(
   return {
     type: Phaser.AUTO,
     parent,
-    width: GAME_WIDTH,
-    height: GAME_HEIGHT,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#0c1a12',
     pixelArt: false,
     banner: false,
     roundPixels: false,
     scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
-      expandParent: true,
+      mode: Phaser.Scale.RESIZE,
+      expandParent: false,
     },
     physics: {
       default: 'arcade',

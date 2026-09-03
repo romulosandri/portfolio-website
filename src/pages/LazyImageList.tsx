@@ -54,7 +54,7 @@ export function LazyImageList({ images, title, alts }: LazyImageListProps) {
         <button
           aria-label={`View ${title} image ${index + 1} larger`}
           className={[
-            'relative block aspect-[2048/1536] w-full overflow-clip bg-background-secondary p-0 will-change-transform',
+            'relative block aspect-2048/1536 w-full overflow-clip bg-background-secondary p-0 will-change-transform',
             index < loadedCount ? 'cursor-zoom-in' : 'cursor-default',
           ].join(' ')}
           key={src}

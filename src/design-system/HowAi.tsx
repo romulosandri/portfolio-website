@@ -131,7 +131,7 @@ export function HowAi({ href = '/how-i-use-ai', forceHover = false, className }:
   return (
     <a
       className={[
-        'relative isolate flex h-[52px] w-full items-center justify-between gap-xl overflow-hidden border-b border-l border-r border-solid border-stroke-secondary bg-background-primary p-xl no-underline md:justify-center',
+        'relative isolate flex h-13 w-full items-center justify-between gap-xl overflow-hidden border-b border-l border-r border-solid border-stroke-secondary bg-background-primary p-xl no-underline md:justify-center',
         className,
       ]
         .filter(Boolean)

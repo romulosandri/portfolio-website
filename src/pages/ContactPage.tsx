@@ -116,7 +116,7 @@ export function ContactPage() {
 
   return (
     <PageLayout>
-      <section className="flex w-full flex-col items-center justify-center gap-4xl bg-background-primary px-gutter py-[clamp(72px,12vw,164px)] lg:flex-row lg:gap-[120px]">
+      <section className="flex w-full flex-col items-center justify-center gap-4xl bg-background-primary px-gutter py-[clamp(72px,12vw,164px)] lg:flex-row lg:gap-30">
         <form
           aria-busy={status === 'sending'}
           className="flex w-full min-w-px flex-col items-start gap-4xl lg:flex-1"
@@ -133,7 +133,7 @@ export function ContactPage() {
               <Field id="email" label="Email Address" placeholder="john@doe.com" />
             </div>
             <div className="flex w-full flex-col items-start gap-md">
-              <div className="flex h-[241px] w-full flex-col items-start gap-md">
+              <div className="flex h-60.25 w-full flex-col items-start gap-md">
                 <Field id="message" label="Your Message" multiline placeholder="I want to hire you to..." />
               </div>
               <a

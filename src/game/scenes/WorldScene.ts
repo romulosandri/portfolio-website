@@ -69,9 +69,21 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.setZoom(CAMERA_ZOOM)
     this.cameras.main.startFollow(this.player, true, 0.14, 0.14)
     this.cameras.main.setDeadzone(80, 60)
+    this.fitCameraToGame()
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.killCameraZoomTween, this)
-    this.events.once(Phaser.Scenes.Events.DESTROY, this.killCameraZoomTween, this)
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.fitCameraToGame, this)
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this)
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.onShutdown, this)
+  }
+
+  private fitCameraToGame() {
+    const { width, height } = this.scale.gameSize
+    this.cameras.main.setSize(width, height)
+  }
+
+  private onShutdown() {
+    this.scale.off(Phaser.Scale.Events.RESIZE, this.fitCameraToGame, this)
+    this.killCameraZoomTween()
   }
 
   update() {

@@ -145,7 +145,7 @@ export function NavMenu({ items, open, pathname, onClose }: NavMenuProps) {
       <div
         aria-label="Site"
         aria-modal="true"
-        className="flex size-full flex-col justify-between bg-background-secondary px-gutter pt-[var(--site-nav-height,72px)] pb-4xl will-change-transform"
+        className="flex size-full flex-col justify-between bg-background-secondary px-gutter pt-(--site-nav-height,72px) pb-4xl will-change-transform"
         ref={panelRef}
         role="dialog"
       >
@@ -160,7 +160,7 @@ export function NavMenu({ items, open, pathname, onClose }: NavMenuProps) {
             />
           ))}
         </nav>
-        <GameButton href="/game" size="lg" />
+        <GameButton href="/game" onClick={onClose} size="lg" />
       </div>
     </div>
   )
@@ -181,11 +181,11 @@ export function NavMenuToggle({ open, onToggle }: NavMenuToggleProps) {
       aria-controls={NAV_MENU_ID}
       aria-expanded={open}
       aria-label={open ? 'Close menu' : 'Open menu'}
-      className="-mr-md inline-flex size-[44px] shrink-0 items-center justify-center nav:hidden"
+      className="-mr-md inline-flex size-11 shrink-0 items-center justify-center nav:hidden"
       onClick={onToggle}
       type="button"
     >
-      <span className="relative block h-[14px] w-[24px]">
+      <span className="relative block h-3.5 w-[24px]">
         <span
           className={[
             'absolute left-0 block h-[1.5px] w-full bg-foreground-primary transition-transform duration-300 ease-out',

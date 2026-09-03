@@ -24,13 +24,13 @@ const HERO_TITLE = 'Product\nDesigner'
 export function HomePage() {
   return (
     <div className="flex min-h-full w-full flex-col bg-background-primary">
-      <section className="hero-stage relative -mt-[var(--site-nav-height,0px)] flex h-auto w-full flex-col items-start overflow-clip bg-background-secondary pt-[var(--site-nav-height,0px)] nav:h-svh [container-type:inline-size]">
+      <section className="hero-stage relative -mt-(--site-nav-height,0px) flex h-auto w-full flex-col items-start overflow-clip bg-background-secondary pt-(--site-nav-height,0px) nav:h-svh @container">
         <CursorTrail />
         <div className="relative z-10 flex min-h-0 w-full flex-none flex-col items-center justify-start px-gutter pt-2xl pb-gutter nav:flex-1 nav:justify-center nav:p-gutter">
           {/* 132px of the original 316px video, so the gap tracks the character
               rather than the viewport and the three pieces hold their spacing
               relative to each other at every size. */}
-          <RevealGroup className="flex w-full flex-col items-center gap-[calc(var(--hero-video)*0.418)] [container-type:inline-size]">
+          <RevealGroup className="flex w-full flex-col items-center gap-[calc(var(--hero-video)*0.418)] @container">
             <div className="flex flex-col items-center gap-3xl">
               <WelcomeTag />
               <RevealText
@@ -44,7 +44,7 @@ export function HomePage() {
             </div>
             <RevealText
               as="p"
-              className="w-[256px] text-center font-body text-xl leading-[1.35] text-foreground-tertiary"
+              className="w-64 text-center font-body text-xl leading-[1.35] text-foreground-tertiary"
             >
               +8 Years working with amazing software
             </RevealText>
@@ -62,7 +62,7 @@ export function HomePage() {
         <video
           aria-hidden
           autoPlay
-          className="pointer-events-none absolute top-[calc(47%+var(--hero-video)*0.0863)] left-1/2 z-10 size-[var(--hero-video)] -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover nav:top-[calc(50%+var(--hero-video)*0.0863)]"
+          className="pointer-events-none absolute top-[calc(47%+var(--hero-video)*0.0863)] left-1/2 z-10 size-(--hero-video) -translate-x-1/2 -translate-y-1/2 bg-transparent object-cover nav:top-[calc(50%+var(--hero-video)*0.0863)]"
           data-prerender="strip"
           disablePictureInPicture
           height={316}
@@ -95,7 +95,7 @@ export function HomePage() {
       </section>
 
       <section className="flex w-full flex-col items-center justify-center bg-background-primary px-gutter py-[clamp(72px,12vw,164px)]">
-        <RevealGroup className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-[clamp(56px,9vw,120px)] py-4xl">
+        <RevealGroup className="flex w-full max-w-360 flex-col items-center justify-center gap-[clamp(56px,9vw,120px)] py-4xl">
           <div className="flex flex-col items-center gap-xl text-center">
             <RevealText
               as="h2"
@@ -104,16 +104,16 @@ export function HomePage() {
             >
               About Me
             </RevealText>
-            <RevealText as="p" className="w-full max-w-[640px] text-h2 leading-[1.2] text-foreground-primary">
+            <RevealText as="p" className="w-full max-w-160 text-h2 leading-[1.2] text-foreground-primary">
               {site.blurb}
             </RevealText>
           </div>
-          <div className="flex w-full max-w-[1176px] flex-col items-start gap-4xl">
+          <div className="flex w-full max-w-294 flex-col items-start gap-4xl">
             <div className="flex w-full flex-col items-stretch">
               <div className="grid w-full grid-cols-1 border-t border-l border-solid border-stroke-secondary md:grid-cols-3">
                 {valueCards.map((card) => (
                   <div
-                    className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-xl md:min-h-[380px]"
+                    className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-xl md:min-h-95"
                     key={card.title}
                   >
                     <RevealBlock>

@@ -16,7 +16,7 @@ export const ArrowButton = forwardRef<HTMLSpanElement, ArrowButtonProps>(
   function ArrowButton({ variant = 'default', href, className }, ref) {
     const isDark = variant === 'dark'
     const classes = [
-      'relative inline-flex size-[48px] shrink-0 items-center justify-center will-change-transform md:size-[80px]',
+      'relative inline-flex size-12 shrink-0 items-center justify-center will-change-transform md:size-20',
       isDark
         ? 'rounded-all bg-foreground-secondary'
         : 'border border-solid border-stroke-secondary bg-background-primary',
@@ -26,7 +26,7 @@ export const ArrowButton = forwardRef<HTMLSpanElement, ArrowButtonProps>(
       .join(' ')
 
     const icon = (
-      <span className="relative size-[32px] shrink-0">
+      <span className="relative size-8 shrink-0">
         <span
           className={[
             'absolute inset-0 flex items-center justify-center',

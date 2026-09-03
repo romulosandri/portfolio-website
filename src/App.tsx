@@ -9,6 +9,7 @@ import {
   pauseSmoothScroll,
   resumeSmoothScroll,
 } from './motion-system/smoothScroll'
+import { GameModalProvider } from './pages/GameModal'
 import { isWorkOrProjectsRoute, renderPage, type PageKey } from './pages/renderPage'
 
 type PendingTransition = {
@@ -20,6 +21,12 @@ type PendingTransition = {
 
 function isHomeChrome(page: PageKey) {
   return page.route.name === 'home'
+}
+
+/** `/game` is a modal over the current site, not its own page. */
+function pageKeyFor(route: PageKey['route'], pathname: string): PageKey {
+  if (route.name === 'game') return { route: { name: 'home' }, pathname: '/' }
+  return { route, pathname }
 }
 
 /**
@@ -51,7 +58,7 @@ function App() {
   const { route, pathname } = useRoute()
   useDocumentHead(route)
   usePrerenderSignal(pathname)
-  const [active, setActive] = useState<PageKey>(() => ({ route, pathname }))
+  const [active, setActive] = useState<PageKey>(() => pageKeyFor(route, pathname))
   const [pending, setPending] = useState<PendingTransition | null>(null)
   const activeRef = useRef(active)
   const pendingRef = useRef(pending)
@@ -65,7 +72,7 @@ function App() {
     handledPathRef.current = pathname
 
     const from = pendingRef.current?.to ?? activeRef.current
-    const to = { route, pathname }
+    const to = pageKeyFor(route, pathname)
     const fromPanel = isWorkOrProjectsRoute(from.route)
     const toPanel = isWorkOrProjectsRoute(to.route)
 
@@ -96,7 +103,7 @@ function App() {
   const shown = pending?.to ?? active
   const chrome = pending?.from ?? active
   const hideNav = shown.route.name === 'ds'
-  const hideBackToTop = shown.route.name === 'game' || Boolean(pending)
+  const hideBackToTop = Boolean(pending)
   const transitioning = Boolean(pending)
 
   useLayoutEffect(() => {
@@ -123,35 +130,37 @@ function App() {
   }, [hideNav])
 
   return (
-    <div className={transitioning ? 'flex h-svh flex-col overflow-hidden' : undefined}>
-      {hideNav ? null : (
-        /* Sticky only below the nav breakpoint, so the menu button stays
-           reachable after scrolling. Sticky stays in flow, so the
-           ResizeObserver above and the hero's negative top margin both keep
-           measuring the same box. */
-        <div className="sticky top-0 z-30 shrink-0 nav:static" ref={navRef}>
-          <NavBar
-            className={isHomeChrome(chrome) ? 'bg-background-secondary' : undefined}
-            pathname={chrome.pathname}
-          />
-        </div>
-      )}
-      <div className={transitioning ? 'relative min-h-0 flex-1' : undefined}>
-        {pending ? (
-          <PanelTransition
-            from={pending.from}
-            fromScrollY={pending.fromScrollY}
-            key={`${pending.from.pathname}->${pending.to.pathname}:${pending.mode}`}
-            mode={pending.mode}
-            onComplete={completeTransition}
-            to={pending.to}
-          />
-        ) : (
-          renderPage(active)
+    <GameModalProvider gameRoute={route.name === 'game'}>
+      <div className={transitioning ? 'flex h-svh flex-col overflow-hidden' : undefined}>
+        {hideNav ? null : (
+          /* Sticky only below the nav breakpoint, so the menu button stays
+             reachable after scrolling. Sticky stays in flow, so the
+             ResizeObserver above and the hero's negative top margin both keep
+             measuring the same box. */
+          <div className="sticky top-0 z-30 shrink-0 nav:static" ref={navRef}>
+            <NavBar
+              className={isHomeChrome(chrome) ? 'bg-background-secondary' : undefined}
+              pathname={chrome.pathname}
+            />
+          </div>
         )}
+        <div className={transitioning ? 'relative min-h-0 flex-1' : undefined}>
+          {pending ? (
+            <PanelTransition
+              from={pending.from}
+              fromScrollY={pending.fromScrollY}
+              key={`${pending.from.pathname}->${pending.to.pathname}:${pending.mode}`}
+              mode={pending.mode}
+              onComplete={completeTransition}
+              to={pending.to}
+            />
+          ) : (
+            renderPage(active)
+          )}
+        </div>
+        {hideBackToTop ? null : <BackToTop />}
       </div>
-      {hideBackToTop ? null : <BackToTop />}
-    </div>
+    </GameModalProvider>
   )
 }
 
