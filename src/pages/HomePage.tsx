@@ -1,4 +1,5 @@
 import {
+  BookingButton,
   FooterSection,
   HowAi,
   TalkButton,
@@ -107,6 +108,12 @@ export function HomePage() {
             <RevealText as="p" className="w-full max-w-160 text-h2 leading-[1.2] text-foreground-primary">
               {site.blurb}
             </RevealText>
+            <BookingButton
+              cta="download_cv"
+              download={site.cv.filename}
+              href={site.cv.href}
+              label={site.cv.label}
+            />
           </div>
           <div className="flex w-full max-w-294 flex-col items-start gap-4xl">
             <div className="flex w-full flex-col items-stretch">

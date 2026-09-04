@@ -23,6 +23,7 @@ import {
   forEachCell,
 } from '../grid'
 import { hotspotNear, isProjectModalOpen, setActiveHotspot } from '../hotspots'
+import { reportGameLoad } from '../lifecycle'
 import { ProjectPrompt } from '../projectPrompt'
 import { clearVirtualPad, getVirtualPad } from '../virtualPad'
 
@@ -67,6 +68,7 @@ export class WorldScene extends Phaser.Scene {
     this.scale.on(Phaser.Scale.Events.RESIZE, this.fitCameraToGame, this)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this)
     this.events.once(Phaser.Scenes.Events.DESTROY, this.onShutdown, this)
+    reportGameLoad({ progress: 1, ready: true })
   }
 
   private fitCameraToGame() {

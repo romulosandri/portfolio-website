@@ -59,6 +59,11 @@ export const site = {
     href: 'https://cal.com/romulo-sandri-rodrigues-pxfqen/meet-romulo',
     label: 'Schedule a Call',
   },
+  cv: {
+    href: '/romulo-sandri-cv.pdf',
+    label: 'Download CV',
+    filename: 'Romulo-Sandri-CV.pdf',
+  },
   location: {
     city: 'Palmas',
     region: 'Tocantins',

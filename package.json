@@ -10,6 +10,7 @@
     "build:spa": "tsc -b && vite build",
     "prerender": "node scripts/prerender.mjs",
     "seo": "node scripts/generate-seo-assets.mjs",
+    "cv": "node scripts/generate-cv-pdf.mjs",
     "verify:seo": "node scripts/verify-seo.mjs",
     "check:responsive": "node scripts/check-responsive.mjs",
     "lint": "oxlint",

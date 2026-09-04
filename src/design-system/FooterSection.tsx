@@ -79,6 +79,11 @@ export function FooterSection({ className }: FooterSectionProps) {
             <div className="flex flex-wrap items-center gap-x-xl gap-y-none xs:gap-x-2xl">
               <FooterButton href="/contact" label="Contact Me" />
               <FooterButton href={site.booking.href} label={site.booking.label} />
+              <FooterButton
+                download={site.cv.filename}
+                href={site.cv.href}
+                label={site.cv.label}
+              />
             </div>
             <p className="text-body-small text-foreground-tertiary">
               Designed by Romulo Sandri. Palmas, Brazil

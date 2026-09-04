@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { PLAYER_SOURCE_HEIGHT } from '../constants'
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../grid'
+import { reportGameLoad } from '../lifecycle'
 
 const ART = '/design-system/game'
 const MAP_KEYS = ['grass', 'street', 'flowers', 'scene'] as const
@@ -87,12 +88,30 @@ function fitRunTextures(scene: Phaser.Scene) {
   }
 }
 
+function yieldToPaint() {
+  return new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve())
+    })
+  })
+}
+
 export class BootScene extends Phaser.Scene {
+  private aborted = false
+
   constructor() {
     super('BootScene')
   }
 
   preload() {
+    this.load.on('progress', (value: number) => {
+      reportGameLoad({ progress: 0.12 + value * 0.58 })
+    })
+    this.load.on('loaderror', () => {
+      this.aborted = true
+      reportGameLoad({ progress: 0, failed: true })
+    })
+
     this.load.image('grass', `${ART}/scenario/grass.png`)
     this.load.image('street', `${ART}/scenario/street.png`)
     this.load.image('flowers', `${ART}/scenario/flowers.png`)
@@ -105,12 +124,35 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    const maxSize = maxTextureSize(this)
-    for (const key of MAP_KEYS) {
-      fitMapTexture(this, key, maxSize)
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.markAborted, this)
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.markAborted, this)
+    void this.prepare()
+  }
+
+  private markAborted() {
+    this.aborted = true
+  }
+
+  private async prepare() {
+    try {
+      const maxSize = maxTextureSize(this)
+      for (let i = 0; i < MAP_KEYS.length; i += 1) {
+        if (this.aborted) return
+        reportGameLoad({ progress: 0.7 + (i / MAP_KEYS.length) * 0.18 })
+        await yieldToPaint()
+        if (this.aborted) return
+        fitMapTexture(this, MAP_KEYS[i], maxSize)
+      }
+      if (this.aborted) return
+      this.textures.get('player').setFilter(Phaser.Textures.FilterMode.LINEAR)
+      fitRunTextures(this)
+      reportGameLoad({ progress: 0.9 })
+      await yieldToPaint()
+      if (this.aborted) return
+      this.scene.start('WorldScene')
+    } catch {
+      if (this.aborted) return
+      reportGameLoad({ progress: 0, failed: true })
     }
-    this.textures.get('player').setFilter(Phaser.Textures.FilterMode.LINEAR)
-    fitRunTextures(this)
-    this.scene.start('WorldScene')
   }
 }

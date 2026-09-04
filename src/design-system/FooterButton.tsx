@@ -7,6 +7,7 @@ type FooterButtonProps = {
   label: string
   href?: string
   className?: string
+  download?: string
 }
 
 function isExternalHref(href: string) {
@@ -17,8 +18,9 @@ export function FooterButton({
   label,
   href = '#',
   className,
+  download,
 }: FooterButtonProps) {
-  const external = isExternalHref(href)
+  const external = !download && isExternalHref(href)
   const rootRef = useRef<HTMLAnchorElement>(null)
   const lineRef = useRef<HTMLSpanElement>(null)
 
@@ -77,6 +79,7 @@ export function FooterButton({
       ]
         .filter(Boolean)
         .join(' ')}
+      download={download}
       href={href}
       onClick={() =>
         track('footer_link_clicked', {

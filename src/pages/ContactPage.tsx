@@ -191,7 +191,15 @@ export function ContactPage() {
           </RevealGroup>
           <div className="flex flex-col items-start gap-xl">
             <SocialLinks />
-            <BookingButton />
+            <div className="flex flex-wrap items-center gap-xl">
+              <BookingButton />
+              <BookingButton
+                cta="download_cv"
+                download={site.cv.filename}
+                href={site.cv.href}
+                label={site.cv.label}
+              />
+            </div>
           </div>
         </form>
         <ContactStatusVisual status={status} />
