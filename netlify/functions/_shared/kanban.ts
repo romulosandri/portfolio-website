@@ -55,11 +55,13 @@ export function parseColumns(value: unknown): KanbanColumn[] | null {
   return columns
 }
 
-function fromRow(row: { id: unknown; label: unknown; visible: unknown }): KanbanColumn | null {
-  const id = asColumnId(row.id)
-  const label = asLabel(row.label)
+function fromRow(row: unknown): KanbanColumn | null {
+  if (!row || typeof row !== 'object') return null
+  const record = row as { id?: unknown; label?: unknown; visible?: unknown }
+  const id = asColumnId(record.id)
+  const label = asLabel(record.label)
   if (!id || !label) return null
-  return { id, label, visible: row.visible !== 0 && row.visible !== false }
+  return { id, label, visible: record.visible !== 0 && record.visible !== false }
 }
 
 export async function ensureKanbanColumns(db: Client) {
@@ -90,7 +92,7 @@ export async function listKanbanColumns(db: Client) {
     'SELECT id, label, visible, position FROM kanban_columns ORDER BY position ASC, label ASC',
   )
   const columns = result.rows
-    .map((row) => fromRow(row as { id: unknown; label: unknown; visible: unknown }))
+    .map((row) => fromRow(row))
     .filter((column): column is KanbanColumn => column !== null)
   return columns.length > 0 ? columns : DEFAULT_COLUMNS
 }
