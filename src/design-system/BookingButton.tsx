@@ -1,5 +1,6 @@
 import { site } from '../content/site'
 import { track } from '../lib/analytics'
+import { Button } from './Button'
 
 type BookingButtonProps = {
   className?: string
@@ -7,6 +8,7 @@ type BookingButtonProps = {
   label?: string
   cta?: string
   download?: string
+  forceHover?: boolean
 }
 
 export function BookingButton({
@@ -15,19 +17,16 @@ export function BookingButton({
   label = site.booking.label,
   cta = 'schedule_a_call',
   download,
+  forceHover = false,
 }: BookingButtonProps) {
   const isDownload = Boolean(download)
 
   return (
-    <a
+    <Button
       aria-label={isDownload ? label : `${label} (opens in a new tab)`}
-      className={[
-        'inline-flex items-center border border-solid border-stroke-secondary px-lg py-md text-body-small text-foreground-secondary no-underline hover:bg-background-secondary hover:text-foreground-primary',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+      className={className}
       download={download}
+      forceHover={forceHover}
       href={href}
       onClick={() =>
         track('cta_clicked', {
@@ -40,6 +39,6 @@ export function BookingButton({
       target={isDownload ? undefined : '_blank'}
     >
       {label}
-    </a>
+    </Button>
   )
 }

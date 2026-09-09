@@ -14,6 +14,7 @@
         "npm:@ai-sdk/react@^4.0.94",
         "npm:@gsap/react@^2.1.2",
         "npm:@libsql/client@0.18",
+        "npm:@netlify/edge-functions@4",
         "npm:@netlify/functions@6",
         "npm:@posthog/react@^1.10.5",
         "npm:@tailwindcss/vite@^4.3.3",

@@ -1,7 +1,7 @@
 import { RevealGroup } from '../motion-system'
 import { projectItems } from '../content/portfolio'
 import { PageLayout } from './PageLayout'
-import { DisplayHero, WorkCard, WorkGrid } from './WorkCard'
+import { DisplayHero, WorkCard, WorkGrid } from '../design-system'
 
 export function ProjectsGalleryPage() {
   return (

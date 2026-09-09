@@ -1,6 +1,6 @@
 import { RevealGroup, RevealText } from '../motion-system'
 import { PageLayout } from './PageLayout'
-import { DisplayHero, SectionHeader } from './WorkCard'
+import { DisplayHero, SectionHeader } from '../design-system'
 
 const destinations = [
   { href: '/', label: 'Home', hint: 'Back to the beginning' },

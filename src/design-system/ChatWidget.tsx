@@ -6,6 +6,7 @@ import { navigate } from '../lib/router'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { MOTION, prefersReducedMotion } from '../motion-system/tokens'
 import { site } from '../content/site'
+import { Button } from './Button'
 import { RobotImage } from './RobotImage'
 
 const PANEL_ID = 'site-chat-panel'
@@ -378,8 +379,8 @@ export function ChatWidget() {
                 </p>
                 <div className="flex flex-col items-start gap-md">
                   {SUGGESTIONS.map((suggestion) => (
-                    <button
-                      className="cursor-pointer border border-solid border-stroke-secondary px-lg py-md text-left text-body-small text-foreground-secondary hover:bg-background-secondary"
+                    <Button
+                      className="text-left"
                       key={suggestion}
                       onClick={() => {
                         if (busy || !ids) return
@@ -392,7 +393,7 @@ export function ChatWidget() {
                       type="button"
                     >
                       {suggestion}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -466,21 +467,13 @@ export function ChatWidget() {
               value={input}
             />
             {busy ? (
-              <button
-                className="shrink-0 cursor-pointer border border-solid border-stroke-secondary px-lg py-md text-body-small text-foreground-secondary"
-                onClick={stop}
-                type="button"
-              >
+              <Button className="shrink-0" onClick={stop} type="button">
                 Stop
-              </button>
+              </Button>
             ) : (
-              <button
-                className="shrink-0 cursor-pointer bg-foreground-primary px-lg py-md text-body-small text-background-primary disabled:opacity-40"
-                disabled={!input.trim() || !ids}
-                type="submit"
-              >
+              <Button className="shrink-0" disabled={!input.trim() || !ids} type="submit" variant="primary">
                 Send
-              </button>
+              </Button>
             )}
           </form>
         </div>

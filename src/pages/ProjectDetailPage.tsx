@@ -19,7 +19,7 @@ import {
 import { LazyImageList } from './LazyImageList'
 import { NotFoundPage } from './NotFoundPage'
 import { PageLayout } from './PageLayout'
-import { DisplayHero, SectionHeader, WorkCard } from './WorkCard'
+import { DisplayHero, SectionHeader, WorkCard } from '../design-system'
 
 type ProjectDetailPageProps = {
   slug: string

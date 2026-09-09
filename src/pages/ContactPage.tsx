@@ -1,70 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { identifyVisitor, track, trackException } from '../lib/analytics'
-import { BookingButton, CopyEmail, SendButton, SocialLinks } from '../design-system'
+import { BookingButton, CopyEmail, Field, SendButton, SocialLinks } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
 import { site } from '../content/site'
 import { ContactStatusVisual, type ContactStatus } from './ContactStatusVisual'
 import { PageLayout } from './PageLayout'
-
-function requireTrimmed(field: HTMLInputElement | HTMLTextAreaElement) {
-  field.setCustomValidity(field.value.trim() ? '' : 'This field is required.')
-}
-
-function Field({
-  id,
-  label,
-  placeholder,
-  multiline,
-}: {
-  id: string
-  label: string
-  placeholder: string
-  multiline?: boolean
-}) {
-  const fieldClass =
-    'w-full border border-solid border-stroke-secondary bg-transparent p-xl text-body-default text-foreground-primary outline-none placeholder:text-foreground-quaternary'
-
-  const requiredProps = {
-    'aria-required': true as const,
-    onInput: (event: FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      requireTrimmed(event.currentTarget)
-    },
-    onInvalid: (event: FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      requireTrimmed(event.currentTarget)
-    },
-    required: true,
-  }
-
-  return (
-    <label className="flex w-full min-w-px flex-1 flex-col items-start gap-md" htmlFor={id}>
-      <span className="w-full text-body-default text-foreground-secondary">
-        {label}
-        <span aria-hidden className="text-foreground-quaternary">
-          {' '}
-          *
-        </span>
-      </span>
-      {multiline ? (
-        <textarea
-          className={`${fieldClass} min-h-px flex-1 resize-none`}
-          id={id}
-          name={id}
-          placeholder={placeholder}
-          {...requiredProps}
-        />
-      ) : (
-        <input
-          className={fieldClass}
-          id={id}
-          name={id}
-          placeholder={placeholder}
-          type={id === 'email' ? 'email' : 'text'}
-          {...requiredProps}
-        />
-      )}
-    </label>
-  )
-}
 
 export function ContactPage() {
   const [status, setStatus] = useState<ContactStatus>('idle')
@@ -80,7 +20,7 @@ export function ContactPage() {
         element.required,
     )
     for (const field of fields) {
-      requireTrimmed(field)
+      field.setCustomValidity(field.value.trim() ? '' : 'This field is required.')
       if (!field.checkValidity()) {
         field.reportValidity()
         return
@@ -129,12 +69,28 @@ export function ContactPage() {
           </RevealGroup>
           <div className="flex w-full flex-col items-start gap-4xl">
             <div className="flex w-full flex-col items-start gap-lg xs:flex-row">
-              <Field id="name" label="Your Name" placeholder="John Doe Jr" />
-              <Field id="email" label="Email Address" placeholder="john@doe.com" />
+              <Field id="name" label="Your Name" labelTone="default" placeholder="John Doe Jr" required size="lg" />
+              <Field
+                id="email"
+                label="Email Address"
+                labelTone="default"
+                placeholder="john@doe.com"
+                required
+                size="lg"
+                type="email"
+              />
             </div>
             <div className="flex w-full flex-col items-start gap-md">
               <div className="flex h-60.25 w-full flex-col items-start gap-md">
-                <Field id="message" label="Your Message" multiline placeholder="I want to hire you to..." />
+                <Field
+                  id="message"
+                  label="Your Message"
+                  labelTone="default"
+                  multiline
+                  placeholder="I want to hire you to..."
+                  required
+                  size="lg"
+                />
               </div>
               <a
                 className="inline-flex items-center gap-sm text-body-small text-foreground-tertiary no-underline hover:text-foreground-secondary"

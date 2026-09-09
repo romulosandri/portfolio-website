@@ -26,6 +26,16 @@ function parseUrl(value?: string | null) {
   }
 }
 
+function normalizeHost(value?: string | null) {
+  if (!value) return null
+  return value.replace(/^www\./, '').toLowerCase()
+}
+
+function isJobBoardHost(host: string) {
+  const bare = normalizeHost(host) ?? host
+  return JOB_BOARD_HOSTS.has(host) || JOB_BOARD_HOSTS.has(bare) || JOB_BOARD_HOSTS.has(`www.${bare}`)
+}
+
 function slugToDomain(slug?: string | null) {
   if (!slug) return null
   const clean = slug.toLowerCase().replace(/[^a-z0-9-]+/g, '')
@@ -60,10 +70,10 @@ export function displayCompany(job: Job) {
   return titleCaseSlug(host.split('.')[0] ?? 'Unknown')
 }
 
-export function companyLogoDomain(job: Job) {
-  const url = parseUrl(job.apply_url || job.url)
+export function resolveCompanyDomain(urlValue?: string | null, company?: string | null) {
+  const url = parseUrl(urlValue)
   if (url) {
-    const host = url.hostname.replace(/^www\./, '')
+    const host = normalizeHost(url.hostname) ?? url.hostname
     const parts = url.pathname.split('/').filter(Boolean)
 
     if (host.endsWith('.breezy.hr') && host !== 'recruiting.breezy.hr') {
@@ -78,12 +88,18 @@ export function companyLogoDomain(job: Job) {
     if (host.includes('himalayas') && parts[0] === 'companies') {
       return slugToDomain(parts[1])
     }
-    if (!JOB_BOARD_HOSTS.has(url.hostname) && !JOB_BOARD_HOSTS.has(host)) {
+    if (!isJobBoardHost(url.hostname) && !isJobBoardHost(host)) {
       return host
     }
   }
 
-  return slugToDomain(job.company)
+  return slugToDomain(company)
+}
+
+export function companyLogoDomain(job: Job) {
+  const stored = normalizeHost(job.company_domain)
+  if (stored && !isJobBoardHost(stored)) return stored
+  return resolveCompanyDomain(job.apply_url || job.url, job.company)
 }
 
 export function faviconUrl(domain: string) {
@@ -94,8 +110,26 @@ export function formatLocation(job: Job) {
   return job.location?.trim() || job.remote_string?.trim() || '—'
 }
 
+const addedDateFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'America/Sao_Paulo',
+})
+
+export function formatAddedDate(value?: string | null) {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return addedDateFormatter.format(date)
+}
+
 export function applyUrl(job: Job) {
   return job.apply_url || job.url
+}
+
+export function isJobFavorite(job: Job) {
+  return Number(job.is_favorite) === 1
 }
 
 export function initials(name: string) {

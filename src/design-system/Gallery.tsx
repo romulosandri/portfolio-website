@@ -4,25 +4,42 @@ import { AiButton } from './AiButton'
 import { AiLogo } from './AiLogo'
 import { AppLogo } from './AppLogo'
 import { ArrowButton } from './ArrowButton'
+import { BookingButton } from './BookingButton'
+import { Button } from './Button'
+import { Card } from './Card'
+import { Checkbox } from './Checkbox'
+import { Dropdown, DropdownMenu, DropdownMenuItem } from './Dropdown'
+import { Field, Input } from './Input'
 import { FooterButton } from './FooterButton'
 import { FooterSection } from './FooterSection'
 import { GameButton } from './GameButton'
 import { GameThumbnailImage } from './GameThumbnailImage'
 import { HowAi } from './HowAi'
 import { HumanImage } from './HumanImage'
+import { KanbanColumn } from './KanbanColumn'
 import { Letter, LETTER_CHARS, LETTER_STYLES } from './Letter'
 import { Logo } from './Logo'
 import { LogosTicker } from '../motion-system/LogosTicker'
 import { NameLogo } from './NameLogo'
 import { NavBar } from './NavBar'
 import { NavItem } from './NavItem'
+import { Pagination } from './Pagination'
+import { PlusIcon } from './Icons'
 import { RobotImage } from './RobotImage'
+import { SendButton } from './SendButton'
 import { SocialIcon } from './SocialIcon'
 import { Symbol } from './Symbol'
+import { Tab, TabMenu } from './Tabs'
 import { Tag } from './Tag'
 import { TalkButton } from './TalkButton'
 import { WelcomeTag } from './WelcomeTag'
 import { Wordmark } from './Wordmark'
+
+const DROPDOWN_OPTIONS = [
+  { value: 'saved', label: 'Saved' },
+  { value: 'applied', label: 'Applied' },
+  { value: 'interview', label: 'Interview' },
+]
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -64,6 +81,206 @@ export function DesignSystemGallery() {
             respond to hover. Open this view with <code>?ds=1</code>.
           </p>
         </header>
+
+        <Section title="Button">
+          <div className="flex flex-wrap items-end gap-2xl">
+            <Tile label="default">
+              <Button>Add job</Button>
+            </Tile>
+            <Tile label="hover">
+              <Button forceHover>Add job</Button>
+            </Tile>
+            <Tile label="primary">
+              <Button variant="primary">Save</Button>
+            </Tile>
+            <Tile label="primary hover">
+              <Button forceHover variant="primary">
+                Save
+              </Button>
+            </Tile>
+            <Tile label="danger">
+              <Button variant="danger">Delete</Button>
+            </Tile>
+            <Tile label="danger hover">
+              <Button forceHover variant="danger">
+                Delete
+              </Button>
+            </Tile>
+            <Tile label="icon">
+              <Button aria-label="Add" variant="icon">
+                <PlusIcon />
+              </Button>
+            </Tile>
+            <Tile label="icon hover">
+              <Button aria-label="Add" forceHover variant="icon">
+                <PlusIcon />
+              </Button>
+            </Tile>
+            <Tile label="disabled">
+              <Button disabled>Add job</Button>
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Input field">
+          <div className="flex w-full max-w-160 flex-col gap-xl">
+            <Tile label="default">
+              <Input placeholder="Search title, company, location" />
+            </Tile>
+            <Tile label="hover">
+              <Input forceHover placeholder="Search title, company, location" />
+            </Tile>
+            <Tile label="focus">
+              <Input forceFocus placeholder="Search title, company, location" />
+            </Tile>
+            <Tile label="disabled">
+              <Input disabled placeholder="Search title, company, location" />
+            </Tile>
+            <Tile label="labeled / required">
+              <Field id="ds-name" label="Your Name" labelTone="default" placeholder="John Doe Jr" required size="lg" />
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Checkbox">
+          <div className="flex flex-wrap items-center gap-2xl">
+            <Tile label="unchecked">
+              <Checkbox checked={false} label="Unchecked" />
+            </Tile>
+            <Tile label="unchecked hover">
+              <Checkbox checked={false} forceHover label="Unchecked hover" />
+            </Tile>
+            <Tile label="checked">
+              <Checkbox checked label="Checked" />
+            </Tile>
+            <Tile label="focus">
+              <Checkbox checked={false} forceFocus label="Focus" />
+            </Tile>
+            <Tile label="disabled">
+              <Checkbox checked disabled label="Disabled" />
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Dropdown">
+          <div className="flex flex-wrap items-start gap-2xl">
+            <Tile label="default">
+              <Dropdown label="Status" options={DROPDOWN_OPTIONS} value="saved" />
+            </Tile>
+            <Tile label="hover">
+              <Dropdown forceHover label="Status" options={DROPDOWN_OPTIONS} value="saved" />
+            </Tile>
+            <Tile label="open">
+              <Dropdown forceOpen label="Status" options={DROPDOWN_OPTIONS} value="saved" />
+            </Tile>
+            <Tile label="disabled">
+              <Dropdown disabled label="Status" options={DROPDOWN_OPTIONS} value="saved" />
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Dropdown menu">
+          <div className="relative h-44 w-48">
+            <DropdownMenu placement="static">
+              <DropdownMenuItem>Saved</DropdownMenuItem>
+              <DropdownMenuItem forceHover>Applied</DropdownMenuItem>
+              <DropdownMenuItem selected>Interview</DropdownMenuItem>
+              <DropdownMenuItem disabled>Offer</DropdownMenuItem>
+            </DropdownMenu>
+          </div>
+        </Section>
+
+        <Section title="Tab menu">
+          <div className="flex w-full max-w-160 flex-col gap-xl">
+            <Tile label="default / selected / hover">
+              <TabMenu label="Jobs views">
+                <Tab selected>Job board</Tab>
+                <Tab>Kanban</Tab>
+                <Tab forceHover>Archive</Tab>
+              </TabMenu>
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Pagination">
+          <div className="flex flex-col gap-xl">
+            <Tile label="default / current / hover">
+              <Pagination forceHoverPage={3} page={2} pageCount={8} />
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Card">
+          <div className="grid w-full max-w-200 grid-cols-1 border-t border-l border-solid border-stroke-secondary md:grid-cols-3">
+            <Card className="p-xl md:min-h-95" variant="cell">
+              <p className="text-body-default text-foreground-primary">Value card</p>
+              <p className="text-body-small text-foreground-secondary">Default cell used on Home.</p>
+            </Card>
+            <Card className="p-xl md:min-h-95" variant="cell">
+              <p className="text-body-default text-foreground-primary">Second cell</p>
+              <p className="text-body-small text-foreground-secondary">Same grid treatment.</p>
+            </Card>
+            <Card className="p-xl md:min-h-95" variant="cell">
+              <p className="text-body-default text-foreground-primary">Third cell</p>
+              <p className="text-body-small text-foreground-secondary">Closes the row.</p>
+            </Card>
+          </div>
+          <div className="mt-xl flex flex-wrap items-start gap-2xl">
+            <Tile label="job default">
+              <Card className="w-64" variant="job">
+                <p className="text-body-default text-foreground-primary">Linear</p>
+                <p className="mt-sm text-body-default text-foreground-primary">Product Designer</p>
+              </Card>
+            </Tile>
+            <Tile label="job hover">
+              <Card className="w-64" forceHover variant="job">
+                <p className="text-body-default text-foreground-primary">Linear</p>
+                <p className="mt-sm text-body-default text-foreground-primary">Product Designer</p>
+              </Card>
+            </Tile>
+            <Tile label="job dragging">
+              <Card className="w-64" dragging variant="job">
+                <p className="text-body-default text-foreground-primary">Linear</p>
+                <p className="mt-sm text-body-default text-foreground-primary">Product Designer</p>
+              </Card>
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Kanban column">
+          <div className="flex h-80 items-stretch gap-lg">
+            <KanbanColumn count={2} label="Saved">
+              <div className="flex flex-col gap-md">
+                <Card variant="job">
+                  <p className="text-body-default text-foreground-primary">Product Designer</p>
+                </Card>
+                <Card variant="job">
+                  <p className="text-body-default text-foreground-primary">Design Engineer</p>
+                </Card>
+              </div>
+            </KanbanColumn>
+            <KanbanColumn count={0} label="Applied" over>
+              <p className="px-md py-2xl text-center text-body-small text-foreground-quaternary">Drop target</p>
+            </KanbanColumn>
+          </div>
+        </Section>
+
+        <Section title="Booking button">
+          <div className="flex flex-wrap items-center gap-2xl">
+            <Tile label="default">
+              <BookingButton href="#ds" />
+            </Tile>
+            <Tile label="hover">
+              <BookingButton forceHover href="#ds" />
+            </Tile>
+          </div>
+        </Section>
+
+        <Section title="Send button">
+          <div className="w-full max-w-160">
+            <SendButton />
+          </div>
+        </Section>
 
         <Section title="Tag images">
           <div className="flex flex-wrap items-end gap-2xl">

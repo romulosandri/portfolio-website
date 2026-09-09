@@ -1,19 +1,63 @@
 import { useEffect, useState } from 'react'
+import { RevealGroup, RevealText } from '../motion-system'
+import { Tabs, useSnackbar } from '../design-system'
+import { AddJobDialog } from './AddJobDialog'
 import { JobsBoard } from './JobsBoard'
-import { fetchJobs } from './jobs-api'
+import { JobsKanban } from './JobsKanban'
+import {
+  DEFAULT_COLUMNS,
+  columnsMatch,
+  isDefaultColumns,
+  parseColumns,
+  takeStoredColumns,
+  type KanbanColumn,
+} from './columns'
+import { createJob, fetchJobs, saveKanbanColumns } from './jobs-api'
 import type { Job } from './types'
 
+export type JobsTab = 'board' | 'kanban'
+
+const JOBS_TABS: Array<{ id: JobsTab; label: string }> = [
+  { id: 'board', label: 'Job board' },
+  { id: 'kanban', label: 'Kanban' },
+]
+
+function tabFromHash(hash = window.location.hash): JobsTab {
+  return hash === '#kanban' ? 'kanban' : 'board'
+}
+
+function hashFromTab(tab: JobsTab) {
+  return tab === 'kanban' ? '#kanban' : '#board'
+}
+
 export function JobsApp() {
+  const { show } = useSnackbar()
   const [jobs, setJobs] = useState<Job[]>([])
+  const [columns, setColumns] = useState<KanbanColumn[]>(DEFAULT_COLUMNS)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [tab, setTab] = useState<JobsTab>(tabFromHash)
+  const [adding, setAdding] = useState(false)
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
     let cancelled = false
 
     fetchJobs()
       .then((data) => {
-        if (!cancelled) setJobs(data)
+        if (cancelled) return
+        setJobs(data.jobs)
+
+        const remote = parseColumns(data.columns) ?? DEFAULT_COLUMNS
+        const stored = takeStoredColumns()
+        if (stored && isDefaultColumns(remote) && !columnsMatch(stored, remote)) {
+          setColumns(stored)
+          void saveKanbanColumns(stored).catch(() => {
+            if (!cancelled) setColumns(remote)
+          })
+          return
+        }
+        setColumns(remote)
       })
       .catch((cause) => {
         if (!cancelled) {
@@ -28,6 +72,38 @@ export function JobsApp() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    const syncTab = () => setTab(tabFromHash())
+    window.addEventListener('hashchange', syncTab)
+    window.addEventListener('popstate', syncTab)
+    return () => {
+      window.removeEventListener('hashchange', syncTab)
+      window.removeEventListener('popstate', syncTab)
+    }
+  }, [])
+
+  function changeTab(next: JobsTab) {
+    setTab(next)
+    const hash = hashFromTab(next)
+    if (window.location.hash !== hash) {
+      window.history.pushState(null, '', hash)
+    }
+  }
+
+  async function submitNewJob(input: { title: string; company: string; url: string; location?: string }) {
+    setCreating(true)
+    try {
+      const job = await createJob(input)
+      setJobs((current) => [job, ...current])
+      setAdding(false)
+      show(`Added ${job.title}`)
+    } catch (error) {
+      show(error instanceof Error ? error.message : 'Could not add job')
+    } finally {
+      setCreating(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -45,5 +121,50 @@ export function JobsApp() {
     )
   }
 
-  return <JobsBoard jobs={jobs} onChange={setJobs} />
+  return (
+    <div className="mx-auto flex h-svh w-full max-w-[1400px] flex-col overflow-hidden bg-background-primary px-gutter py-4xl">
+      <RevealGroup className="mb-xl shrink-0">
+        <RevealText as="h1" className="text-h1 text-foreground-primary">
+          Jobs
+        </RevealText>
+      </RevealGroup>
+      <div className="mb-2xl shrink-0">
+        <Tabs idPrefix="jobs-tab" items={JOBS_TABS} label="Jobs views" onChange={changeTab} value={tab} />
+      </div>
+      <div
+        aria-labelledby={`jobs-tab-button-${tab}`}
+        className="flex min-h-0 flex-1 flex-col overflow-hidden"
+        id={`jobs-tab-panel-${tab}`}
+        role="tabpanel"
+      >
+        {tab === 'board' ? (
+          <JobsBoard
+            addDisabled={creating}
+            jobs={jobs}
+            onAddJob={() => setAdding(true)}
+            onChange={setJobs}
+          />
+        ) : (
+          <JobsKanban
+            addDisabled={creating}
+            columns={columns}
+            jobs={jobs}
+            onAddJob={() => setAdding(true)}
+            onChange={setJobs}
+            onColumnsChange={setColumns}
+          />
+        )}
+      </div>
+
+      {adding ? (
+        <AddJobDialog
+          pending={creating}
+          onCancel={() => {
+            if (!creating) setAdding(false)
+          }}
+          onSubmit={submitNewJob}
+        />
+      ) : null}
+    </div>
+  )
 }

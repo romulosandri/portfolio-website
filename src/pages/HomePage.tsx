@@ -1,9 +1,13 @@
 import {
   BookingButton,
+  Card,
   FooterSection,
   HowAi,
+  SectionHeader,
   TalkButton,
   WelcomeTag,
+  WorkCard,
+  WorkGrid,
 } from '../design-system'
 import {
   CursorTrail,
@@ -17,7 +21,6 @@ import {
 import { site } from '../content/site'
 import { valueCards, workItems } from '../content/portfolio'
 import { displayFitStyle } from '../lib/displayFit'
-import { SectionHeader, WorkCard, WorkGrid } from './WorkCard'
 
 /** The newline is the composition -- two stacked words, never one line. */
 const HERO_TITLE = 'Product\nDesigner'
@@ -119,10 +122,7 @@ export function HomePage() {
             <div className="flex w-full flex-col items-stretch">
               <div className="grid w-full grid-cols-1 border-t border-l border-solid border-stroke-secondary md:grid-cols-3">
                 {valueCards.map((card) => (
-                  <div
-                    className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-xl md:min-h-95"
-                    key={card.title}
-                  >
+                  <Card className="p-xl md:min-h-95" key={card.title} variant="cell">
                     <RevealBlock>
                       <RevealText
                         as="h3"
@@ -135,7 +135,7 @@ export function HomePage() {
                         {card.body}
                       </RevealText>
                     </RevealBlock>
-                  </div>
+                  </Card>
                 ))}
               </div>
               <HowAi href="/how-i-use-ai" />

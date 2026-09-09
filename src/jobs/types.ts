@@ -1,3 +1,5 @@
+export type JobStatus = string
+
 export type Job = {
   id: string
   source: string
@@ -19,4 +21,5 @@ export type Job = {
   is_live: number
   status: string
   source_channel: string | null
+  is_favorite: number
 }

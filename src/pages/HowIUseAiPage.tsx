@@ -1,8 +1,7 @@
-import { AppLogo } from '../design-system'
+import { AppLogo, Card, DisplayHero, SectionHeader } from '../design-system'
 import { RevealBlock, RevealGroup, RevealText } from '../motion-system'
 import { modelRows, toolCards } from '../content/portfolio'
 import { PageLayout } from './PageLayout'
-import { DisplayHero, SectionHeader } from './WorkCard'
 
 export function HowIUseAiPage() {
   return (
@@ -20,11 +19,12 @@ export function HowIUseAiPage() {
               bottom, which gives clean single-width rules at any column count. */}
           <div className="grid w-full grid-cols-1 border-t border-l border-solid border-stroke-secondary xs:grid-cols-2 lg:grid-cols-4">
             {toolCards.map((tool) => (
-              <div
+              <Card
                 // No minimum height in the single-column stack: a fixed 300px
                 // per card is mostly dead space once the cards are full width.
-                className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-2xl xs:min-h-80 lg:min-h-95"
+                className="p-2xl xs:min-h-80 lg:min-h-95"
                 key={tool.name}
+                variant="cell"
               >
                 <AppLogo name={tool.name} size={32} />
                 <RevealBlock>
@@ -40,7 +40,7 @@ export function HowIUseAiPage() {
                     </RevealText>
                   </div>
                 </RevealBlock>
-              </div>
+              </Card>
             ))}
           </div>
         </RevealGroup>

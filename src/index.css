@@ -117,6 +117,7 @@
   --color-background-tertiary: var(--color-cobblestone-200);
   --color-stroke-primary: var(--color-cobblestone-100);
   --color-stroke-secondary: var(--color-cobblestone-200);
+  --color-stroke-hover: var(--color-cobblestone-400);
   --color-foreground-primary: var(--color-cobblestone-950);
   --color-foreground-secondary: var(--color-cobblestone-800);
   --color-foreground-tertiary: var(--color-cobblestone-700);
