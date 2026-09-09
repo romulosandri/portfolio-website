@@ -12,37 +12,25 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# jobs.romulosandri.com is the same site, but the document root is the jobs app
-# rather than the portfolio. Force only the HTML entry points so /api/jobs and
-# shared static assets (fonts, design-system, hashed JS/CSS) still win.
+# Netlify does not support Host in redirect conditions. Match the jobs domain
+# with a full URL so / still serves the portfolio on romulosandri.com.
 [[redirects]]
-  from = "/"
+  from = "https://jobs.romulosandri.com"
   to = "/jobs/index.html"
   status = 200
   force = true
-  conditions = {Host = ["jobs.romulosandri.com"]}
 
 [[redirects]]
-  from = "/index.html"
+  from = "https://jobs.romulosandri.com/"
   to = "/jobs/index.html"
   status = 200
   force = true
-  conditions = {Host = ["jobs.romulosandri.com"]}
-
-# Keep the jobs board off the marketing origin.
-[[redirects]]
-  from = "/jobs"
-  to = "/404.html"
-  status = 404
-  force = true
-  conditions = {Host = ["romulosandri.com", "www.romulosandri.com"]}
 
 [[redirects]]
-  from = "/jobs/*"
-  to = "/404.html"
-  status = 404
+  from = "https://jobs.romulosandri.com/index.html"
+  to = "/jobs/index.html"
+  status = 200
   force = true
-  conditions = {Host = ["romulosandri.com", "www.romulosandri.com"]}
 
 # Static files win over this rule, so a prerendered dist/work/pacelane.html is
 # served directly and only genuinely unknown paths reach the fallback. Because
