@@ -8,6 +8,42 @@
   # or scripts/prerender.mjs looks for the browser in the default cache path.
   PLAYWRIGHT_BROWSERS_PATH = "0"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# jobs.romulosandri.com is the same site, but the document root is the jobs app
+# rather than the portfolio. Force only the HTML entry points so /api/jobs and
+# shared static assets (fonts, design-system, hashed JS/CSS) still win.
+[[redirects]]
+  from = "/"
+  to = "/jobs/index.html"
+  status = 200
+  force = true
+  conditions = {Host = ["jobs.romulosandri.com"]}
+
+[[redirects]]
+  from = "/index.html"
+  to = "/jobs/index.html"
+  status = 200
+  force = true
+  conditions = {Host = ["jobs.romulosandri.com"]}
+
+# Keep the jobs board off the marketing origin.
+[[redirects]]
+  from = "/jobs"
+  to = "/404.html"
+  status = 404
+  force = true
+  conditions = {Host = ["romulosandri.com", "www.romulosandri.com"]}
+
+[[redirects]]
+  from = "/jobs/*"
+  to = "/404.html"
+  status = 404
+  force = true
+  conditions = {Host = ["romulosandri.com", "www.romulosandri.com"]}
+
 # Static files win over this rule, so a prerendered dist/work/pacelane.html is
 # served directly and only genuinely unknown paths reach the fallback. Because
 # every route in src/content/routes.ts is prerendered to its own file, anything
@@ -40,6 +76,11 @@
   for = "/llms-full.txt"
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/jobs/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
   for = "/*"
