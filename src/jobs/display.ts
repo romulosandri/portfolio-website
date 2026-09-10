@@ -102,8 +102,29 @@ export function companyLogoDomain(job: Job) {
   return resolveCompanyDomain(job.apply_url || job.url, job.company)
 }
 
-export function faviconUrl(domain: string) {
-  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`
+const LOGO_DEV_TOKEN =
+  import.meta.env.VITE_LOGO_DEV_PUBLISHABLE_KEY || 'pk_D9nSZaDCS1eMyOpdLJw9UQ'
+
+function logoDevImageUrl(path: string) {
+  const params = new URLSearchParams({
+    token: LOGO_DEV_TOKEN,
+    size: '64',
+    format: 'webp',
+    theme: 'light',
+    retina: 'true',
+    fallback: '404',
+  })
+  return `https://img.logo.dev/${path}?${params}`
+}
+
+export function companyLogoUrl(input: { domain?: string | null; name?: string | null }) {
+  const domain = input.domain?.trim()
+  if (domain) return logoDevImageUrl(encodeURIComponent(domain))
+
+  const name = input.name?.trim()
+  if (name) return logoDevImageUrl(`name/${encodeURIComponent(name)}`)
+
+  return null
 }
 
 export function formatLocation(job: Job) {

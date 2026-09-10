@@ -45,6 +45,12 @@ type Mutation =
   | { action: 'setFavorite'; ids: string[]; favorite?: unknown }
   | { action: 'setColumns'; columns?: unknown }
   | { action: 'create'; title?: unknown; company?: unknown; url?: unknown; location?: unknown }
+  | { action: 'update'; id?: unknown; title?: unknown; company?: unknown; url?: unknown; location?: unknown }
+
+const JOB_COLUMNS = `id, source, external_id, company, company_domain, title, location,
+  remote_string, salary_min, salary_max, salary_currency, seniority,
+  url, apply_url, description_snippet, posted_at, selected_at,
+  is_live, status, source_channel, is_favorite`
 
 function asFavorite(value: unknown) {
   if (typeof value === 'boolean') return value
@@ -186,6 +192,17 @@ async function resolveStoredDomain(url: string, company: string) {
   return domainFromUrl(url) || (await lookupCompanyDomain(company)) || slugToDomain(company)
 }
 
+function mapJob(job: JobRow) {
+  return {
+    ...job,
+    is_favorite: favoriteFlag(job.is_favorite),
+  }
+}
+
+function asLocation(value: unknown) {
+  return typeof value === 'string' ? value.trim().slice(0, 200) || null : null
+}
+
 function jobFromCreate(input: {
   title: string
   company: string
@@ -230,19 +247,12 @@ export default async (req: Request) => {
 
     if (req.method === 'GET') {
       const result = await db.execute(
-        `SELECT
-          id, source, external_id, company, company_domain, title, location,
-          remote_string, salary_min, salary_max, salary_currency, seniority,
-          url, apply_url, description_snippet, posted_at, selected_at,
-          is_live, status, source_channel, is_favorite
+        `SELECT ${JOB_COLUMNS}
         FROM jobs
         ORDER BY selected_at DESC, title ASC`,
       )
       const columns = await listKanbanColumns(db)
-      const jobs = (result.rows as unknown as JobRow[]).map((job) => ({
-        ...job,
-        is_favorite: favoriteFlag(job.is_favorite),
-      }))
+      const jobs = (result.rows as unknown as JobRow[]).map(mapJob)
       return json({ jobs, columns })
     }
 
@@ -256,7 +266,7 @@ export default async (req: Request) => {
       const title = asTrimmed(body.title, 200)
       const company = asTrimmed(body.company, 200)
       const url = asUrl(body.url)
-      const location = typeof body.location === 'string' ? body.location.trim().slice(0, 200) || null : null
+      const location = asLocation(body.location)
 
       if (!title) return json({ error: 'Title is required' }, 400)
       if (!company) return json({ error: 'Company is required' }, 400)
@@ -316,6 +326,56 @@ export default async (req: Request) => {
       })
 
       return json(job, 201)
+    }
+
+    if (body.action === 'update') {
+      const id = asTrimmed(body.id, 200)
+      const title = asTrimmed(body.title, 200)
+      const company = asTrimmed(body.company, 200)
+      const url = asUrl(body.url)
+      const location = asLocation(body.location)
+
+      if (!id) return json({ error: 'id is required' }, 400)
+      if (!title) return json({ error: 'Title is required' }, 400)
+      if (!company) return json({ error: 'Company is required' }, 400)
+      if (!url) return json({ error: 'A valid application URL is required' }, 400)
+
+      const currentResult = await db.execute({
+        sql: `SELECT ${JOB_COLUMNS} FROM jobs WHERE id = ? LIMIT 1`,
+        args: [id],
+      })
+      if (currentResult.rows.length === 0) {
+        return json({ error: 'Job not found' }, 404)
+      }
+
+      const current = currentResult.rows[0] as unknown as JobRow
+      const duplicate = await db.execute({
+        sql: 'SELECT id FROM jobs WHERE (url = ? OR apply_url = ?) AND id != ? LIMIT 1',
+        args: [url, url, id],
+      })
+      if (duplicate.rows.length > 0) {
+        return json({ error: 'That job URL is already on the board' }, 409)
+      }
+
+      const companyChanged = (current.company ?? '') !== company
+      const urlChanged = current.url !== url || (current.apply_url ?? current.url) !== url
+      const companyDomain =
+        companyChanged || urlChanged ? await resolveStoredDomain(url, company) : current.company_domain
+      const remote = location?.toLowerCase().includes('remote') ? location : null
+
+      await db.execute({
+        sql: `UPDATE jobs SET
+          title = ?, company = ?, company_domain = ?, location = ?, remote_string = ?,
+          url = ?, apply_url = ?
+        WHERE id = ?`,
+        args: [title, company, companyDomain, location, remote, url, url, id],
+      })
+
+      const updated = await db.execute({
+        sql: `SELECT ${JOB_COLUMNS} FROM jobs WHERE id = ? LIMIT 1`,
+        args: [id],
+      })
+      return json(mapJob(updated.rows[0] as unknown as JobRow))
     }
 
     if (body.action === 'setColumns') {

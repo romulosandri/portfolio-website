@@ -59,10 +59,25 @@ export function setJobsFavorite(ids: string[], favorite: boolean) {
   })
 }
 
-export function createJob(input: { title: string; company: string; url: string; location?: string }) {
+export type JobWriteInput = {
+  title: string
+  company: string
+  url: string
+  location?: string
+}
+
+export function createJob(input: JobWriteInput) {
   return request<Job>('/api/jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'create', ...input }),
+  })
+}
+
+export function updateJob(id: string, input: JobWriteInput) {
+  return request<Job>('/api/jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'update', id, ...input }),
   })
 }

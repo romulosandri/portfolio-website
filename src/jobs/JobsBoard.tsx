@@ -6,6 +6,7 @@ import {
   Checkbox,
   DeleteIcon,
   Dropdown,
+  EditIcon,
   Input,
   Pagination,
   PlusIcon,
@@ -31,6 +32,7 @@ type JobsBoardProps = {
   jobs: Job[]
   onChange: (jobs: Job[]) => void
   onAddJob: () => void
+  onEditJob: (job: Job) => void
   addDisabled?: boolean
 }
 
@@ -40,6 +42,7 @@ function JobActions({
   favorited,
   title,
   onDelete,
+  onEdit,
   onFavorite,
 }: {
   applyHref: string
@@ -47,11 +50,15 @@ function JobActions({
   favorited: boolean
   title: string
   onDelete: () => void
+  onEdit: () => void
   onFavorite: () => void
 }) {
   return (
     <div className="flex shrink-0 justify-end gap-sm">
       <JobFavoriteButton disabled={disabled} favorited={favorited} onToggle={onFavorite} title={title} />
+      <Button aria-label={`Edit ${title}`} disabled={disabled} onClick={onEdit} variant="icon">
+        <EditIcon />
+      </Button>
       <Button aria-label="Open application" href={applyHref} rel="noreferrer" target="_blank" variant="icon">
         <ApplyIcon />
       </Button>
@@ -62,7 +69,7 @@ function JobActions({
   )
 }
 
-export function JobsBoard({ jobs, onChange, onAddJob, addDisabled = false }: JobsBoardProps) {
+export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = false }: JobsBoardProps) {
   const { show } = useSnackbar()
   const [query, setQuery] = useState('')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
@@ -270,6 +277,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, addDisabled = false }: Job
                       disabled={pending || pendingFavorite === job.id}
                       favorited={isJobFavorite(job)}
                       onDelete={() => requestDelete(job)}
+                      onEdit={() => onEditJob(job)}
                       onFavorite={() => toggleFavorite(job)}
                       title={job.title}
                     />
@@ -342,6 +350,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, addDisabled = false }: Job
                           disabled={pending || pendingFavorite === job.id}
                           favorited={isJobFavorite(job)}
                           onDelete={() => requestDelete(job)}
+                          onEdit={() => onEditJob(job)}
                           onFavorite={() => toggleFavorite(job)}
                           title={job.title}
                         />

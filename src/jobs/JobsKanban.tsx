@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Dropdown,
+  EditIcon,
   Input,
   KanbanColumn,
   PlusIcon,
@@ -27,6 +28,7 @@ type JobsKanbanProps = {
   onChange: (jobs: Job[]) => void
   onColumnsChange: (columns: KanbanColumnConfig[]) => void
   onAddJob: () => void
+  onEditJob: (job: Job) => void
   addDisabled?: boolean
 }
 
@@ -45,6 +47,7 @@ export function JobsKanban({
   onChange,
   onColumnsChange,
   onAddJob,
+  onEditJob,
   addDisabled = false,
 }: JobsKanbanProps) {
   const { show } = useSnackbar()
@@ -275,6 +278,17 @@ export function JobsKanban({
                               onToggle={() => toggleFavorite(job)}
                               title={job.title}
                             />
+                            <Button
+                              aria-label={`Edit ${job.title}`}
+                              onClick={(event) => {
+                                event.stopPropagation()
+                                onEditJob(job)
+                              }}
+                              onPointerDown={(event) => event.stopPropagation()}
+                              variant="icon"
+                            >
+                              <EditIcon />
+                            </Button>
                             <Button
                               aria-label="Open application"
                               href={applyUrl(job)}

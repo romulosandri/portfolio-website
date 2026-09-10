@@ -1,20 +1,24 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Button, Dialog, Field } from '../design-system'
 import { CompanyLogo } from './CompanyLogo'
-import { resolveCompanyDomain } from './display'
+import { applyUrl, displayCompany, resolveCompanyDomain } from './display'
+import type { JobWriteInput } from './jobs-api'
+import type { Job } from './types'
 
 type AddJobDialogProps = {
+  job?: Job
   pending?: boolean
   onCancel: () => void
-  onSubmit: (input: { title: string; company: string; url: string; location?: string }) => Promise<void>
+  onSubmit: (input: JobWriteInput) => Promise<void>
 }
 
-export function AddJobDialog({ pending = false, onCancel, onSubmit }: AddJobDialogProps) {
+export function AddJobDialog({ job, pending = false, onCancel, onSubmit }: AddJobDialogProps) {
   const titleRef = useRef<HTMLInputElement>(null)
-  const [title, setTitle] = useState('')
-  const [company, setCompany] = useState('')
-  const [url, setUrl] = useState('')
-  const [location, setLocation] = useState('')
+  const editing = Boolean(job)
+  const [title, setTitle] = useState(job?.title ?? '')
+  const [company, setCompany] = useState(job ? displayCompany(job) : '')
+  const [url, setUrl] = useState(job ? applyUrl(job) : '')
+  const [location, setLocation] = useState(job?.location?.trim() || job?.remote_string?.trim() || '')
   const previewDomain = useMemo(() => resolveCompanyDomain(url, company), [url, company])
 
   useEffect(() => {
@@ -33,10 +37,10 @@ export function AddJobDialog({ pending = false, onCancel, onSubmit }: AddJobDial
   }
 
   return (
-    <Dialog closeDisabled={pending} labelledBy="jobs-add-title" onClose={onCancel}>
+    <Dialog closeDisabled={pending} labelledBy="jobs-form-title" onClose={onCancel}>
       <form onSubmit={handleSubmit}>
-        <h2 className="text-h3 text-foreground-primary" id="jobs-add-title">
-          Add job
+        <h2 className="text-h3 text-foreground-primary" id="jobs-form-title">
+          {editing ? 'Edit job' : 'Add job'}
         </h2>
 
         <div className="mt-xl flex flex-col gap-lg">
@@ -93,7 +97,7 @@ export function AddJobDialog({ pending = false, onCancel, onSubmit }: AddJobDial
             Cancel
           </Button>
           <Button disabled={pending} type="submit" variant="primary">
-            {pending ? 'Adding…' : 'Add job'}
+            {pending ? (editing ? 'Saving…' : 'Adding…') : editing ? 'Save job' : 'Add job'}
           </Button>
         </div>
       </form>

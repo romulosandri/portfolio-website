@@ -12,7 +12,7 @@ import {
   takeStoredColumns,
   type KanbanColumn,
 } from './columns'
-import { createJob, fetchJobs, saveKanbanColumns } from './jobs-api'
+import { createJob, fetchJobs, saveKanbanColumns, updateJob, type JobWriteInput } from './jobs-api'
 import type { Job } from './types'
 
 export type JobsTab = 'board' | 'kanban'
@@ -37,8 +37,8 @@ export function JobsApp() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<JobsTab>(tabFromHash)
-  const [adding, setAdding] = useState(false)
-  const [creating, setCreating] = useState(false)
+  const [formJob, setFormJob] = useState<Job | 'add' | null>(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -91,17 +91,25 @@ export function JobsApp() {
     }
   }
 
-  async function submitNewJob(input: { title: string; company: string; url: string; location?: string }) {
-    setCreating(true)
+  async function submitJobForm(input: JobWriteInput) {
+    setSaving(true)
     try {
+      if (formJob && formJob !== 'add') {
+        const job = await updateJob(formJob.id, input)
+        setJobs((current) => current.map((item) => (item.id === job.id ? job : item)))
+        setFormJob(null)
+        show(`Updated ${job.title}`)
+        return
+      }
+
       const job = await createJob(input)
       setJobs((current) => [job, ...current])
-      setAdding(false)
+      setFormJob(null)
       show(`Added ${job.title}`)
     } catch (error) {
-      show(error instanceof Error ? error.message : 'Could not add job')
+      show(error instanceof Error ? error.message : formJob === 'add' ? 'Could not add job' : 'Could not update job')
     } finally {
-      setCreating(false)
+      setSaving(false)
     }
   }
 
@@ -139,30 +147,33 @@ export function JobsApp() {
       >
         {tab === 'board' ? (
           <JobsBoard
-            addDisabled={creating}
+            addDisabled={saving}
             jobs={jobs}
-            onAddJob={() => setAdding(true)}
+            onAddJob={() => setFormJob('add')}
             onChange={setJobs}
+            onEditJob={setFormJob}
           />
         ) : (
           <JobsKanban
-            addDisabled={creating}
+            addDisabled={saving}
             columns={columns}
             jobs={jobs}
-            onAddJob={() => setAdding(true)}
+            onAddJob={() => setFormJob('add')}
             onChange={setJobs}
             onColumnsChange={setColumns}
+            onEditJob={setFormJob}
           />
         )}
       </div>
 
-      {adding ? (
+      {formJob ? (
         <AddJobDialog
-          pending={creating}
+          job={formJob === 'add' ? undefined : formJob}
+          pending={saving}
           onCancel={() => {
-            if (!creating) setAdding(false)
+            if (!saving) setFormJob(null)
           }}
-          onSubmit={submitNewJob}
+          onSubmit={submitJobForm}
         />
       ) : null}
     </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { faviconUrl, initials } from './display'
+import { companyLogoUrl, initials } from './display'
 
 type CompanyLogoProps = {
   domain?: string | null
@@ -7,24 +7,35 @@ type CompanyLogoProps = {
 }
 
 export function CompanyLogo({ domain, name }: CompanyLogoProps) {
+  const [useNameLookup, setUseNameLookup] = useState(!domain)
   const [failed, setFailed] = useState(false)
-  const showImage = Boolean(domain) && !failed
+  const src = failed ? null : companyLogoUrl(useNameLookup ? { name } : { domain })
 
   useEffect(() => {
+    setUseNameLookup(!domain)
     setFailed(false)
-  }, [domain])
+  }, [domain, name])
 
   return (
     <span
       className="inline-flex size-5 shrink-0 items-center justify-center overflow-hidden border border-solid border-stroke-secondary bg-background-secondary text-[10px] leading-none text-foreground-tertiary"
       title={name}
     >
-      {showImage ? (
+      {src ? (
         <img
           alt=""
-          className="size-full object-cover"
-          onError={() => setFailed(true)}
-          src={faviconUrl(domain!)}
+          className="size-full object-contain"
+          decoding="async"
+          key={src}
+          loading="lazy"
+          onError={() => {
+            if (!useNameLookup && name.trim()) {
+              setUseNameLookup(true)
+              return
+            }
+            setFailed(true)
+          }}
+          src={src}
         />
       ) : (
         initials(name)

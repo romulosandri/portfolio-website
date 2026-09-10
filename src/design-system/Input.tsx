@@ -1,4 +1,5 @@
 import type {
+  ChangeEvent,
   ChangeEventHandler,
   FormEvent,
   HTMLInputTypeAttribute,
@@ -7,6 +8,7 @@ import type {
   Ref,
   TextareaHTMLAttributes,
 } from 'react'
+import { CloseIcon } from './Icons'
 import { cx } from './cx'
 
 export type InputSize = 'md' | 'lg'
@@ -23,14 +25,24 @@ function fieldControlClass({
   forceHover = false,
   forceFocus = false,
   disabled = false,
+  clearable = false,
+  search = false,
   className,
-}: InputStateProps & { disabled?: boolean; className?: string }) {
+}: InputStateProps & { disabled?: boolean; clearable?: boolean; search?: boolean; className?: string }) {
   const focused = forceFocus && !disabled
   const hovered = forceHover && !focused && !disabled
 
   return cx(
     'w-full border border-solid bg-transparent text-body-default text-foreground-primary outline-none placeholder:text-foreground-quaternary transition-colors duration-200 ease-out motion-reduce:transition-none',
-    size === 'lg' ? 'p-xl' : 'px-xl py-md',
+    size === 'lg'
+      ? clearable
+        ? 'py-xl pl-xl pr-2xl'
+        : 'p-xl'
+      : clearable
+        ? 'py-md pl-xl pr-2xl'
+        : 'px-xl py-md',
+    search &&
+      '[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-ms-clear]:hidden',
     disabled && 'cursor-default opacity-60',
     focused
       ? 'border-foreground-quaternary'
@@ -54,16 +66,56 @@ export function Input({
   forceFocus = false,
   disabled,
   ref,
+  value,
+  onChange,
   ...props
 }: InputProps) {
-  return (
+  const isSearch = type === 'search'
+  const showClear = isSearch && !disabled && String(value ?? '') !== ''
+
+  function clearSearch() {
+    onChange?.({
+      target: { value: '' },
+      currentTarget: { value: '' },
+    } as ChangeEvent<HTMLInputElement>)
+  }
+
+  const input = (
     <input
-      className={fieldControlClass({ size, forceHover, forceFocus, disabled, className })}
+      className={fieldControlClass({
+        size,
+        forceHover,
+        forceFocus,
+        disabled,
+        clearable: isSearch,
+        search: isSearch,
+        className: isSearch ? undefined : className,
+      })}
       disabled={disabled}
+      onChange={onChange}
       ref={ref}
       type={type}
+      value={value}
       {...props}
     />
+  )
+
+  if (!isSearch) return input
+
+  return (
+    <div className={cx('relative w-full', className)}>
+      {input}
+      {showClear ? (
+        <button
+          aria-label="Clear search"
+          className="absolute top-1/2 right-md flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-foreground-quaternary transition-colors duration-200 ease-out hover:text-foreground-primary motion-reduce:transition-none"
+          onClick={clearSearch}
+          type="button"
+        >
+          <CloseIcon />
+        </button>
+      ) : null}
+    </div>
   )
 }
 

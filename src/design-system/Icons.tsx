@@ -1,3 +1,11 @@
+export function CloseIcon() {
+  return (
+    <svg aria-hidden fill="none" height="16" viewBox="0 0 16 16" width="16">
+      <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeLinecap="square" strokeWidth="1.2" />
+    </svg>
+  )
+}
+
 export function PlusIcon() {
   return (
     <svg aria-hidden fill="none" height="16" viewBox="0 0 16 16" width="16">
@@ -18,6 +26,20 @@ export function DeleteIcon() {
   return (
     <svg aria-hidden fill="none" height="16" viewBox="0 0 16 16" width="16">
       <path d="M3.5 4.5h9M6 4.5V3.5h4v1M5 6.5l.5 6h5l.5-6" stroke="currentColor" strokeLinecap="square" strokeWidth="1.2" />
+    </svg>
+  )
+}
+
+export function EditIcon() {
+  return (
+    <svg aria-hidden fill="none" height="16" viewBox="0 0 16 16" width="16">
+      <path
+        d="M10 3.5 12.5 6 6.5 12H4v-2.5L10 3.5Z"
+        stroke="currentColor"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+        strokeWidth="1.2"
+      />
     </svg>
   )
 }

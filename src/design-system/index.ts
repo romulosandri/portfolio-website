@@ -22,8 +22,10 @@ export {
   ApplyIcon,
   CheckIcon,
   ChevronDownIcon,
+  CloseIcon,
   DeleteIcon,
   DragHandleIcon,
+  EditIcon,
   PlusIcon,
   StarIcon,
 } from './Icons'
