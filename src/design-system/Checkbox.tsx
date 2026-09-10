@@ -26,7 +26,7 @@ export function Checkbox({
   return (
     <label
       className={cx(
-        'inline-flex items-center',
+        'relative inline-flex size-4 shrink-0 items-center justify-center',
         disabled ? 'cursor-default opacity-60' : 'cursor-pointer',
         className,
       )}
@@ -34,7 +34,10 @@ export function Checkbox({
       <input
         aria-label={label}
         checked={checked}
-        className="peer sr-only"
+        className={cx(
+          'peer absolute inset-0 z-10 m-0 size-full appearance-none opacity-0',
+          disabled ? 'cursor-default' : 'cursor-pointer',
+        )}
         disabled={disabled}
         onChange={(event) => onCheckedChange?.(event.target.checked)}
         type="checkbox"

@@ -211,44 +211,43 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="mb-xl flex shrink-0 flex-col gap-md">
+      <div className="mb-xl flex shrink-0 flex-col gap-md sm:flex-row sm:items-center">
         <div className="flex flex-col gap-md sm:flex-row sm:items-center">
-          <div className="flex flex-col gap-md sm:flex-row sm:items-center">
-            <Input
-              className="sm:max-w-xs"
-              onChange={(event) => {
-                setQuery(event.target.value)
-                setPage(1)
-              }}
-              placeholder="Search title, company, location"
-              type="search"
-              value={query}
-            />
-            <FavoritesFilterButton
-              active={favoritesOnly}
-              onToggle={() => {
-                setFavoritesOnly((current) => !current)
-                setPage(1)
-              }}
-            />
-          </div>
-          <Button className="gap-sm sm:ml-auto" disabled={addDisabled} onClick={onAddJob}>
+          <Input
+            className="sm:max-w-xs"
+            onChange={(event) => {
+              setQuery(event.target.value)
+              setPage(1)
+            }}
+            placeholder="Search title, company, location"
+            type="search"
+            value={query}
+          />
+          <FavoritesFilterButton
+            active={favoritesOnly}
+            onToggle={() => {
+              setFavoritesOnly((current) => !current)
+              setPage(1)
+            }}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-md sm:ml-auto">
+          {selectedIds.length > 0 ? (
+            <>
+              <span className="text-body-small text-foreground-quaternary">{selectedIds.length} selected</span>
+              <Button disabled={pending} onClick={requestDeleteSelected} variant="danger">
+                Delete
+              </Button>
+            </>
+          ) : null}
+          <Button className="gap-sm" disabled={addDisabled} onClick={onAddJob}>
             <PlusIcon />
             Add job
           </Button>
         </div>
-
-        {selectedIds.length > 0 ? (
-          <div className="flex flex-wrap items-center gap-md">
-            <span className="text-body-small text-foreground-quaternary">{selectedIds.length} selected</span>
-            <Button disabled={pending} onClick={requestDeleteSelected} variant="danger">
-              Delete
-            </Button>
-          </div>
-        ) : null}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto border border-solid border-stroke-secondary bg-background-primary">
+      <div className="min-h-0 flex-1 overflow-auto border border-solid border-stroke-secondary bg-background-primary">
         <div className="flex items-center gap-md border-b border-solid border-stroke-secondary px-xl py-lg lg:hidden">
           <Checkbox
             checked={allVisibleSelected}
@@ -271,7 +270,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                 <Card as="article" key={job.id} variant="list">
                   <div className="flex items-start gap-md">
                     <Checkbox
-                      className="mt-1"
+                      className="mt-1 shrink-0"
                       checked={selected.has(job.id)}
                       label={`Select ${job.title}`}
                       onCheckedChange={(checked) => toggleOne(job.id, checked)}
@@ -303,11 +302,11 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
           )}
         </div>
 
-        <div className="hidden overflow-x-auto lg:block">
+        <div className="hidden lg:block">
           <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-solid border-stroke-secondary">
-                <th className="w-10 px-xl py-lg">
+                <th className="w-12 px-xl py-lg">
                   <Checkbox
                     checked={allVisibleSelected}
                     label="Select all visible jobs"
@@ -337,7 +336,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                       className="border-b border-solid border-stroke-secondary last:border-b-0 [&>td]:bg-background-primary [&>td]:transition-colors [&>td]:duration-200 [&>td]:ease-out hover:[&>td]:bg-background-secondary motion-reduce:[&>td]:transition-none"
                       key={job.id}
                     >
-                      <td className="px-xl py-lg">
+                      <td className="w-12 px-xl py-lg">
                         <Checkbox
                           checked={selected.has(job.id)}
                           label={`Select ${job.title}`}
