@@ -1,3 +1,4 @@
+import { analyticsHeaders } from '../lib/analytics'
 import type { KanbanColumn } from './columns'
 import type { Job } from './types'
 
@@ -7,7 +8,13 @@ export type JobsPayload = {
 }
 
 async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
-  const response = await fetch(input, init)
+  const response = await fetch(input, {
+    ...init,
+    headers: {
+      ...analyticsHeaders(),
+      ...init?.headers,
+    },
+  })
   if (!response.ok) {
     const text = await response.text()
     let message = text || 'Request failed'

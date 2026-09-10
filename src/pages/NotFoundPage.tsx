@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { track } from '../lib/analytics'
 import { RevealGroup, RevealText } from '../motion-system'
 import { PageLayout } from './PageLayout'
 import { DisplayHero, SectionHeader } from '../design-system'
@@ -10,6 +12,10 @@ const destinations = [
 ]
 
 export function NotFoundPage() {
+  useEffect(() => {
+    track('not_found_viewed', { pathname: window.location.pathname })
+  }, [])
+
   return (
     <PageLayout>
       <DisplayHero srText="Page not found">404</DisplayHero>
@@ -36,6 +42,13 @@ export function NotFoundPage() {
                   className="flex min-w-px flex-col items-start justify-between gap-2xl border-r border-b border-solid border-stroke-secondary p-2xl no-underline xs:min-h-45 lg:min-h-95"
                   href={item.href}
                   key={item.href}
+                  onClick={() =>
+                    track('not_found_destination_clicked', {
+                      href: item.href,
+                      label: item.label,
+                      pathname: window.location.pathname,
+                    })
+                  }
                 >
                   <RevealText as="span" className="text-h3 text-foreground-primary">
                     {item.label}

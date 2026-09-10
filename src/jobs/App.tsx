@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { track, trackException } from '../lib/analytics'
 import { RevealGroup, RevealText } from '../motion-system'
 import { Tabs, useSnackbar } from '../design-system'
 import { AddJobDialog } from './AddJobDialog'
@@ -62,6 +63,8 @@ export function JobsApp() {
       .catch((cause) => {
         if (!cancelled) {
           setError(cause instanceof Error ? cause.message : 'Failed to load jobs')
+          track('jobs_load_failed')
+          trackException(cause, { source: 'jobs_load' })
         }
       })
       .finally(() => {
@@ -84,6 +87,7 @@ export function JobsApp() {
   }, [])
 
   function changeTab(next: JobsTab) {
+    if (next !== tab) track('jobs_tab_changed', { tab: next })
     setTab(next)
     const hash = hashFromTab(next)
     if (window.location.hash !== hash) {
@@ -107,7 +111,10 @@ export function JobsApp() {
       setFormJob(null)
       show(`Added ${job.title}`)
     } catch (error) {
-      show(error instanceof Error ? error.message : formJob === 'add' ? 'Could not add job' : 'Could not update job')
+      const action = formJob === 'add' || formJob === null ? 'create' : 'update'
+      show(error instanceof Error ? error.message : action === 'create' ? 'Could not add job' : 'Could not update job')
+      track('jobs_mutation_failed', { action })
+      trackException(error, { source: 'jobs_form', action })
     } finally {
       setSaving(false)
     }
@@ -149,19 +156,31 @@ export function JobsApp() {
           <JobsBoard
             addDisabled={saving}
             jobs={jobs}
-            onAddJob={() => setFormJob('add')}
+            onAddJob={() => {
+              track('jobs_add_clicked', { view: 'board' })
+              setFormJob('add')
+            }}
             onChange={setJobs}
-            onEditJob={setFormJob}
+            onEditJob={(job) => {
+              track('jobs_edit_clicked', { view: 'board', job_id: job.id })
+              setFormJob(job)
+            }}
           />
         ) : (
           <JobsKanban
             addDisabled={saving}
             columns={columns}
             jobs={jobs}
-            onAddJob={() => setFormJob('add')}
+            onAddJob={() => {
+              track('jobs_add_clicked', { view: 'kanban' })
+              setFormJob('add')
+            }}
             onChange={setJobs}
             onColumnsChange={setColumns}
-            onEditJob={setFormJob}
+            onEditJob={(job) => {
+              track('jobs_edit_clicked', { view: 'kanban', job_id: job.id })
+              setFormJob(job)
+            }}
           />
         )}
       </div>

@@ -1,6 +1,7 @@
 import type { Config } from '@netlify/functions'
 import { getDb } from './_shared/db.ts'
 import { rejectIfInvalidPassword, requiresJobsPassword } from './_shared/jobs-auth.ts'
+import { captureServerEvent, captureServerException } from './_shared/posthog.ts'
 import {
   firstVisibleColumnId,
   listKanbanColumns,
@@ -265,7 +266,10 @@ export default async (req: Request) => {
 
     if (requiresJobsPassword(body.action)) {
       const denied = rejectIfInvalidPassword(body.password)
-      if (denied) return denied
+      if (denied) {
+        await captureServerEvent(req, 'jobs_auth_failed', { action: body.action, status: denied.status })
+        return denied
+      }
     }
 
     if (body.action === 'create') {
@@ -331,6 +335,7 @@ export default async (req: Request) => {
         ],
       })
 
+      await captureServerEvent(req, 'jobs_job_created', { source: 'manual' })
       return json(job, 201)
     }
 
@@ -381,6 +386,7 @@ export default async (req: Request) => {
         sql: `SELECT ${JOB_COLUMNS} FROM jobs WHERE id = ? LIMIT 1`,
         args: [id],
       })
+      await captureServerEvent(req, 'jobs_job_updated')
       return json(mapJob(updated.rows[0] as unknown as JobRow))
     }
 
@@ -390,6 +396,7 @@ export default async (req: Request) => {
         return json({ error: 'Keep at least one visible column with unique names' }, 400)
       }
       await replaceKanbanColumns(db, columns)
+      await captureServerEvent(req, 'jobs_columns_saved', { column_count: columns.length })
       return json({ ok: true, columns })
     }
 
@@ -405,6 +412,7 @@ export default async (req: Request) => {
         sql: `DELETE FROM jobs WHERE id IN (${placeholders})`,
         args: ids,
       })
+      await captureServerEvent(req, 'jobs_job_deleted', { count: ids.length })
       return json({ ok: true })
     }
 
@@ -417,6 +425,7 @@ export default async (req: Request) => {
         sql: `UPDATE jobs SET status = ? WHERE id IN (${placeholders})`,
         args: [status, ...ids],
       })
+      await captureServerEvent(req, 'jobs_status_changed', { status, count: ids.length })
       return json({ ok: true })
     }
 
@@ -429,12 +438,15 @@ export default async (req: Request) => {
         sql: `UPDATE jobs SET is_favorite = ? WHERE id IN (${placeholders})`,
         args: [favorite ? 1 : 0, ...ids],
       })
+      await captureServerEvent(req, 'jobs_favorite_toggled', { favorite, count: ids.length })
       return json({ ok: true })
     }
 
     return json({ error: 'Unknown action' }, 400)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Server error'
+    await captureServerEvent(req, 'jobs_server_error', { message })
+    await captureServerException(req, error, { source: 'jobs_api' })
     return json({ error: message }, 500)
   }
 }

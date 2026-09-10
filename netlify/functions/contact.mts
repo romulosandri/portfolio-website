@@ -3,6 +3,7 @@
 // bundle, including VITE_ prefixed env vars.
 
 import type { Config, Context } from '@netlify/functions'
+import { captureServerEvent, captureServerException } from './_shared/posthog.ts'
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails'
 
@@ -86,6 +87,7 @@ export default async (request: Request, context: Context) => {
 
   if (!apiKey || !from) {
     console.error('Contact form is missing RESEND_API_KEY or CONTACT_FROM_EMAIL.')
+    await captureServerEvent(request, 'contact_form_unconfigured')
     return json({ error: 'The contact form is not configured yet.' }, 500)
   }
 
@@ -104,9 +106,13 @@ export default async (request: Request, context: Context) => {
 
   // The honeypot is hidden from people but visible to form-filling bots. Report
   // success so they do not retry with the field left blank.
-  if (readField(body, 'company')) return json({ ok: true }, 200)
+  if (readField(body, 'company')) {
+    await captureServerEvent(request, 'contact_form_honeypot')
+    return json({ ok: true }, 200)
+  }
 
   if (isRateLimited(context.ip || 'unknown')) {
+    await captureServerEvent(request, 'contact_form_rate_limited')
     return json({ error: 'Too many messages. Try again later.' }, 429)
   }
 
@@ -134,9 +140,14 @@ export default async (request: Request, context: Context) => {
 
   if (!response.ok) {
     console.error('Resend rejected the message:', response.status, await response.text())
+    await captureServerEvent(request, 'contact_form_server_failed', { status: response.status })
+    await captureServerException(request, new Error(`Resend rejected the message: ${response.status}`), {
+      source: 'contact_form',
+    })
     return json({ error: 'Could not send the message.' }, 502)
   }
 
+  await captureServerEvent(request, 'contact_form_delivered')
   return json({ ok: true }, 200)
 }
 

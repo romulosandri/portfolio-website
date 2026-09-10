@@ -19,6 +19,7 @@ import {
   formatLocation,
   isJobFavorite,
 } from './display'
+import { track, trackException } from '../lib/analytics'
 import { deleteJobs, setJobsFavorite } from './jobs-api'
 import { CompanyLogo } from './CompanyLogo'
 import { FavoritesFilterButton, JobFavoriteButton, JobsConfirmModal } from './ui'
@@ -40,6 +41,7 @@ function JobActions({
   disabled,
   favorited,
   title,
+  onApply,
   onDelete,
   onEdit,
   onFavorite,
@@ -48,6 +50,7 @@ function JobActions({
   disabled: boolean
   favorited: boolean
   title: string
+  onApply: () => void
   onDelete: () => void
   onEdit: () => void
   onFavorite: () => void
@@ -58,7 +61,14 @@ function JobActions({
       <Button aria-label={`Edit ${title}`} disabled={disabled} onClick={onEdit} variant="icon">
         <EditIcon />
       </Button>
-      <Button aria-label="Open application" href={applyHref} rel="noreferrer" target="_blank" variant="icon">
+      <Button
+        aria-label="Open application"
+        href={applyHref}
+        onClick={onApply}
+        rel="noreferrer"
+        target="_blank"
+        variant="icon"
+      >
         <ApplyIcon />
       </Button>
       <Button aria-label="Delete job" disabled={disabled} onClick={onDelete} variant="icon">
@@ -139,6 +149,8 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
       await action()
     } catch (error) {
       show(error instanceof Error ? error.message : 'Something went wrong')
+      track('jobs_mutation_failed', { action: 'delete' })
+      trackException(error, { source: 'jobs_board' })
     } finally {
       setPending(false)
     }
@@ -193,6 +205,8 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
       .catch((error) => {
         onChange(previous)
         show(error instanceof Error ? error.message : 'Could not update favorite')
+        track('jobs_mutation_failed', { action: 'setFavorite' })
+        trackException(error, { source: 'jobs_favorite' })
       })
       .finally(() => {
         setPendingFavorite((value) => (value === id ? null : value))
@@ -212,26 +226,28 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="mb-xl flex shrink-0 flex-col gap-md sm:flex-row sm:items-center">
-        <div className="flex flex-col gap-md sm:flex-row sm:items-center">
-          <Input
-            className="sm:max-w-xs"
-            onChange={(event) => {
-              setQuery(event.target.value)
-              setPage(1)
-            }}
-            placeholder="Search title, company, location"
-            type="search"
-            value={query}
-          />
+        <Input
+          className="min-w-0 flex-1"
+          onChange={(event) => {
+            setQuery(event.target.value)
+            setPage(1)
+          }}
+          placeholder="Search title, company, location"
+          type="search"
+          value={query}
+        />
+        <div className="flex flex-wrap items-center gap-md sm:shrink-0">
           <FavoritesFilterButton
             active={favoritesOnly}
             onToggle={() => {
-              setFavoritesOnly((current) => !current)
+              setFavoritesOnly((current) => {
+                const next = !current
+                track('jobs_favorites_filtered', { enabled: next, view: 'board' })
+                return next
+              })
               setPage(1)
             }}
           />
-        </div>
-        <div className="flex flex-wrap items-center gap-md sm:ml-auto">
           {selectedIds.length > 0 ? (
             <>
               <span className="text-body-small text-foreground-quaternary">{selectedIds.length} selected</span>
@@ -290,6 +306,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                       applyHref={applyUrl(job)}
                       disabled={pending || pendingFavorite === job.id}
                       favorited={isJobFavorite(job)}
+                      onApply={() => track('jobs_apply_clicked', { view: 'board', company, title: job.title })}
                       onDelete={() => requestDelete(job)}
                       onEdit={() => onEditJob(job)}
                       onFavorite={() => requestFavorite(job)}
@@ -363,6 +380,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                           applyHref={applyUrl(job)}
                           disabled={pending || pendingFavorite === job.id}
                           favorited={isJobFavorite(job)}
+                          onApply={() => track('jobs_apply_clicked', { view: 'board', company, title: job.title })}
                           onDelete={() => requestDelete(job)}
                           onEdit={() => onEditJob(job)}
                           onFavorite={() => requestFavorite(job)}

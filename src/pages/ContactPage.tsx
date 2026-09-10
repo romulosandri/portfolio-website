@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { identifyVisitor, track, trackException } from '../lib/analytics'
+import { analyticsHeaders, identifyVisitor, track, trackException } from '../lib/analytics'
 import { BookingButton, CopyEmail, Field, SendButton, SocialLinks } from '../design-system'
 import { RevealGroup, RevealLine, RevealText } from '../motion-system'
 import { site } from '../content/site'
@@ -34,7 +34,7 @@ export function ContactPage() {
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...analyticsHeaders() },
         body: JSON.stringify({
           name,
           email,

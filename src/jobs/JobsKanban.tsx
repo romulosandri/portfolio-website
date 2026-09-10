@@ -17,6 +17,7 @@ import {
   type KanbanColumn as KanbanColumnConfig,
 } from './columns'
 import { applyUrl, displayCompany, formatLocation, isJobFavorite } from './display'
+import { track, trackException } from '../lib/analytics'
 import { saveKanbanColumns, setJobsFavorite, setJobsStatus } from './jobs-api'
 import { CompanyLogo } from './CompanyLogo'
 import { FavoritesFilterButton, JobFavoriteButton, JobsConfirmModal } from './ui'
@@ -113,6 +114,8 @@ export function JobsKanban({
       .catch((error) => {
         onChange(previous)
         show(error instanceof Error ? error.message : 'Could not update favorite')
+        track('jobs_mutation_failed', { action: 'setFavorite' })
+        trackException(error, { source: 'jobs_favorite' })
       })
       .finally(() => {
         setPendingFavorite((value) => (value === id ? null : value))
@@ -138,6 +141,8 @@ export function JobsKanban({
       .catch((error) => {
         onChange(previous)
         show(error instanceof Error ? error.message : 'Could not update status')
+        track('jobs_mutation_failed', { action: 'setStatus' })
+        trackException(error, { source: 'jobs_status' })
       })
       .finally(() => {
         setPendingId((value) => (value === id ? null : value))
@@ -170,6 +175,8 @@ export function JobsKanban({
         onColumnsChange(previousColumns)
         onChange(previousJobs)
         show(error instanceof Error ? error.message : 'Could not save columns')
+        track('jobs_mutation_failed', { action: 'setColumns' })
+        trackException(error, { source: 'jobs_columns' })
       })
   }
 
@@ -198,17 +205,24 @@ export function JobsKanban({
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <div className="mb-xl flex shrink-0 flex-col gap-md sm:flex-row sm:items-center">
-        <div className="flex flex-col gap-md sm:flex-row sm:items-center">
-          <Input
-            className="sm:max-w-xs"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search title, company, location"
-            type="search"
-            value={query}
+        <Input
+          className="min-w-0 flex-1"
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search title, company, location"
+          type="search"
+          value={query}
+        />
+        <div className="flex flex-wrap items-center gap-md sm:shrink-0">
+          <FavoritesFilterButton
+            active={favoritesOnly}
+            onToggle={() => {
+              setFavoritesOnly((current) => {
+                const next = !current
+                track('jobs_favorites_filtered', { enabled: next, view: 'kanban' })
+                return next
+              })
+            }}
           />
-          <FavoritesFilterButton active={favoritesOnly} onToggle={() => setFavoritesOnly((current) => !current)} />
-        </div>
-        <div className="flex items-center gap-md sm:ml-auto">
           <Button onClick={() => setEditingColumns(true)}>Columns</Button>
           <Button className="gap-sm" disabled={addDisabled} onClick={onAddJob}>
             <PlusIcon />
@@ -316,6 +330,9 @@ export function JobsKanban({
                             <Button
                               aria-label="Open application"
                               href={applyUrl(job)}
+                              onClick={() =>
+                                track('jobs_apply_clicked', { view: 'kanban', company, title: job.title })
+                              }
                               rel="noreferrer"
                               target="_blank"
                               variant="icon"

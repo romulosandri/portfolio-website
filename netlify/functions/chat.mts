@@ -3,6 +3,7 @@
 // imported by src/ ends up in the public bundle, including VITE_ prefixed vars.
 
 import type { Config, Context } from '@netlify/functions'
+import { captureServerEvent, captureServerException } from './_shared/posthog.ts'
 
 const MAX_MESSAGE_LENGTH = 4000
 const MAX_MESSAGES = 60
@@ -65,6 +66,7 @@ export default async (request: Request, context: Context) => {
 
   if (!serverUrl || !token) {
     console.error('Chat is missing MASTRA_SERVER_URL or MASTRA_CHAT_TOKEN.')
+    await captureServerEvent(request, 'chat_unconfigured')
     return json({ error: 'The chat is not configured yet.' }, 500)
   }
 
@@ -99,6 +101,7 @@ export default async (request: Request, context: Context) => {
   }
 
   if (isRateLimited(context.ip || 'unknown')) {
+    await captureServerEvent(request, 'chat_rate_limited')
     return json({ error: 'Too many messages. Try again in a few minutes.' }, 429)
   }
 
@@ -126,11 +129,14 @@ export default async (request: Request, context: Context) => {
     })
   } catch (error) {
     console.error('Could not reach the agent:', error)
+    await captureServerEvent(request, 'chat_upstream_failed', { reason: 'network' })
+    await captureServerException(request, error, { source: 'chat_upstream' })
     return json({ error: 'The chat is unavailable right now.' }, 502)
   }
 
   if (!upstream.ok || !upstream.body) {
     console.error('Agent rejected the request:', upstream.status, await upstream.text())
+    await captureServerEvent(request, 'chat_upstream_failed', { reason: 'rejected', status: upstream.status })
     return json({ error: 'The chat is unavailable right now.' }, 502)
   }
 

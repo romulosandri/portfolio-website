@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { track } from '../lib/analytics'
 import { createPortal } from 'react-dom'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { pauseSmoothScroll, resumeSmoothScroll } from '../motion-system/smoothScroll'
@@ -177,6 +178,7 @@ export function ImageLightbox({
   const requestClose = useCallback(() => {
     if (closingRef.current) return
     closingRef.current = true
+    track('lightbox_closed', { title, index, pathname: window.location.pathname })
     const root = rootRef.current
     if (!root) {
       onClose()
@@ -189,7 +191,7 @@ export function ImageLightbox({
       ease: 'power2.in',
       onComplete: onClose,
     })
-  }, [onClose])
+  }, [index, onClose, title])
 
   const goTo = useCallback(
     (nextIndex: number) => {
@@ -197,8 +199,9 @@ export function ImageLightbox({
       const wrapped = (nextIndex + count) % count
       resetView()
       onIndexChange(wrapped)
+      track('lightbox_navigated', { title, index: wrapped, pathname: window.location.pathname })
     },
-    [count, onIndexChange, resetView],
+    [count, onIndexChange, resetView, title],
   )
 
   useEffect(() => {

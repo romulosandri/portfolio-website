@@ -1,7 +1,7 @@
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { track } from '../lib/analytics'
+import { analyticsHeaders, track } from '../lib/analytics'
 import { navigate } from '../lib/router'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { MOTION, prefersReducedMotion } from '../motion-system/tokens'
@@ -188,6 +188,7 @@ export function ChatWidget() {
     () =>
       new DefaultChatTransport({
         api: '/api/chat',
+        headers: () => analyticsHeaders(),
         prepareSendMessagesRequest({ messages }) {
           const latest = messages.at(-1)
           return {

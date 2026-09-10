@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { track } from '../lib/analytics'
 import { DsImage } from './DsImage'
 import { gsap, useGSAP } from '../motion-system/gsap'
 import { animateScrollTo, getScrollY } from '../motion-system/smoothScroll'
@@ -163,6 +164,7 @@ export function BackToTop() {
   )
 
   const scrollToTop = () => {
+    track('back_to_top_clicked', { pathname: window.location.pathname })
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     animateScrollTo(0, reduced ? 0 : 0.85)
   }

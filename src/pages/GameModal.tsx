@@ -12,6 +12,7 @@ import {
 import { createPortal } from 'react-dom'
 import { GameCanvas } from '../components/GameCanvas'
 import { GAME_OPEN_PROJECT_EVENT, setProjectModalOpen } from '../game/hotspots'
+import { track } from '../lib/analytics'
 import { navigate, parseLocation } from '../lib/router'
 import { gsap, ScrollTrigger, useGSAP } from '../motion-system/gsap'
 import { pauseSmoothScroll, resumeSmoothScroll } from '../motion-system/smoothScroll'
@@ -102,9 +103,14 @@ function GameModalDialog({ onClose }: { onClose: (href?: string) => void }) {
     { scope: rootRef },
   )
 
+  useEffect(() => {
+    track('game_opened')
+  }, [])
+
   const requestClose = useCallback((href?: string) => {
     if (closingRef.current) return
     closingRef.current = true
+    track('game_closed', { href: href ?? null })
     setProjectModalOpen(false)
     const root = rootRef.current
     if (!root) {
@@ -190,6 +196,7 @@ function GameModalDialog({ onClose }: { onClose: (href?: string) => void }) {
         requestClose(href)
         return
       }
+      track('game_project_opened', { collection: next.collection, slug: next.slug })
       setWork(next)
       setProjectModalOpen(true)
     }
@@ -288,6 +295,7 @@ function WorkPageModal({
     event.stopPropagation()
     const next = workFromHref(href)
     if (next) {
+      track('game_project_opened', { collection: next.collection, slug: next.slug })
       onOpenWork(next)
       return
     }
