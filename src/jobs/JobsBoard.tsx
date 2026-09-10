@@ -14,7 +14,6 @@ import {
 } from '../design-system'
 import {
   applyUrl,
-  companyLogoDomain,
   displayCompany,
   formatAddedDate,
   formatLocation,
@@ -78,6 +77,11 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [pending, setPending] = useState(false)
   const [pendingFavorite, setPendingFavorite] = useState<string | null>(null)
+  const [pendingFavoriteChange, setPendingFavoriteChange] = useState<{
+    id: string
+    title: string
+    favorite: boolean
+  } | null>(null)
   const [pendingDelete, setPendingDelete] = useState<{ ids: string[]; title: string; description: string } | null>(
     null,
   )
@@ -168,27 +172,38 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
     })
   }
 
-  function toggleFavorite(job: Job) {
-    const favorite = !isJobFavorite(job)
-    const previous = jobs
-    onChange(jobs.map((item) => (item.id === job.id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
-    setPendingFavorite(job.id)
+  function requestFavorite(job: Job) {
+    setPendingFavoriteChange({
+      id: job.id,
+      title: job.title,
+      favorite: !isJobFavorite(job),
+    })
+  }
 
-    void setJobsFavorite([job.id], favorite)
+  function confirmFavorite(password: string) {
+    if (!pendingFavoriteChange) return
+
+    const { id, favorite } = pendingFavoriteChange
+    const previous = jobs
+    onChange(jobs.map((item) => (item.id === id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
+    setPendingFavorite(id)
+    setPendingFavoriteChange(null)
+
+    void setJobsFavorite([id], favorite, password)
       .catch((error) => {
         onChange(previous)
         show(error instanceof Error ? error.message : 'Could not update favorite')
       })
       .finally(() => {
-        setPendingFavorite((value) => (value === job.id ? null : value))
+        setPendingFavorite((value) => (value === id ? null : value))
       })
   }
 
-  function confirmPendingDelete() {
+  function confirmPendingDelete(password: string) {
     if (!pendingDelete) return
     const ids = pendingDelete.ids
     void run(async () => {
-      await deleteJobs(ids)
+      await deleteJobs(ids, password)
       removeLocal(ids)
       setPendingDelete(null)
     })
@@ -263,7 +278,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-md">
-                        <CompanyLogo domain={companyLogoDomain(job)} name={company} />
+                        <CompanyLogo name={company} />
                         <span className="truncate text-body-default text-foreground-primary">{company}</span>
                       </div>
                       <p className="mt-sm text-body-default text-foreground-primary">{job.title}</p>
@@ -278,7 +293,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                       favorited={isJobFavorite(job)}
                       onDelete={() => requestDelete(job)}
                       onEdit={() => onEditJob(job)}
-                      onFavorite={() => toggleFavorite(job)}
+                      onFavorite={() => requestFavorite(job)}
                       title={job.title}
                     />
                   </div>
@@ -331,7 +346,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                       </td>
                       <td className="px-xl py-lg">
                         <div className="flex min-w-36 items-center gap-md">
-                          <CompanyLogo domain={companyLogoDomain(job)} name={company} />
+                          <CompanyLogo name={company} />
                           <span className="truncate text-body-default text-foreground-primary">{company}</span>
                         </div>
                       </td>
@@ -351,7 +366,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                           favorited={isJobFavorite(job)}
                           onDelete={() => requestDelete(job)}
                           onEdit={() => onEditJob(job)}
-                          onFavorite={() => toggleFavorite(job)}
+                          onFavorite={() => requestFavorite(job)}
                           title={job.title}
                         />
                       </td>
@@ -384,6 +399,17 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
           </p>
         </div>
       </div>
+
+      {pendingFavoriteChange ? (
+        <JobsConfirmModal
+          confirmLabel={pendingFavoriteChange.favorite ? 'Add' : 'Remove'}
+          description={`Enter the jobs password to ${pendingFavoriteChange.favorite ? 'add' : 'remove'} ${pendingFavoriteChange.title} ${pendingFavoriteChange.favorite ? 'to' : 'from'} favorites.`}
+          pendingLabel="Saving…"
+          title={pendingFavoriteChange.favorite ? 'Add to favorites?' : 'Remove from favorites?'}
+          onCancel={() => setPendingFavoriteChange(null)}
+          onConfirm={confirmFavorite}
+        />
+      ) : null}
 
       {pendingDelete ? (
         <JobsConfirmModal

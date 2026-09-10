@@ -16,10 +16,10 @@ import {
   visibleColumns,
   type KanbanColumn as KanbanColumnConfig,
 } from './columns'
-import { applyUrl, companyLogoDomain, displayCompany, formatLocation, isJobFavorite } from './display'
+import { applyUrl, displayCompany, formatLocation, isJobFavorite } from './display'
 import { saveKanbanColumns, setJobsFavorite, setJobsStatus } from './jobs-api'
 import { CompanyLogo } from './CompanyLogo'
-import { FavoritesFilterButton, JobFavoriteButton } from './ui'
+import { FavoritesFilterButton, JobFavoriteButton, JobsConfirmModal } from './ui'
 import type { Job } from './types'
 
 type JobsKanbanProps = {
@@ -58,6 +58,12 @@ export function JobsKanban({
   const [overStatus, setOverStatus] = useState<string | null>(null)
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [pendingFavorite, setPendingFavorite] = useState<string | null>(null)
+  const [pendingFavoriteChange, setPendingFavoriteChange] = useState<{
+    id: string
+    title: string
+    favorite: boolean
+  } | null>(null)
+  const [pendingMove, setPendingMove] = useState<{ id: string; status: string; title: string } | null>(null)
 
   const needle = query.trim().toLowerCase()
   const shown = visibleColumns(columns)
@@ -86,31 +92,49 @@ export function JobsKanban({
     return next
   }, [columns, favoritesOnly, jobs, needle, shown])
 
-  function toggleFavorite(job: Job) {
-    const favorite = !isJobFavorite(job)
-    const previous = jobs
-    onChange(jobs.map((item) => (item.id === job.id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
-    setPendingFavorite(job.id)
+  function requestFavorite(job: Job) {
+    setPendingFavoriteChange({
+      id: job.id,
+      title: job.title,
+      favorite: !isJobFavorite(job),
+    })
+  }
 
-    void setJobsFavorite([job.id], favorite)
+  function confirmFavorite(password: string) {
+    if (!pendingFavoriteChange) return
+
+    const { id, favorite } = pendingFavoriteChange
+    const previous = jobs
+    onChange(jobs.map((item) => (item.id === id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
+    setPendingFavorite(id)
+    setPendingFavoriteChange(null)
+
+    void setJobsFavorite([id], favorite, password)
       .catch((error) => {
         onChange(previous)
         show(error instanceof Error ? error.message : 'Could not update favorite')
       })
       .finally(() => {
-        setPendingFavorite((value) => (value === job.id ? null : value))
+        setPendingFavorite((value) => (value === id ? null : value))
       })
   }
 
-  function moveJob(id: string, status: string) {
+  function requestMove(id: string, status: string) {
     const current = jobs.find((job) => job.id === id)
     if (!current || resolveColumnId(current.status, columns) === status) return
+    setPendingMove({ id, status, title: current.title })
+  }
 
+  function confirmMove(password: string) {
+    if (!pendingMove) return
+
+    const { id, status } = pendingMove
     const previous = jobs
     onChange(jobs.map((job) => (job.id === id ? { ...job, status } : job)))
     setPendingId(id)
+    setPendingMove(null)
 
-    void setJobsStatus([id], status)
+    void setJobsStatus([id], status, password)
       .catch((error) => {
         onChange(previous)
         show(error instanceof Error ? error.message : 'Could not update status')
@@ -120,7 +144,7 @@ export function JobsKanban({
       })
   }
 
-  function saveColumnSetup(next: KanbanColumnConfig[]) {
+  function saveColumnSetup(next: KanbanColumnConfig[], password?: string) {
     const previousColumns = columns
     const previousJobs = jobs
     const removedIds = columns
@@ -140,7 +164,7 @@ export function JobsKanban({
     void saveKanbanColumns(next)
       .then(() => {
         if (!fallback || ids.length === 0) return
-        return setJobsStatus(ids, fallback)
+        return setJobsStatus(ids, fallback, password ?? '')
       })
       .catch((error) => {
         onColumnsChange(previousColumns)
@@ -225,7 +249,7 @@ export function JobsKanban({
                 setOverStatus(null)
                 setDraggingId(null)
                 const id = readDragId(event)
-                if (id) moveJob(id, column.id)
+                if (id) requestMove(id, column.id)
               }}
               over={over}
             >
@@ -258,7 +282,7 @@ export function JobsKanban({
                         variant="job"
                       >
                         <div className="flex items-center gap-md">
-                          <CompanyLogo domain={companyLogoDomain(job)} name={company} />
+                          <CompanyLogo name={company} />
                           <span className="truncate text-body-default text-foreground-primary">{company}</span>
                         </div>
                         <p className="mt-sm text-body-default text-foreground-primary">{job.title}</p>
@@ -267,7 +291,7 @@ export function JobsKanban({
                           <Dropdown
                             disabled={pendingId === job.id}
                             label={`Status for ${job.title}`}
-                            onChange={(value) => moveJob(job.id, value)}
+                            onChange={(value) => requestMove(job.id, value)}
                             options={shown.map((option) => ({ value: option.id, label: option.label }))}
                             value={shown.some((item) => item.id === jobStatus) ? jobStatus : shown[0]?.id ?? ''}
                           />
@@ -275,7 +299,7 @@ export function JobsKanban({
                             <JobFavoriteButton
                               disabled={pendingFavorite === job.id}
                               favorited={isJobFavorite(job)}
-                              onToggle={() => toggleFavorite(job)}
+                              onToggle={() => requestFavorite(job)}
                               title={job.title}
                             />
                             <Button
@@ -316,6 +340,28 @@ export function JobsKanban({
           jobCounts={jobCounts}
           onCancel={() => setEditingColumns(false)}
           onSave={saveColumnSetup}
+        />
+      ) : null}
+
+      {pendingFavoriteChange ? (
+        <JobsConfirmModal
+          confirmLabel={pendingFavoriteChange.favorite ? 'Add' : 'Remove'}
+          description={`Enter the jobs password to ${pendingFavoriteChange.favorite ? 'add' : 'remove'} ${pendingFavoriteChange.title} ${pendingFavoriteChange.favorite ? 'to' : 'from'} favorites.`}
+          pendingLabel="Saving…"
+          title={pendingFavoriteChange.favorite ? 'Add to favorites?' : 'Remove from favorites?'}
+          onCancel={() => setPendingFavoriteChange(null)}
+          onConfirm={confirmFavorite}
+        />
+      ) : null}
+
+      {pendingMove ? (
+        <JobsConfirmModal
+          confirmLabel="Move"
+          description={`Enter the jobs password to move ${pendingMove.title}.`}
+          pendingLabel="Moving…"
+          title="Change job status?"
+          onCancel={() => setPendingMove(null)}
+          onConfirm={confirmMove}
         />
       ) : null}
     </div>

@@ -1,15 +1,16 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Button, Dialog, Field } from '../design-system'
 import { CompanyLogo } from './CompanyLogo'
-import { applyUrl, displayCompany, resolveCompanyDomain } from './display'
+import { applyUrl, displayCompany } from './display'
 import type { JobWriteInput } from './jobs-api'
 import type { Job } from './types'
+import { JobsPasswordField } from './ui'
 
 type AddJobDialogProps = {
   job?: Job
   pending?: boolean
   onCancel: () => void
-  onSubmit: (input: JobWriteInput) => Promise<void>
+  onSubmit: (input: JobWriteInput, password: string) => Promise<void>
 }
 
 export function AddJobDialog({ job, pending = false, onCancel, onSubmit }: AddJobDialogProps) {
@@ -19,7 +20,7 @@ export function AddJobDialog({ job, pending = false, onCancel, onSubmit }: AddJo
   const [company, setCompany] = useState(job ? displayCompany(job) : '')
   const [url, setUrl] = useState(job ? applyUrl(job) : '')
   const [location, setLocation] = useState(job?.location?.trim() || job?.remote_string?.trim() || '')
-  const previewDomain = useMemo(() => resolveCompanyDomain(url, company), [url, company])
+  const [password, setPassword] = useState('')
 
   useEffect(() => {
     titleRef.current?.focus()
@@ -28,12 +29,15 @@ export function AddJobDialog({ job, pending = false, onCancel, onSubmit }: AddJo
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (pending) return
-    await onSubmit({
-      title: title.trim(),
-      company: company.trim(),
-      url: url.trim(),
-      location: location.trim() || undefined,
-    })
+    await onSubmit(
+      {
+        title: title.trim(),
+        company: company.trim(),
+        url: url.trim(),
+        location: location.trim() || undefined,
+      },
+      password,
+    )
   }
 
   return (
@@ -68,7 +72,7 @@ export function AddJobDialog({ job, pending = false, onCancel, onSubmit }: AddJo
                 value={company}
               />
             </div>
-            <CompanyLogo domain={previewDomain} name={company.trim() || 'Company'} />
+            <CompanyLogo name={company.trim() || 'Company'} />
           </div>
           <Field
             autoComplete="url"
@@ -90,6 +94,7 @@ export function AddJobDialog({ job, pending = false, onCancel, onSubmit }: AddJo
             placeholder="Remote — Latin America"
             value={location}
           />
+          <JobsPasswordField disabled={pending} id="job-password" onChange={setPassword} value={password} />
         </div>
 
         <div className="mt-xl flex justify-end gap-sm">

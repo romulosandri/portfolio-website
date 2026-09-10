@@ -1,5 +1,6 @@
 import type { Config } from '@netlify/functions'
 import { getDb } from './_shared/db.ts'
+import { rejectIfInvalidPassword, requiresJobsPassword } from './_shared/jobs-auth.ts'
 import {
   firstVisibleColumnId,
   listKanbanColumns,
@@ -260,7 +261,12 @@ export default async (req: Request) => {
       return new Response('Method not allowed', { status: 405 })
     }
 
-    const body = (await req.json()) as Mutation
+    const body = (await req.json()) as Mutation & { password?: unknown }
+
+    if (requiresJobsPassword(body.action)) {
+      const denied = rejectIfInvalidPassword(body.password)
+      if (denied) return denied
+    }
 
     if (body.action === 'create') {
       const title = asTrimmed(body.title, 200)

@@ -2,19 +2,16 @@ import { useEffect, useState } from 'react'
 import { companyLogoUrl, initials } from './display'
 
 type CompanyLogoProps = {
-  domain?: string | null
   name: string
 }
 
-export function CompanyLogo({ domain, name }: CompanyLogoProps) {
-  const [useNameLookup, setUseNameLookup] = useState(!domain)
+export function CompanyLogo({ name }: CompanyLogoProps) {
   const [failed, setFailed] = useState(false)
-  const src = failed ? null : companyLogoUrl(useNameLookup ? { name } : { domain })
+  const src = failed ? null : companyLogoUrl(name)
 
   useEffect(() => {
-    setUseNameLookup(!domain)
     setFailed(false)
-  }, [domain, name])
+  }, [name])
 
   return (
     <span
@@ -28,17 +25,11 @@ export function CompanyLogo({ domain, name }: CompanyLogoProps) {
           decoding="async"
           key={src}
           loading="lazy"
-          onError={() => {
-            if (!useNameLookup && name.trim()) {
-              setUseNameLookup(true)
-              return
-            }
-            setFailed(true)
-          }}
+          onError={() => setFailed(true)}
           src={src}
         />
       ) : (
-        initials(name)
+        initials(name || '?')
       )}
     </span>
   )

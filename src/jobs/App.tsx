@@ -91,18 +91,18 @@ export function JobsApp() {
     }
   }
 
-  async function submitJobForm(input: JobWriteInput) {
+  async function submitJobForm(input: JobWriteInput, password: string) {
     setSaving(true)
     try {
       if (formJob && formJob !== 'add') {
-        const job = await updateJob(formJob.id, input)
+        const job = await updateJob(formJob.id, input, password)
         setJobs((current) => current.map((item) => (item.id === job.id ? job : item)))
         setFormJob(null)
         show(`Updated ${job.title}`)
         return
       }
 
-      const job = await createJob(input)
+      const job = await createJob(input, password)
       setJobs((current) => [job, ...current])
       setFormJob(null)
       show(`Added ${job.title}`)

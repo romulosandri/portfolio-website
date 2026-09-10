@@ -35,27 +35,27 @@ export function saveKanbanColumns(columns: KanbanColumn[]) {
   })
 }
 
-export function deleteJobs(ids: string[]) {
+export function deleteJobs(ids: string[], password: string) {
   return request<{ ok: true }>('/api/jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'delete', ids }),
+    body: JSON.stringify({ action: 'delete', ids, password }),
   })
 }
 
-export function setJobsStatus(ids: string[], status: string) {
+export function setJobsStatus(ids: string[], status: string, password: string) {
   return request<{ ok: true }>('/api/jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'setStatus', ids, status }),
+    body: JSON.stringify({ action: 'setStatus', ids, status, password }),
   })
 }
 
-export function setJobsFavorite(ids: string[], favorite: boolean) {
+export function setJobsFavorite(ids: string[], favorite: boolean, password: string) {
   return request<{ ok: true }>('/api/jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'setFavorite', ids, favorite }),
+    body: JSON.stringify({ action: 'setFavorite', ids, favorite, password }),
   })
 }
 
@@ -66,18 +66,18 @@ export type JobWriteInput = {
   location?: string
 }
 
-export function createJob(input: JobWriteInput) {
+export function createJob(input: JobWriteInput, password: string) {
   return request<Job>('/api/jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'create', ...input }),
+    body: JSON.stringify({ action: 'create', ...input, password }),
   })
 }
 
-export function updateJob(id: string, input: JobWriteInput) {
+export function updateJob(id: string, input: JobWriteInput, password: string) {
   return request<Job>('/api/jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'update', id, ...input }),
+    body: JSON.stringify({ action: 'update', id, ...input, password }),
   })
 }
