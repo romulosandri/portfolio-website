@@ -7,6 +7,10 @@
   # between builds. Must also be set at build *run* time, not just install time,
   # or scripts/prerender.mjs looks for the browser in the default cache path.
   PLAYWRIGHT_BROWSERS_PATH = "0"
+  # JOBS_PASSWORD is not in the repo. Netlify's scanner still matches its value
+  # inside SVG path data (false positive) and fails the deploy. Omit this key so
+  # other secrets keep getting scanned.
+  SECRETS_SCAN_OMIT_KEYS = "JOBS_PASSWORD"
 
 [functions]
   directory = "netlify/functions"
