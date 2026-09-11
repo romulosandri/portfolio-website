@@ -19,6 +19,7 @@ const MAX_STORED_MESSAGES = 40
 const SUGGESTIONS = [
   'Who is Rômulo Sandri?',
   'Tell me about Pacelane.ai and Fotospin.',
+  'What does he write about on UX for AI Agents?',
   'Is he available for work?',
   'I want to send Rômulo a message.',
   'Schedule a meeting with Rômulo.',
@@ -127,7 +128,7 @@ function handledKeysFor(messages: UIMessage[]) {
 }
 
 const CHAT_LINK =
-  /https:\/\/(?:www\.)?romulosandri\.com(\/[^\s<)\]"'.,!?]*)|https:\/\/(?:app\.)?cal\.com\/[^\s<)\]"'.,!?]+|https:\/\/meet\.google\.com\/[^\s<)\]"'.,!?]+|(\/(?:work|projects|how-i-use-ai|contact|game)(?:\/[a-z0-9-]+)?)/gi
+  /https:\/\/(?:www\.)?romulosandri\.com(\/[^\s<)\]"'.,!?]*)|https:\/\/sandriromulo\.substack\.com\/[^\s<)\]"'.,!?]+|https:\/\/(?:app\.)?cal\.com\/[^\s<)\]"'.,!?]+|https:\/\/meet\.google\.com\/[^\s<)\]"'.,!?]+|(\/(?:work|projects|how-i-use-ai|contact|game)(?:\/[a-z0-9-]+)?)/gi
 
 function chatLinkHref(raw: string) {
   if (raw.startsWith('/')) return raw

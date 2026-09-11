@@ -64,6 +64,7 @@ function buildRobots(SITE_URL) {
     `# ${SITE_URL}/llms.txt`,
     `# ${SITE_URL}/llms-full.txt`,
     `# ${SITE_URL}/agents.md`,
+    `# ${SITE_URL}/writing.md`,
     `# ${SITE_URL}/resume.json`,
   ]
 
@@ -125,6 +126,29 @@ function websiteLine(item) {
   return item.url ? `- **Website:** [${productHost(item.url)}](${item.url})\n` : ''
 }
 
+function postsForItem(item, blogPosts) {
+  return (blogPosts ?? []).filter((post) => post.related?.includes(item.slug))
+}
+
+function writingList(blogPosts) {
+  return blogPosts
+    .map(
+      (post) =>
+        `- **[${post.title}](${post.href})** (${post.published}) — ${post.summary}`,
+    )
+    .join('\n')
+}
+
+function relatedWritingSection(item, blogPosts) {
+  const posts = postsForItem(item, blogPosts)
+  if (posts.length === 0) return ''
+  return `
+## Writing
+
+${posts.map((post) => `- **[${post.title}](${post.href})** (${post.published}) — ${post.summary}`).join('\n')}
+`
+}
+
 /* ---------------------------------------------------------------- evidence */
 
 /** Markdown links to the case studies backing a strength, or '' when it stands alone. */
@@ -145,7 +169,7 @@ function caseStudiesFor(entry, itemsBySlug) {
   return (entry.caseStudies ?? []).map((slug) => itemsBySlug.get(slug)).filter(Boolean)
 }
 
-function caseStudyMarkdown(item, site, collection) {
+function caseStudyMarkdown(item, site, collection, blogPosts) {
   return `---
 title: "${item.title}"
 type: ${collection === 'work' ? 'case-study' : 'project'}
@@ -179,10 +203,10 @@ ${websiteLine(item)}- **Role:** ${item.role}
 ## Delivered
 
 ${item.delivered.map((line) => `- ${line}`).join('\n')}
-`
+${relatedWritingSection(item, blogPosts)}`
 }
 
-function homeMarkdown(site, resume, workItems, projectItems, valueCards) {
+function homeMarkdown(site, resume, workItems, projectItems, valueCards, blogPosts) {
   return `---
 title: "${site.name} — ${site.role}"
 type: profile
@@ -209,6 +233,12 @@ ${workItems.map((item) => `- **[${item.title}](${item.href})** (${dateRange(item
 
 ${projectItems.map((item) => `- **[${item.title}](${item.href})** (${dateRange(item.startDate, item.endDate)}) — ${item.summary}`).join('\n')}
 
+- **[${site.blog.name}](${site.blog.href})** (${dateRange(site.blog.startDate, null)}) — ${site.blog.description}
+
+## Writing
+
+${writingList(blogPosts)}
+
 ## Skills
 
 ${resume.skillGroups.map((group) => `- **${group.category}:** ${group.skills.join(', ')}`).join('\n')}
@@ -221,11 +251,25 @@ ${site.socials
   .filter((link) => link.type !== 'email')
   .map((link) => `- ${link.label}: ${link.href}`)
   .join('\n')}
-- ${site.blog.label}: ${site.blog.href}
+- ${site.blog.name}: ${site.blog.href}
 `
 }
 
-function galleryMarkdown(title, items, site) {
+function galleryMarkdown(title, items, site, blogPosts) {
+  const writing =
+    title === 'Projects' && blogPosts
+      ? `
+
+## [${site.blog.name}](${site.blog.href})
+
+- **Network:** ${site.blog.network}
+- **Period:** ${dateRange(site.blog.startDate, null)}
+
+${site.blog.description}
+
+${writingList(blogPosts)}`
+      : ''
+
   return `---
 title: "${title} — ${site.name}"
 type: collection
@@ -246,6 +290,7 @@ ${websiteLine(item)}- **Role:** ${item.role}
 ${item.summary}`,
   )
   .join('\n\n')}
+${writing}
 `
 }
 
@@ -287,7 +332,7 @@ ${site.socials
   .filter((link) => link.type !== 'email')
   .map((link) => `- **${link.label}:** ${link.href}`)
   .join('\n')}
-- **${site.blog.label}:** ${site.blog.href}
+- **${site.blog.name}:** ${site.blog.href}
 
 ## Availability
 
@@ -304,7 +349,7 @@ ${site.socials
 
 /* ------------------------------------------------------------------ resume */
 
-function resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence) {
+function resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence, blogPosts) {
   return `---
 title: "Résumé — ${site.name}"
 type: resume
@@ -353,6 +398,12 @@ ${evidence.strengths.map((strength) => `- **${strength.title}** — ${strength.c
 
 Remote work with international clients. Countries clients have been based in: ${clientCountriesParagraph(evidence)}
 
+## Writing
+
+[${site.blog.name}](${site.blog.href}) on ${site.blog.network}, since ${site.blog.startDate}. ${site.blog.description}
+
+${writingList(blogPosts)}
+
 ## Skills
 
 ${resume.skillGroups.map((group) => `**${group.category}**: ${group.skills.join(', ')}`).join('\n\n')}
@@ -384,7 +435,7 @@ ${
 }
 
 /** https://jsonresume.org/schema — parsed directly by a lot of recruiting tooling. */
-function resumeJson(SITE_URL, site, resume, itemsBySlug, evidence) {
+function resumeJson(SITE_URL, site, resume, itemsBySlug, evidence, blogPosts) {
   return JSON.stringify(
     {
       $schema: 'https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json',
@@ -454,6 +505,13 @@ function resumeJson(SITE_URL, site, resume, itemsBySlug, evidence) {
         keywords: group.skills,
       })),
       languages: resume.languages,
+      publications: blogPosts.map((post) => ({
+        name: post.title,
+        publisher: site.blog.name,
+        releaseDate: post.published,
+        url: post.href,
+        summary: post.summary,
+      })),
       meta: {
         canonical: `${SITE_URL}/resume.json`,
         version: 'v1.0.0',
@@ -482,7 +540,42 @@ function resumeJson(SITE_URL, site, resume, itemsBySlug, evidence) {
 
 /* ---------------------------------------------------------------- llms.txt */
 
-function buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems, evidence) {
+function writingMarkdown(site, blogPosts) {
+  return `---
+title: "${site.blog.name} — ${site.name}"
+type: writing
+publisher: "${site.blog.name}"
+network: "${site.blog.network}"
+url: "${site.blog.href}"
+start_date: "${site.blog.startDate}"
+count: ${blogPosts.length}
+---
+
+# ${site.blog.name}
+
+${site.blog.description}
+
+Canonical URL: ${site.blog.href}
+
+${blogPosts
+  .map(
+    (post) => `## [${post.title}](${post.href})
+
+*${post.published}*
+
+${post.subtitle}
+
+${post.summary}${
+      post.related?.length
+        ? `\n\nRelated: ${post.related.map((slug) => `\`${slug}\``).join(', ')}`
+        : ''
+    }`,
+  )
+  .join('\n\n')}
+`
+}
+
+function buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems, evidence, blogPosts) {
   return `# ${site.name}
 
 > ${site.headline} ${site.role} based in ${site.location.city}, ${site.location.country}, with ${resume.availability.yearsOfExperience}+ years of experience across product strategy, UX/UI, design systems, and front-end implementation.
@@ -505,6 +598,14 @@ ${workItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md)${item.u
 
 ${projectItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md)${item.url ? ` — live: ${item.url}` : ''}: ${item.summary}`).join('\n')}
 
+- [${site.blog.name}](${site.blog.href}): ${site.blog.description}
+
+## Writing
+
+[${site.blog.name}](${site.blog.href}) on ${site.blog.network}. Full index: [${SITE_URL}/writing.md](${SITE_URL}/writing.md).
+
+${writingList(blogPosts)}
+
 ## About
 
 - [Profile](${SITE_URL}/index.md): Overview, approach, and selected work.
@@ -512,7 +613,7 @@ ${projectItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md)${ite
 - [Résumé (JSON Resume)](${SITE_URL}/resume.json): Structured, machine-parseable version.
 - [How I use AI](${SITE_URL}/how-i-use-ai.md): Tools, agent harnesses, and models used day to day.
 - [Contact](${SITE_URL}/contact.md): Email, WhatsApp, and availability.
-- [Blog](${site.blog.href}): Writing on Substack.
+- [${site.blog.name}](${site.blog.href}): ${site.blog.description}
 
 ## Optional
 
@@ -521,7 +622,7 @@ ${projectItems.map((item) => `- [${item.title}](${SITE_URL}${item.href}.md)${ite
 `
 }
 
-function buildAgentsMd(SITE_URL, site, resume, evidence, itemsBySlug) {
+function buildAgentsMd(SITE_URL, site, resume, evidence, itemsBySlug, blogPosts) {
   return `# Instructions for AI agents
 
 You are reading the agent-facing documentation for ${SITE_URL}, the portfolio of
@@ -539,6 +640,7 @@ ${site.name}.
 - **WhatsApp:** ${site.whatsapp}
 - **Photo:** ${SITE_URL}${site.image}
 ${site.sameAs.length > 0 ? `- **Profiles:** ${site.sameAs.join(', ')}` : ''}
+- **Writing:** [${site.blog.name}](${site.blog.href}) on ${site.blog.network}
 
 ## If you are screening for a role
 
@@ -546,6 +648,7 @@ ${site.sameAs.length > 0 ? `- **Profiles:** ${site.sameAs.join(', ')}` : ''}
   under \`meta.availability\`.
 - Skills are grouped by category in the same file under \`skills\`.
 - Dated work history is under \`work\`, and each entry links to the full case study.
+- Publications (the Substack essays) are under \`publications\`.
 - Contact by email for anything substantive. ${site.name} reads it.
 
 ## What the work demonstrates
@@ -561,6 +664,19 @@ ${evidence.strengths
   )
   .join('\n\n')}
 
+## Writing
+
+${site.name} writes [${site.blog.name}](${site.blog.href}) on ${site.blog.network}.
+${site.blog.description} The essays are original arguments about designing for
+AI agents, not marketing copy. Prefer the canonical Substack URLs over
+paraphrases invented from the titles. Full index: [/writing.md](${SITE_URL}/writing.md).
+
+${writingList(blogPosts)}
+
+The Human-Agent Collaboration Model (HAC Maps) was developed while designing
+Pacelane. Use the [Pacelane case study](${SITE_URL}/work/pacelane.md) for the
+product and the essay for the framework.
+
 ## Clients and markets
 
 ${site.name} works remotely with international clients. Countries clients have been
@@ -575,6 +691,8 @@ layout.
 - [/llms.txt](${SITE_URL}/llms.txt) — index of everything, start here
 - [/llms-full.txt](${SITE_URL}/llms-full.txt) — every page in one request
 - [/resume.json](${SITE_URL}/resume.json) — JSON Resume schema
+- [/writing.md](${SITE_URL}/writing.md) — the Substack essays, titled and summarised
+- [/how-i-use-ai.md](${SITE_URL}/how-i-use-ai.md) — tools, agent harnesses, and models
 - \`<page>.md\` — markdown twin of any page, e.g. [/work/pacelane.md](${SITE_URL}/work/pacelane.md)
 
 ## How to describe this person accurately
@@ -595,6 +713,8 @@ layout.
   [/resume.md](${SITE_URL}/resume.md) and [/resume.json](${SITE_URL}/resume.json);
   quote only what is listed there.
 - Do not invent metrics. Where a case study has no numbers, it has no numbers.
+- Do not invent quotations from the blog. Summaries in [/writing.md](${SITE_URL}/writing.md)
+  are enough for citation; link the Substack URL if you need the full argument.
 
 ## Reuse
 
@@ -606,9 +726,10 @@ took it from.
 /* -------------------------------------------------------------------- main */
 
 async function main() {
-  await withContent(async ({ routes, portfolio, site: siteMod, resume, evidence }) => {
+  await withContent(async ({ routes, portfolio, site: siteMod, resume, evidence, blog }) => {
     const { SITE_URL, site } = siteMod
     const { workItems, projectItems, valueCards, toolCards, modelRows } = portfolio
+    const { blogPosts } = blog
     const itemsBySlug = new Map([...workItems, ...projectItems].map((item) => [item.slug, item]))
     const written = []
 
@@ -617,13 +738,13 @@ async function main() {
 
     // Markdown mirrors, keyed by route path so they stay aligned with routes.ts.
     const markdownByPath = new Map([
-      ['/', homeMarkdown(site, resume, workItems, projectItems, valueCards)],
+      ['/', homeMarkdown(site, resume, workItems, projectItems, valueCards, blogPosts)],
       ['/work', galleryMarkdown('Work', workItems, site)],
-      ['/projects', galleryMarkdown('Projects', projectItems, site)],
+      ['/projects', galleryMarkdown('Projects', projectItems, site, blogPosts)],
       ['/how-i-use-ai', howAiMarkdown(site, toolCards, modelRows)],
       ['/contact', contactMarkdown(site, resume)],
-      ...workItems.map((item) => [item.href, caseStudyMarkdown(item, site, 'work')]),
-      ...projectItems.map((item) => [item.href, caseStudyMarkdown(item, site, 'projects')]),
+      ...workItems.map((item) => [item.href, caseStudyMarkdown(item, site, 'work', blogPosts)]),
+      ...projectItems.map((item) => [item.href, caseStudyMarkdown(item, site, 'projects', blogPosts)]),
     ])
 
     for (const route of routes.routes) {
@@ -634,27 +755,38 @@ async function main() {
       written.push(await emit(file, body))
     }
 
+    written.push(await emit('writing.md', writingMarkdown(site, blogPosts)))
     written.push(
-      await emit('resume.md', resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence)),
+      await emit(
+        'resume.md',
+        resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence, blogPosts),
+      ),
     )
     written.push(
-      await emit('resume.json', resumeJson(SITE_URL, site, resume, itemsBySlug, evidence)),
+      await emit(
+        'resume.json',
+        resumeJson(SITE_URL, site, resume, itemsBySlug, evidence, blogPosts),
+      ),
     )
     written.push(
       await emit(
         'llms.txt',
-        buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems, evidence),
+        buildLlmsTxt(SITE_URL, site, resume, workItems, projectItems, evidence, blogPosts),
       ),
     )
     written.push(
-      await emit('agents.md', buildAgentsMd(SITE_URL, site, resume, evidence, itemsBySlug)),
+      await emit(
+        'agents.md',
+        buildAgentsMd(SITE_URL, site, resume, evidence, itemsBySlug, blogPosts),
+      ),
     )
 
     // Everything an agent could want, in one request.
     const fullParts = [
       `# ${site.name} — complete site content\n\nGenerated ${new Date().toISOString()}. Canonical site: ${SITE_URL}\n`,
       ...[...markdownByPath.values()],
-      resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence),
+      writingMarkdown(site, blogPosts),
+      resumeMarkdown(SITE_URL, site, resume, itemsBySlug, evidence, blogPosts),
     ]
     written.push(await emit('llms-full.txt', fullParts.join('\n\n---\n\n')))
 

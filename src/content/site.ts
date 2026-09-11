@@ -75,8 +75,12 @@ export const site = {
   blog: {
     href: BLOG_URL,
     label: 'Blog',
+    name: 'UX for AI Agents',
+    description:
+      'Exploring UX, Product Design, and Human-AI Interaction for AI Agents, and AI-Powered Systems.',
     network: 'Substack',
     username: 'sandriromulo',
+    startDate: '2026-01',
   },
   // Feeds JSON-LD `sameAs`, the strongest signal search engines and LLMs use to
   // resolve this site to a real person.

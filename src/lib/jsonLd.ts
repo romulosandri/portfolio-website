@@ -1,3 +1,4 @@
+import { blogPosts } from '../content/blog'
 import { projectBySlug, projectItems, workBySlug, workItems, type WorkItem } from '../content/portfolio'
 import {
   allSkills,
@@ -52,6 +53,23 @@ function personNode(): JsonLdNode {
     knowsAbout: allSkills,
     knowsLanguage: languages.map((entry) => entry.language),
     ...(site.sameAs.length > 0 ? { sameAs: site.sameAs } : {}),
+    subjectOf: {
+      '@type': 'Blog',
+      name: site.blog.name,
+      url: site.blog.href,
+      description: site.blog.description,
+      inLanguage: 'en',
+      author: { '@id': PERSON_ID },
+      blogPost: blogPosts.map((post) => ({
+        '@type': 'BlogPosting',
+        headline: post.title,
+        alternativeHeadline: post.subtitle,
+        url: post.href,
+        datePublished: post.published,
+        description: post.summary,
+        author: { '@id': PERSON_ID },
+      })),
+    },
     ...(currentRole ? { worksFor: { '@type': 'Organization', name: currentRole.company } } : {}),
     ...(education.some((entry) => entry.endDate === null)
       ? {

@@ -77,7 +77,7 @@ export const strengths: Strength[] = [
     claim:
       'Rômulo is an AI-native designer who has thought seriously about the role of AI in the design process itself, not only about shipping AI features.',
     evidence:
-      'He created AI Acceleration for Product Designers, a full workshop facilitated for Andela’s talent network of designers. He also writes about UX for AI agents on his blog, on how agents change the way design gets made, whether an interface needs to exist at all, and what that means for the future of the industry.',
+      'He created AI Acceleration for Product Designers, a full workshop facilitated for Andela’s talent network of designers. He writes UX for AI Agents on Substack: seven essays from January 2026 on designing for absence, labour perception bias, declarative vs imperative models, and HAC Maps, the human-agent collaboration framework he developed at Pacelane.',
     seeAlso: ['ai-workshops', 'pacelane', 'fotospin'],
   },
   {

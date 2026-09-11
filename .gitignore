@@ -17,6 +17,7 @@ tmp
 .env
 .env.*
 !.env.example
+.firecrawl
 
 # Editor directories and files
 .vscode/*

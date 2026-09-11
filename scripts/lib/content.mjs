@@ -18,16 +18,17 @@ export async function withContent(fn) {
   })
 
   try {
-    const [routes, portfolio, site, resume, seo, evidence] = await Promise.all([
+    const [routes, portfolio, site, resume, seo, evidence, blog] = await Promise.all([
       server.ssrLoadModule('/src/content/routes.ts'),
       server.ssrLoadModule('/src/content/portfolio.ts'),
       server.ssrLoadModule('/src/content/site.ts'),
       server.ssrLoadModule('/src/content/resume.ts'),
       server.ssrLoadModule('/src/content/seo.ts'),
       server.ssrLoadModule('/src/content/evidence.ts'),
+      server.ssrLoadModule('/src/content/blog.ts'),
     ])
 
-    return await fn({ routes, portfolio, site, resume, seo, evidence })
+    return await fn({ routes, portfolio, site, resume, seo, evidence, blog })
   } finally {
     await server.close()
   }

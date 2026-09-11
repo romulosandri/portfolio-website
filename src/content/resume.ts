@@ -162,6 +162,7 @@ export const skillGroups: SkillGroup[] = [
       'Workshop Facilitation',
       'Curriculum Design',
       'Teaching AI for Product Design',
+      'Writing on UX for AI Agents',
       'Public Speaking',
       'Design Critiques',
     ],
@@ -231,11 +232,12 @@ export const experience: ExperienceEntry[] = [
     endDate: '2026',
     location: 'Remote',
     summary:
-      'Co-founded an AI writing agent for executives and took it from product strategy and brand through Figma to a shipped React front-end.',
+      'Co-founded an AI writing agent for executives and took it from product strategy and brand through Figma to a shipped React front-end. Designed HAC Maps (Orientation, Delegation, Calibration) after user-flows failed for an agent that acts across WhatsApp and the web while the user is away.',
     highlights: [
       'Co-founded the company with two others after research with dozens of founders',
       'Owned product strategy, brand, and the full design system',
       'Built the production front-end in React, Tailwind, and TypeScript',
+      'Developed HAC Maps, a human-agent collaboration framework, in place of user-flows',
     ],
     caseStudies: ['pacelane'],
   },

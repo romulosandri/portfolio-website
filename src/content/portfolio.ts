@@ -62,7 +62,7 @@ export const workItems: WorkItem[] = [
     role: 'Co-founder (CPO), Product and Brand Designer',
     duration: '12 Months',
     description:
-      'Pacelane is an AI writing agent for executives who need LinkedIn to sound like them, not like a model. You point it at a meeting, a PDF, a URL, or the week’s news, and it drafts a post they can actually publish. I co-founded the company with two others after research with dozens of founders about content creation, then took the product from strategy and brand through Figma and the React front-end.',
+      'Pacelane is an AI writing agent for executives who need LinkedIn to sound like them, not like a model. You point it at a meeting, a PDF, a URL, or the week’s news, and it drafts a post they can actually publish. I co-founded the company with two others after research with dozens of founders about content creation, then took the product from strategy and brand through Figma and the React front-end. User-flows failed because the agent lives in WhatsApp, the web app, and the user’s meetings, often acting while nobody is watching, so I replaced them with HAC Maps: Orientation, Delegation, and Calibration.',
     delivered: [
       'Product strategy',
       'Primary research',
@@ -71,10 +71,19 @@ export const workItems: WorkItem[] = [
       'High-fidelity screens in Figma for the full user flow',
       'Full design system in Figma and in the front-end',
       'Full front-end in React, Tailwind, and TypeScript',
+      'HAC Maps, a human-agent collaboration framework (Orientation, Delegation, Calibration)',
     ],
     summary:
       'Co-founded and designed Pacelane.ai, an AI writing agent that drafts LinkedIn posts in an executive’s own voice, taking it from product strategy and brand through Figma to a shipped React front-end.',
-    tags: ['AI Product', 'Product Strategy', 'Design Systems', 'Front-End Development', '0 to 1', 'SaaS'],
+    tags: [
+      'AI Product',
+      'Product Strategy',
+      'Design Systems',
+      'Front-End Development',
+      '0 to 1',
+      'SaaS',
+      'Human-Agent Collaboration',
+    ],
     tools: ['Figma', 'React', 'TypeScript', 'Tailwind CSS'],
     startDate: '2025',
     endDate: '2026',

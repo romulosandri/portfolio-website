@@ -110,6 +110,7 @@ const required = [
   'llms.txt',
   'llms-full.txt',
   'agents.md',
+  'writing.md',
   'resume.md',
   'resume.json',
   'index.md',
@@ -135,6 +136,9 @@ try {
   const resume = JSON.parse(await readFile(path.join(DIST, 'resume.json'), 'utf8'))
   console.log('  ok    resume.json parses as JSON')
   if (!resume.basics?.image) fail('resume.json: basics.image is missing')
+  if (!Array.isArray(resume.publications) || resume.publications.length === 0) {
+    fail('resume.json: publications is missing')
+  }
   const siteUrl = resume.basics?.url?.replace(/\/$/, '') ?? ''
   for (const job of resume.work ?? []) {
     if (!job.url) continue
