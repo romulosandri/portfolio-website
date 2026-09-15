@@ -12,11 +12,11 @@ type StripeConfig = {
   color2: string
   color3: string
   color4: string
-  stripeCount: number
-  minWidth: number
-  maxWidth: number
-  minHeight: number
-  maxHeight: number
+  rows: number
+  itemsPerRow: number
+  itemWidth: number
+  itemHeight: number
+  rowOffset: number
 }
 
 const presets: Preset[] = [
@@ -27,11 +27,11 @@ const presets: Preset[] = [
       color2: '#5d5548',
       color3: '#a89a8f',
       color4: '#d9d2ce',
-      stripeCount: 25,
-      minWidth: 60,
-      maxWidth: 200,
-      minHeight: 40,
-      maxHeight: 120,
+      rows: 8,
+      itemsPerRow: 10,
+      itemWidth: 80,
+      itemHeight: 60,
+      rowOffset: 40,
     },
   },
   {
@@ -41,78 +41,74 @@ const presets: Preset[] = [
       color2: '#d2691e',
       color3: '#f4a460',
       color4: '#ffdead',
-      stripeCount: 20,
-      minWidth: 80,
-      maxWidth: 180,
-      minHeight: 60,
-      maxHeight: 140,
+      rows: 6,
+      itemsPerRow: 8,
+      itemWidth: 100,
+      itemHeight: 80,
+      rowOffset: 50,
     },
   },
   {
-    name: 'Cool Blues',
+    name: 'Dense Stripes',
     config: {
       color1: '#1e3a5f',
       color2: '#2e5090',
       color3: '#6a8fc7',
       color4: '#b3c9e8',
-      stripeCount: 30,
-      minWidth: 50,
-      maxWidth: 160,
-      minHeight: 50,
-      maxHeight: 100,
+      rows: 12,
+      itemsPerRow: 15,
+      itemWidth: 60,
+      itemHeight: 40,
+      rowOffset: 30,
     },
   },
 ]
 
-type Stripe = {
-  x: number
-  y: number
-  width: number
-  height: number
+type GridItem = {
   color: string
-  rotation: number
 }
 
-function generateStripes(config: StripeConfig): Stripe[] {
-  const stripes: Stripe[] = []
-  const canvasSize = 800
+function generateGrid(config: StripeConfig): GridItem[][] {
   const colors = [config.color1, config.color2, config.color3, config.color4]
+  const grid: GridItem[][] = []
 
-  for (let i = 0; i < config.stripeCount; i++) {
-    const width = Math.random() * (config.maxWidth - config.minWidth) + config.minWidth
-    const height = Math.random() * (config.maxHeight - config.minHeight) + config.minHeight
-    const x = Math.random() * (canvasSize - width)
-    const y = Math.random() * (canvasSize - height)
-    const color = colors[Math.floor(Math.random() * colors.length)]
-    const rotation = (Math.random() - 0.5) * 30
-
-    stripes.push({ x, y, width, height, color, rotation })
+  for (let row = 0; row < config.rows; row++) {
+    const rowItems: GridItem[] = []
+    for (let col = 0; col < config.itemsPerRow; col++) {
+      const color = colors[Math.floor(Math.random() * colors.length)]
+      rowItems.push({ color })
+    }
+    grid.push(rowItems)
   }
 
-  return stripes
+  return grid
 }
 
 export function ColorStripes() {
   const [config, setConfig] = useState<StripeConfig>(presets[0].config)
-  const [stripes, setStripes] = useState(() => generateStripes(presets[0].config))
+  const [grid, setGrid] = useState(() => generateGrid(presets[0].config))
 
   const updateConfig = (updates: Partial<StripeConfig>) => {
     const newConfig = { ...config, ...updates }
     setConfig(newConfig)
-    setStripes(generateStripes(newConfig))
+    setGrid(generateGrid(newConfig))
   }
 
   const applyPreset = (preset: Preset) => {
     setConfig(preset.config)
-    setStripes(generateStripes(preset.config))
+    setGrid(generateGrid(preset.config))
   }
 
   const regenerate = () => {
-    setStripes(generateStripes(config))
+    setGrid(generateGrid(config))
   }
 
+  const baseWidth = config.itemsPerRow * config.itemWidth
+  const totalWidth = baseWidth + config.rowOffset
+  const totalHeight = config.rows * config.itemHeight
+
   const controls = (
-    <div className="flex flex-col gap-2xl">
+    <div className="flex flex-col gap-xl xs:gap-2xl">
       <ControlGroup label="Color 1">
         <ColorInput value={config.color1} onChange={(color1) => updateConfig({ color1 })} />
       </ControlGroup>
@@ -146,59 +142,34 @@ export function ColorStripes() {
 
       <Divider />
 
-      <ControlGroup label="Number of Stripes">
+      <ControlGroup label="Number of Rows">
+        <RangeInput value={config.rows} onChange={(rows) => updateConfig({ rows })} min={2} max={20} />
+      </ControlGroup>
+
+      <ControlGroup label="Items Per Row">
         <RangeInput
-          value={config.stripeCount}
-          onChange={(stripeCount) => updateConfig({ stripeCount })}
-          min={10}
-          max={60}
+          value={config.itemsPerRow}
+          onChange={(itemsPerRow) => updateConfig({ itemsPerRow })}
+          min={3}
+          max={20}
         />
       </ControlGroup>
 
-      <ControlGroup label="Width Range">
-        <div className="flex gap-lg">
-          <div className="flex-1">
-            <label className="text-body-small mb-sm block text-foreground-tertiary">Min</label>
-            <RangeInput
-              value={config.minWidth}
-              onChange={(minWidth) => updateConfig({ minWidth: Math.min(minWidth, config.maxWidth - 10) })}
-              min={30}
-              max={200}
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-body-small mb-sm block text-foreground-tertiary">Max</label>
-            <RangeInput
-              value={config.maxWidth}
-              onChange={(maxWidth) => updateConfig({ maxWidth: Math.max(maxWidth, config.minWidth + 10) })}
-              min={50}
-              max={300}
-            />
-          </div>
-        </div>
+      <ControlGroup label="Item Width">
+        <RangeInput value={config.itemWidth} onChange={(itemWidth) => updateConfig({ itemWidth })} min={40} max={150} />
       </ControlGroup>
 
-      <ControlGroup label="Height Range">
-        <div className="flex gap-lg">
-          <div className="flex-1">
-            <label className="text-body-small mb-sm block text-foreground-tertiary">Min</label>
-            <RangeInput
-              value={config.minHeight}
-              onChange={(minHeight) => updateConfig({ minHeight: Math.min(minHeight, config.maxHeight - 10) })}
-              min={20}
-              max={150}
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-body-small mb-sm block text-foreground-tertiary">Max</label>
-            <RangeInput
-              value={config.maxHeight}
-              onChange={(maxHeight) => updateConfig({ maxHeight: Math.max(maxHeight, config.minHeight + 10) })}
-              min={40}
-              max={200}
-            />
-          </div>
-        </div>
+      <ControlGroup label="Item Height">
+        <RangeInput
+          value={config.itemHeight}
+          onChange={(itemHeight) => updateConfig({ itemHeight })}
+          min={30}
+          max={120}
+        />
+      </ControlGroup>
+
+      <ControlGroup label="Row Offset (Stagger)">
+        <RangeInput value={config.rowOffset} onChange={(rowOffset) => updateConfig({ rowOffset })} min={0} max={200} />
       </ControlGroup>
 
       <PresetButton label="Regenerate" onClick={regenerate} />
@@ -215,25 +186,32 @@ export function ColorStripes() {
   )
 
   const canvas = (
-    <svg width={800} height={800} className="max-w-full border border-solid border-stroke-secondary">
-      {stripes.map((stripe, index) => (
-        <rect
-          key={index}
-          x={stripe.x}
-          y={stripe.y}
-          width={stripe.width}
-          height={stripe.height}
-          fill={stripe.color}
-          transform={`rotate(${stripe.rotation} ${stripe.x + stripe.width / 2} ${stripe.y + stripe.height / 2})`}
-        />
-      ))}
+    <svg width={totalWidth} height={totalHeight} className="max-w-full" viewBox={`0 0 ${totalWidth} ${totalHeight}`}>
+      {grid.map((row, rowIndex) =>
+        row.map((item, colIndex) => {
+          const offsetX = (rowIndex * config.rowOffset) % (config.itemWidth + config.rowOffset)
+          const x = colIndex * config.itemWidth + offsetX
+          const y = rowIndex * config.itemHeight
+
+          return (
+            <rect
+              key={`${rowIndex}-${colIndex}`}
+              x={x}
+              y={y}
+              width={config.itemWidth}
+              height={config.itemHeight}
+              fill={item.color}
+            />
+          )
+        }),
+      )}
     </svg>
   )
 
   return (
     <ToolLayout
       title="Color Stripes"
-      description="Generate random stripe patterns from your custom color palette"
+      description="Grid rows with configurable offset and random colors from your palette"
       controls={controls}
       canvas={canvas}
     />

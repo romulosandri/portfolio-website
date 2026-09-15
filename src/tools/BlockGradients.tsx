@@ -9,10 +9,9 @@ type Preset = {
 
 type GradientConfig = {
   baseColor: string
-  blockCount: number
-  minSize: number
-  maxSize: number
-  spacing: number
+  columns: number
+  rows: number
+  cellSize: number
 }
 
 const presets: Preset[] = [
@@ -20,30 +19,27 @@ const presets: Preset[] = [
     name: 'Default',
     config: {
       baseColor: '#5d5548',
-      blockCount: 20,
-      minSize: 80,
-      maxSize: 200,
-      spacing: 8,
+      columns: 8,
+      rows: 8,
+      cellSize: 80,
     },
   },
   {
-    name: 'Dense',
+    name: 'Dense Grid',
     config: {
       baseColor: '#a89a8f',
-      blockCount: 30,
-      minSize: 60,
-      maxSize: 140,
-      spacing: 4,
+      columns: 12,
+      rows: 12,
+      cellSize: 60,
     },
   },
   {
-    name: 'Large Blocks',
+    name: 'Large Tiles',
     config: {
       baseColor: '#807164',
-      blockCount: 12,
-      minSize: 120,
-      maxSize: 280,
-      spacing: 12,
+      columns: 5,
+      rows: 5,
+      cellSize: 120,
     },
   },
 ]
@@ -122,44 +118,36 @@ function generateOklchScale(baseColor: string): string[] {
   })
 }
 
-type Block = {
-  x: number
-  y: number
-  width: number
-  height: number
+type Cell = {
   gradient: string[]
   angle: number
 }
 
-function generateBlocks(config: GradientConfig, scale: string[]): Block[] {
-  const blocks: Block[] = []
-  const canvasSize = 800
+function generateGrid(config: GradientConfig, scale: string[]): Cell[][] {
+  const grid: Cell[][] = []
 
-  for (let i = 0; i < config.blockCount; i++) {
-    const width = Math.random() * (config.maxSize - config.minSize) + config.minSize
-    const height = Math.random() * (config.maxSize - config.minSize) + config.minSize
-    const x = Math.random() * (canvasSize - width)
-    const y = Math.random() * (canvasSize - height)
-
-    const numColors = Math.floor(Math.random() * 3) + 2
-    const gradient: string[] = []
-    for (let j = 0; j < numColors; j++) {
-      const colorIndex = Math.floor(Math.random() * scale.length)
-      gradient.push(scale[colorIndex])
+  for (let row = 0; row < config.rows; row++) {
+    const rowCells: Cell[] = []
+    for (let col = 0; col < config.columns; col++) {
+      const numColors = Math.floor(Math.random() * 3) + 2
+      const gradient: string[] = []
+      for (let i = 0; i < numColors; i++) {
+        const colorIndex = Math.floor(Math.random() * scale.length)
+        gradient.push(scale[colorIndex])
+      }
+      const angle = Math.floor(Math.random() * 360)
+      rowCells.push({ gradient, angle })
     }
-
-    const angle = Math.floor(Math.random() * 360)
-
-    blocks.push({ x, y, width, height, gradient, angle })
+    grid.push(rowCells)
   }
 
-  return blocks
+  return grid
 }
 
 export function BlockGradients() {
   const [config, setConfig] = useState<GradientConfig>(presets[0].config)
   const [scale, setScale] = useState(() => generateOklchScale(presets[0].config.baseColor))
-  const [blocks, setBlocks] = useState(() => generateBlocks(presets[0].config, generateOklchScale(presets[0].config.baseColor)))
+  const [grid, setGrid] = useState(() => generateGrid(presets[0].config, generateOklchScale(presets[0].config.baseColor)))
 
   const updateConfig = (updates: Partial<GradientConfig>) => {
     const newConfig = { ...config, ...updates }
@@ -168,22 +156,25 @@ export function BlockGradients() {
     const newScale = updates.baseColor ? generateOklchScale(updates.baseColor) : scale
     if (updates.baseColor) setScale(newScale)
 
-    setBlocks(generateBlocks(newConfig, newScale))
+    setGrid(generateGrid(newConfig, newScale))
   }
 
   const applyPreset = (preset: Preset) => {
     setConfig(preset.config)
     const newScale = generateOklchScale(preset.config.baseColor)
     setScale(newScale)
-    setBlocks(generateBlocks(preset.config, newScale))
+    setGrid(generateGrid(preset.config, newScale))
   }
 
   const regenerate = () => {
-    setBlocks(generateBlocks(config, scale))
+    setGrid(generateGrid(config, scale))
   }
 
+  const totalWidth = config.columns * config.cellSize
+  const totalHeight = config.rows * config.cellSize
+
   const controls = (
-    <div className="flex flex-col gap-2xl">
+    <div className="flex flex-col gap-xl xs:gap-2xl">
       <ControlGroup label="Base Color">
         <ColorInput value={config.baseColor} onChange={(baseColor) => updateConfig({ baseColor })} />
       </ControlGroup>
@@ -206,16 +197,16 @@ export function BlockGradients() {
 
       <Divider />
 
-      <ControlGroup label="Number of Blocks">
-        <RangeInput value={config.blockCount} onChange={(blockCount) => updateConfig({ blockCount })} min={5} max={50} />
+      <ControlGroup label="Grid Columns">
+        <RangeInput value={config.columns} onChange={(columns) => updateConfig({ columns })} min={2} max={16} />
       </ControlGroup>
 
-      <ControlGroup label="Min Block Size">
-        <RangeInput value={config.minSize} onChange={(minSize) => updateConfig({ minSize })} min={40} max={200} />
+      <ControlGroup label="Grid Rows">
+        <RangeInput value={config.rows} onChange={(rows) => updateConfig({ rows })} min={2} max={16} />
       </ControlGroup>
 
-      <ControlGroup label="Max Block Size">
-        <RangeInput value={config.maxSize} onChange={(maxSize) => updateConfig({ maxSize })} min={100} max={400} />
+      <ControlGroup label="Cell Size">
+        <RangeInput value={config.cellSize} onChange={(cellSize) => updateConfig({ cellSize })} min={40} max={150} />
       </ControlGroup>
 
       <PresetButton label="Regenerate" onClick={regenerate} />
@@ -232,33 +223,40 @@ export function BlockGradients() {
   )
 
   const canvas = (
-    <svg width={800} height={800} className="max-w-full border border-solid border-stroke-secondary">
+    <svg width={totalWidth} height={totalHeight} className="max-w-full" viewBox={`0 0 ${totalWidth} ${totalHeight}`}>
       <defs>
-        {blocks.map((block, index) => (
-          <linearGradient key={index} id={`gradient-${index}`} gradientTransform={`rotate(${block.angle})`}>
-            {block.gradient.map((color, colorIndex) => (
-              <stop key={colorIndex} offset={`${(colorIndex / (block.gradient.length - 1)) * 100}%`} stopColor={color} />
-            ))}
-          </linearGradient>
-        ))}
+        {grid.flatMap((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            const id = `gradient-${rowIndex}-${colIndex}`
+            return (
+              <linearGradient key={id} id={id} gradientTransform={`rotate(${cell.angle})`}>
+                {cell.gradient.map((color, colorIndex) => (
+                  <stop key={colorIndex} offset={`${(colorIndex / (cell.gradient.length - 1)) * 100}%`} stopColor={color} />
+                ))}
+              </linearGradient>
+            )
+          }),
+        )}
       </defs>
-      {blocks.map((block, index) => (
-        <rect
-          key={index}
-          x={block.x}
-          y={block.y}
-          width={block.width}
-          height={block.height}
-          fill={`url(#gradient-${index})`}
-        />
-      ))}
+      {grid.map((row, rowIndex) =>
+        row.map((_cell, colIndex) => (
+          <rect
+            key={`${rowIndex}-${colIndex}`}
+            x={colIndex * config.cellSize}
+            y={rowIndex * config.cellSize}
+            width={config.cellSize}
+            height={config.cellSize}
+            fill={`url(#gradient-${rowIndex}-${colIndex})`}
+          />
+        )),
+      )}
     </svg>
   )
 
   return (
     <ToolLayout
       title="Block Gradients"
-      description="Create random block compositions with OKLCH color gradients"
+      description="Gapless grid with OKLCH gradient tiles from a base color"
       controls={controls}
       canvas={canvas}
     />
