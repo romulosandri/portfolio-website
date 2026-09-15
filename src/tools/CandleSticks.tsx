@@ -9,112 +9,74 @@ type Preset = {
 
 type CandleConfig = {
   columns: number
-  rows: number
   candleWidth: number
-  candleHeight: number
+  largeRectHeight: number
+  thinRectHeight: number
   gap: number
   color1: string
   color2: string
-  minRects: number
-  maxRects: number
 }
 
 const presets: Preset[] = [
   {
-    name: 'Dense Grid',
+    name: 'Default',
     config: {
-      columns: 12,
-      rows: 8,
-      candleWidth: 40,
-      candleHeight: 60,
+      columns: 10,
+      candleWidth: 60,
+      largeRectHeight: 80,
+      thinRectHeight: 20,
       gap: 4,
       color1: '#0c0b0a',
       color2: '#5d5548',
-      minRects: 2,
-      maxRects: 3,
     },
   },
   {
-    name: 'Wide Stripes',
+    name: 'Wide Columns',
     config: {
       columns: 6,
-      rows: 4,
-      candleWidth: 80,
-      candleHeight: 100,
+      candleWidth: 100,
+      largeRectHeight: 100,
+      thinRectHeight: 25,
       gap: 8,
       color1: '#1f1814',
       color2: '#a89a8f',
-      minRects: 2,
-      maxRects: 2,
     },
   },
   {
-    name: 'Minimal',
+    name: 'Dense',
     config: {
-      columns: 8,
-      rows: 3,
-      candleWidth: 60,
-      candleHeight: 120,
-      gap: 12,
+      columns: 15,
+      candleWidth: 40,
+      largeRectHeight: 60,
+      thinRectHeight: 15,
+      gap: 2,
       color1: '#2c2321',
       color2: '#d9d2ce',
-      minRects: 3,
-      maxRects: 3,
     },
   },
 ]
 
-function generateCandles(config: CandleConfig) {
-  const candles: Array<{ rects: number; heights: number[] }> = []
-  const { columns, rows, minRects, maxRects } = config
-
-  for (let i = 0; i < columns * rows; i++) {
-    const numRects = Math.floor(Math.random() * (maxRects - minRects + 1)) + minRects
-    const heights: number[] = []
-
-    for (let j = 0; j < numRects; j++) {
-      heights.push(Math.random() * 0.5 + 0.5)
-    }
-
-    candles.push({ rects: numRects, heights })
-  }
-
-  return candles
-}
-
 export function CandleSticks() {
   const [config, setConfig] = useState<CandleConfig>(presets[0].config)
-  const [candles, setCandles] = useState(() => generateCandles(presets[0].config))
 
   const updateConfig = (updates: Partial<CandleConfig>) => {
-    const newConfig = { ...config, ...updates }
-    setConfig(newConfig)
-    setCandles(generateCandles(newConfig))
+    setConfig({ ...config, ...updates })
   }
 
   const applyPreset = (preset: Preset) => {
     setConfig(preset.config)
-    setCandles(generateCandles(preset.config))
-  }
-
-  const regenerate = () => {
-    setCandles(generateCandles(config))
   }
 
   const totalWidth = config.columns * config.candleWidth + (config.columns - 1) * config.gap
-  const totalHeight = config.rows * config.candleHeight + (config.rows - 1) * config.gap
+  const totalHeight = config.largeRectHeight * 2 + config.thinRectHeight
 
   const controls = (
-    <div className="flex flex-col gap-2xl">
-      <ControlGroup label="Columns">
+    <div className="flex flex-col gap-xl xs:gap-2xl">
+      <ControlGroup label="Number of Columns">
         <RangeInput value={config.columns} onChange={(columns) => updateConfig({ columns })} min={1} max={20} />
       </ControlGroup>
 
-      <ControlGroup label="Rows">
-        <RangeInput value={config.rows} onChange={(rows) => updateConfig({ rows })} min={1} max={20} />
-      </ControlGroup>
-
-      <ControlGroup label="Candle Width">
+      <ControlGroup label="Column Width">
         <NumberInput
           value={config.candleWidth}
           onChange={(candleWidth) => updateConfig({ candleWidth })}
@@ -123,55 +85,37 @@ export function CandleSticks() {
         />
       </ControlGroup>
 
-      <ControlGroup label="Candle Height">
+      <ControlGroup label="Large Rectangle Height">
         <NumberInput
-          value={config.candleHeight}
-          onChange={(candleHeight) => updateConfig({ candleHeight })}
+          value={config.largeRectHeight}
+          onChange={(largeRectHeight) => updateConfig({ largeRectHeight })}
           min={30}
-          max={300}
+          max={200}
         />
       </ControlGroup>
 
-      <ControlGroup label="Gap">
+      <ControlGroup label="Thin Rectangle Height">
+        <NumberInput
+          value={config.thinRectHeight}
+          onChange={(thinRectHeight) => updateConfig({ thinRectHeight })}
+          min={10}
+          max={50}
+        />
+      </ControlGroup>
+
+      <ControlGroup label="Gap Between Columns">
         <RangeInput value={config.gap} onChange={(gap) => updateConfig({ gap })} min={0} max={40} />
       </ControlGroup>
 
       <Divider />
 
-      <ControlGroup label="Color 1">
+      <ControlGroup label="Color 1 (Top & Middle)">
         <ColorInput value={config.color1} onChange={(color1) => updateConfig({ color1 })} />
       </ControlGroup>
 
-      <ControlGroup label="Color 2">
+      <ControlGroup label="Color 2 (Bottom)">
         <ColorInput value={config.color2} onChange={(color2) => updateConfig({ color2 })} />
       </ControlGroup>
-
-      <Divider />
-
-      <ControlGroup label="Rectangles per Candle">
-        <div className="flex gap-lg">
-          <div className="flex-1">
-            <label className="text-body-small mb-sm block text-foreground-tertiary">Min</label>
-            <NumberInput
-              value={config.minRects}
-              onChange={(minRects) => updateConfig({ minRects: Math.min(minRects, config.maxRects) })}
-              min={2}
-              max={3}
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-body-small mb-sm block text-foreground-tertiary">Max</label>
-            <NumberInput
-              value={config.maxRects}
-              onChange={(maxRects) => updateConfig({ maxRects: Math.max(maxRects, config.minRects) })}
-              min={2}
-              max={3}
-            />
-          </div>
-        </div>
-      </ControlGroup>
-
-      <PresetButton label="Regenerate" onClick={regenerate} />
 
       <Divider />
 
@@ -185,24 +129,32 @@ export function CandleSticks() {
   )
 
   const canvas = (
-    <svg width={totalWidth} height={totalHeight} className="max-w-full">
-      {candles.map((candle, index) => {
-        const col = index % config.columns
-        const row = Math.floor(index / config.columns)
-        const x = col * (config.candleWidth + config.gap)
-        const y = row * (config.candleHeight + config.gap)
-
-        let currentY = y
+    <svg width={totalWidth} height={totalHeight} className="max-w-full" viewBox={`0 0 ${totalWidth} ${totalHeight}`}>
+      {Array.from({ length: config.columns }).map((_, index) => {
+        const x = index * (config.candleWidth + config.gap)
 
         return (
           <g key={index}>
-            {candle.heights.map((heightRatio, rectIndex) => {
-              const rectHeight = heightRatio * (config.candleHeight / candle.rects)
-              const color = rectIndex % 2 === 0 ? config.color1 : config.color2
-              const rect = <rect key={rectIndex} x={x} y={currentY} width={config.candleWidth} height={rectHeight} fill={color} />
-              currentY += rectHeight
-              return rect
-            })}
+            {/* Top large rectangle - Color 1 */}
+            <rect x={x} y={0} width={config.candleWidth} height={config.largeRectHeight} fill={config.color1} />
+
+            {/* Middle thin rectangle - Color 1 */}
+            <rect
+              x={x}
+              y={config.largeRectHeight}
+              width={config.candleWidth}
+              height={config.thinRectHeight}
+              fill={config.color1}
+            />
+
+            {/* Bottom large rectangle - Color 2 */}
+            <rect
+              x={x}
+              y={config.largeRectHeight + config.thinRectHeight}
+              width={config.candleWidth}
+              height={config.largeRectHeight}
+              fill={config.color2}
+            />
           </g>
         )
       })}
@@ -212,7 +164,7 @@ export function CandleSticks() {
   return (
     <ToolLayout
       title="Candle Sticks"
-      description="Generate vertical candle patterns with customizable colors and layouts"
+      description="Vertical columns with three stacked rectangles: large, thin, large"
       controls={controls}
       canvas={canvas}
     />
