@@ -15,7 +15,6 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         jobs: resolve(import.meta.dirname, 'jobs/index.html'),
-        tools: resolve(import.meta.dirname, 'tools/index.html'),
       },
     },
   },
