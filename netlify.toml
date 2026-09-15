@@ -36,6 +36,25 @@
   status = 200
   force = true
 
+# Tools subdomain redirects (same pattern as jobs)
+[[redirects]]
+  from = "https://tools.romulosandri.com"
+  to = "/tools/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "https://tools.romulosandri.com/"
+  to = "/tools/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "https://tools.romulosandri.com/*"
+  to = "/tools/index.html"
+  status = 200
+  force = true
+
 # Static files win over this rule, so a prerendered dist/work/pacelane.html is
 # served directly and only genuinely unknown paths reach the fallback. Because
 # every route in src/content/routes.ts is prerendered to its own file, anything
