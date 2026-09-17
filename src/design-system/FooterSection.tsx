@@ -76,13 +76,18 @@ export function FooterSection({ className }: FooterSectionProps) {
           <p className="whitespace-nowrap text-h3 text-foreground-secondary">Let’s Talk</p>
           <div className="flex flex-col items-start gap-1xl">
             <SocialLinks />
-            <div className="flex flex-wrap items-center gap-x-xl gap-y-none xs:gap-x-2xl">
+            <div className="grid grid-cols-2 items-center gap-x-xl gap-y-none xs:gap-x-2xl">
               <FooterButton href="/contact" label="Contact Me" />
               <FooterButton href={site.booking.href} label={site.booking.label} />
               <FooterButton
                 download={site.cv.filename}
                 href={site.cv.href}
                 label={site.cv.label}
+              />
+              <FooterButton
+                download={site.portfolioPdf.filename}
+                href={site.portfolioPdf.href}
+                label={site.portfolioPdf.label}
               />
             </div>
             <p className="text-body-small text-foreground-tertiary">

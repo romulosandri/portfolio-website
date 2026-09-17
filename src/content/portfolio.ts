@@ -62,16 +62,12 @@ export const workItems: WorkItem[] = [
     role: 'Co-founder (CPO), Product and Brand Designer',
     duration: '12 Months',
     description:
-      'Pacelane is an AI writing agent for executives who need LinkedIn to sound like them, not like a model. You point it at a meeting, a PDF, a URL, or the week’s news, and it drafts a post they can actually publish. I co-founded the company with two others after research with dozens of founders about content creation, then took the product from strategy and brand through Figma and the React front-end. User-flows failed because the agent lives in WhatsApp, the web app, and the user’s meetings, often acting while nobody is watching, so I replaced them with HAC Maps: Orientation, Delegation, and Calibration.',
+      'Pacelane is an AI writing agent for executives who need LinkedIn to sound like them, not like a model. You point it at a meeting, a PDF, a URL, or the week’s news, and it drafts a post they can actually publish. I co-founded the company with two others after research with dozens of founders about content creation, then took the product from strategy and brand through Figma and the React front-end.',
     delivered: [
       'Product strategy',
-      'Primary research',
-      'Secondary research',
-      'User testing',
+      'Research and user testing',
       'High-fidelity screens in Figma for the full user flow',
-      'Full design system in Figma and in the front-end',
-      'Full front-end in React, Tailwind, and TypeScript',
-      'HAC Maps, a human-agent collaboration framework (Orientation, Delegation, Calibration)',
+      'Full design system and React front-end',
     ],
     summary:
       'Co-founded and designed Pacelane.ai, an AI writing agent that drafts LinkedIn posts in an executive’s own voice, taking it from product strategy and brand through Figma to a shipped React front-end.',
@@ -147,10 +143,8 @@ export const workItems: WorkItem[] = [
     delivered: [
       'Secondary research and competitor research',
       'High-fidelity screens for mobile and web in light and dark mode',
-      'Website and waitlist landing page',
       'Full design system with tokens and components',
-      'Marketing material and pitch deck',
-      'Figma prototypes of the full product',
+      'Website, waitlist landing page, and pitch deck',
     ],
     summary:
       'Designed Gemhaus end to end, a fractional real-estate investment app where users buy a slice of a home and track rent, portfolio performance, and expenses.',
@@ -211,9 +205,7 @@ export const workItems: WorkItem[] = [
     description:
       'Meltwater is how PR teams at Microsoft, Pepsi, Tesla, and Rivian watch what the world is saying about them. Close to $1B ARR, more than 20,000 clients: they search coverage, filter the noise, build dashboards, and turn it into reports. I was a Senior Product Designer on the team that reshaped those products, adding AI insights to an existing platform, and designing the universal filters now used across all 19 of their products.',
     delivered: [
-      'Improvements to the Explore product',
-      'Improvements to analytics and reporting',
-      'Improvements to dashboard creation',
+      'Improvements to Explore, analytics, reporting, and dashboards',
       'AI insights inside Insight Reports',
       'Universal filters used across all 19 of their products',
       'Multiple smaller improvements across other products',
@@ -284,12 +276,10 @@ export const workItems: WorkItem[] = [
     description:
       'Cinépolis is the third-largest cinema chain in the world. The mobile app is how you plan the night: what’s playing, which theater, IMAX or 4DX, a seat, a combo, then the tickets before you leave the house. I led that redesign from research and user tests through native iOS and Android flows in light and dark.',
     delivered: [
-      'Full primary user research',
+      'Primary research and user tests',
       'Secondary research across the full problem space',
-      'Multiple user tests',
-      'High-fidelity mobile flows in light and dark mode, using Android and iOS native components',
-      'Full design system with tokens and components',
-      'Figma prototypes of the full mobile experience',
+      'High-fidelity mobile flows in light and dark mode, iOS and Android',
+      'Full design system and Figma prototypes',
     ],
     summary:
       'Led the mobile app redesign for Cinépolis, the third-largest cinema chain in the world, covering showtimes, format and seat selection, concessions, and ticketing across native iOS and Android.',
@@ -340,8 +330,7 @@ export const workItems: WorkItem[] = [
     delivered: [
       'User research on how people pick, stake, and follow song pairings',
       'User testing to validate flows and design decisions',
-      'Figma prototype of the full app',
-      'High-fidelity mobile designs',
+      'High-fidelity mobile designs and Figma prototypes',
       'Full design system with tokens and components',
     ],
     summary:
@@ -389,8 +378,7 @@ export const workItems: WorkItem[] = [
     delivered: [
       'Desktop research on competitors, users, and the problem space',
       'User testing to validate flows and design decisions',
-      'High-fidelity Figma prototypes',
-      'Full design systems with components and tokens',
+      'High-fidelity Figma prototypes and design systems',
       'Production pages in React and Flutter',
     ],
     summary:
@@ -478,11 +466,9 @@ export const projectItems: ProjectItem[] = [
       'Fotospin turns a simple selfie into professional photos. You pick a look, lawyer, doctor, or a prompt of your own, and the app generates headshots you can actually use. I founded it to learn how to ship with AI, and took it from brand and product design through a Flutter app on iOS and Android, plus the website. In 6 months it reached 7,000 downloads and $2,000 in revenue.',
     delivered: [
       '7,000 downloads and $2,000 in revenue in 6 months',
-      'Mobile app design',
+      'Mobile app design and Flutter front-end',
       'Full design system in Figma and in the front-end',
-      'Full front-end in Flutter',
-      'Full back-end with Supabase and Fal.ai',
-      'Website in Framer',
+      'Back-end with Supabase and Fal.ai, website in Framer',
     ],
     summary:
       'Founded Fotospin.ai, an AI headshot app that reached 7,000 downloads and $2,000 in revenue in 6 months, shipping brand, product, Flutter on iOS and Android, and a Supabase and Fal.ai back-end as a solo founder.',
@@ -553,8 +539,7 @@ export const projectItems: ProjectItem[] = [
       'Large web design system with thousands of components',
       'Library of 300 color palettes',
       'Hundreds of website sections with motion and front-end',
-      'MCP server (WIP)',
-      'Back-end with CMS and a single inbox with AI (WIP)',
+      'MCP server and AI inbox back-end (WIP)',
     ],
     summary:
       'Building Bunnyhop, an in-progress attempt at the largest web design system available, with thousands of components, 300 colour palettes, hundreds of motion-ready sections, and an MCP server for designers.',

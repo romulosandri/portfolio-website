@@ -64,6 +64,11 @@ export const site = {
     label: 'Download CV',
     filename: 'Romulo-Sandri-CV.pdf',
   },
+  portfolioPdf: {
+    href: '/Romulo-Sandri-Portfolio-2026.pdf',
+    label: 'Download Portfolio',
+    filename: 'Romulo-Sandri-Portfolio-2026.pdf',
+  },
   location: {
     city: 'Palmas',
     region: 'Tocantins',

@@ -20,6 +20,8 @@ import {
   isJobFavorite,
 } from './display'
 import { track, trackException } from '../lib/analytics'
+import { isJobsAuthError } from './auth'
+import { useJobsAuth } from './JobsAuth'
 import { deleteJobs, setJobsFavorite } from './jobs-api'
 import { CompanyLogo } from './CompanyLogo'
 import { FavoritesFilterButton, JobFavoriteButton, JobsConfirmModal } from './ui'
@@ -80,6 +82,7 @@ function JobActions({
 
 export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = false }: JobsBoardProps) {
   const { show } = useSnackbar()
+  const { ensurePassword, remember, forget } = useJobsAuth()
   const [query, setQuery] = useState('')
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [page, setPage] = useState(1)
@@ -87,11 +90,6 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [pending, setPending] = useState(false)
   const [pendingFavorite, setPendingFavorite] = useState<string | null>(null)
-  const [pendingFavoriteChange, setPendingFavoriteChange] = useState<{
-    id: string
-    title: string
-    favorite: boolean
-  } | null>(null)
   const [pendingDelete, setPendingDelete] = useState<{ ids: string[]; title: string; description: string } | null>(
     null,
   )
@@ -184,42 +182,44 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
     })
   }
 
-  function requestFavorite(job: Job) {
-    setPendingFavoriteChange({
-      id: job.id,
-      title: job.title,
-      favorite: !isJobFavorite(job),
-    })
-  }
+  async function toggleFavorite(job: Job) {
+    const password = await ensurePassword()
+    if (!password) return
 
-  function confirmFavorite(password: string) {
-    if (!pendingFavoriteChange) return
-
-    const { id, favorite } = pendingFavoriteChange
+    const favorite = !isJobFavorite(job)
     const previous = jobs
-    onChange(jobs.map((item) => (item.id === id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
-    setPendingFavorite(id)
-    setPendingFavoriteChange(null)
+    onChange(jobs.map((item) => (item.id === job.id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
+    setPendingFavorite(job.id)
 
-    void setJobsFavorite([id], favorite, password)
-      .catch((error) => {
-        onChange(previous)
-        show(error instanceof Error ? error.message : 'Could not update favorite')
-        track('jobs_mutation_failed', { action: 'setFavorite' })
-        trackException(error, { source: 'jobs_favorite' })
-      })
-      .finally(() => {
-        setPendingFavorite((value) => (value === id ? null : value))
-      })
+    try {
+      await setJobsFavorite([job.id], favorite, password)
+      remember(password)
+    } catch (error) {
+      if (isJobsAuthError(error)) forget()
+      onChange(previous)
+      show(error instanceof Error ? error.message : 'Could not update favorite')
+      track('jobs_mutation_failed', { action: 'setFavorite' })
+      trackException(error, { source: 'jobs_favorite' })
+    } finally {
+      setPendingFavorite((value) => (value === job.id ? null : value))
+    }
   }
 
-  function confirmPendingDelete(password: string) {
+  async function confirmPendingDelete() {
     if (!pendingDelete) return
+    const secret = await ensurePassword()
+    if (!secret) return
     const ids = pendingDelete.ids
     void run(async () => {
-      await deleteJobs(ids, password)
-      removeLocal(ids)
-      setPendingDelete(null)
+      try {
+        await deleteJobs(ids, secret)
+        remember(secret)
+        removeLocal(ids)
+        setPendingDelete(null)
+      } catch (error) {
+        if (isJobsAuthError(error)) forget()
+        throw error
+      }
     })
   }
 
@@ -309,7 +309,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                       onApply={() => track('jobs_apply_clicked', { view: 'board', company, title: job.title })}
                       onDelete={() => requestDelete(job)}
                       onEdit={() => onEditJob(job)}
-                      onFavorite={() => requestFavorite(job)}
+                      onFavorite={() => void toggleFavorite(job)}
                       title={job.title}
                     />
                   </div>
@@ -383,7 +383,7 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
                           onApply={() => track('jobs_apply_clicked', { view: 'board', company, title: job.title })}
                           onDelete={() => requestDelete(job)}
                           onEdit={() => onEditJob(job)}
-                          onFavorite={() => requestFavorite(job)}
+                          onFavorite={() => void toggleFavorite(job)}
                           title={job.title}
                         />
                       </td>
@@ -417,17 +417,6 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
         </div>
       </div>
 
-      {pendingFavoriteChange ? (
-        <JobsConfirmModal
-          confirmLabel={pendingFavoriteChange.favorite ? 'Add' : 'Remove'}
-          description={`Enter the jobs password to ${pendingFavoriteChange.favorite ? 'add' : 'remove'} ${pendingFavoriteChange.title} ${pendingFavoriteChange.favorite ? 'to' : 'from'} favorites.`}
-          pendingLabel="Saving…"
-          title={pendingFavoriteChange.favorite ? 'Add to favorites?' : 'Remove from favorites?'}
-          onCancel={() => setPendingFavoriteChange(null)}
-          onConfirm={confirmFavorite}
-        />
-      ) : null}
-
       {pendingDelete ? (
         <JobsConfirmModal
           description={pendingDelete.description}
@@ -436,7 +425,9 @@ export function JobsBoard({ jobs, onChange, onAddJob, onEditJob, addDisabled = f
           onCancel={() => {
             if (!pending) setPendingDelete(null)
           }}
-          onConfirm={confirmPendingDelete}
+          onConfirm={() => {
+            void confirmPendingDelete()
+          }}
         />
       ) : null}
     </div>

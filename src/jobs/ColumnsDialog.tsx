@@ -1,23 +1,26 @@
 import { useEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
 import { Button, Checkbox, Dialog, DragHandleIcon, Input } from '../design-system'
 import { columnIdFromLabel, reorderColumns, visibleColumns, type KanbanColumn } from './columns'
-import { JobsPasswordField } from './ui'
 
 type ColumnsDialogProps = {
   columns: KanbanColumn[]
   jobCounts: Record<string, number>
   onCancel: () => void
-  onSave: (columns: KanbanColumn[], password?: string) => void
+  onSave: (columns: KanbanColumn[]) => void
 }
 
-export function ColumnsDialog({ columns, jobCounts, onCancel, onSave }: ColumnsDialogProps) {
+export function ColumnsDialog({
+  columns,
+  jobCounts,
+  onCancel,
+  onSave,
+}: ColumnsDialogProps) {
   const addRef = useRef<HTMLInputElement>(null)
   const cancelRef = useRef<HTMLButtonElement>(null)
   const [draft, setDraft] = useState(columns)
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [newLabel, setNewLabel] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [password, setPassword] = useState('')
 
   const shownCount = visibleColumns(draft).length
   const removed = columns.filter((column) => !draft.some((item) => item.id === column.id))
@@ -88,11 +91,7 @@ export function ColumnsDialog({ columns, jobCounts, onCancel, onSave }: ColumnsD
       setError('Column names must be unique.')
       return
     }
-    if (movingCount > 0 && !password) {
-      setError('Password is required to move jobs from removed columns.')
-      return
-    }
-    onSave(cleaned, movingCount > 0 ? password : undefined)
+    onSave(cleaned)
   }
 
   return (
@@ -210,13 +209,10 @@ export function ColumnsDialog({ columns, jobCounts, onCancel, onSave }: ColumnsD
 
       {error ? <p className="mt-md text-body-small text-foreground-secondary">{error}</p> : null}
       {movingCount > 0 ? (
-        <div className="mt-md flex flex-col gap-md">
-          <p className="text-body-small text-foreground-quaternary">
-            Saving will move {movingCount} {movingCount === 1 ? 'job' : 'jobs'} from removed columns
-            into {visibleColumns(draft)[0]?.label ?? 'the first visible column'}.
-          </p>
-          <JobsPasswordField id="columns-password" onChange={setPassword} value={password} />
-        </div>
+        <p className="mt-md text-body-small text-foreground-quaternary">
+          Saving will move {movingCount} {movingCount === 1 ? 'job' : 'jobs'} from removed columns
+          into {visibleColumns(draft)[0]?.label ?? 'the first visible column'}.
+        </p>
       ) : null}
 
       <div className="mt-xl flex shrink-0 justify-end gap-sm">

@@ -18,9 +18,11 @@ import {
 } from './columns'
 import { applyUrl, displayCompany, formatLocation, isJobFavorite } from './display'
 import { track, trackException } from '../lib/analytics'
+import { isJobsAuthError } from './auth'
+import { useJobsAuth } from './JobsAuth'
 import { saveKanbanColumns, setJobsFavorite, setJobsStatus } from './jobs-api'
 import { CompanyLogo } from './CompanyLogo'
-import { FavoritesFilterButton, JobFavoriteButton, JobsConfirmModal } from './ui'
+import { FavoritesFilterButton, JobFavoriteButton } from './ui'
 import type { Job } from './types'
 
 type JobsKanbanProps = {
@@ -52,6 +54,7 @@ export function JobsKanban({
   addDisabled = false,
 }: JobsKanbanProps) {
   const { show } = useSnackbar()
+  const { ensurePassword, remember, forget } = useJobsAuth()
   const [query, setQuery] = useState('')
   const [favoritesOnly, setFavoritesOnly] = useState(true)
   const [editingColumns, setEditingColumns] = useState(false)
@@ -59,12 +62,6 @@ export function JobsKanban({
   const [overStatus, setOverStatus] = useState<string | null>(null)
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [pendingFavorite, setPendingFavorite] = useState<string | null>(null)
-  const [pendingFavoriteChange, setPendingFavoriteChange] = useState<{
-    id: string
-    title: string
-    favorite: boolean
-  } | null>(null)
-  const [pendingMove, setPendingMove] = useState<{ id: string; status: string; title: string } | null>(null)
 
   const needle = query.trim().toLowerCase()
   const shown = visibleColumns(columns)
@@ -93,63 +90,55 @@ export function JobsKanban({
     return next
   }, [columns, favoritesOnly, jobs, needle, shown])
 
-  function requestFavorite(job: Job) {
-    setPendingFavoriteChange({
-      id: job.id,
-      title: job.title,
-      favorite: !isJobFavorite(job),
-    })
-  }
+  async function toggleFavorite(job: Job) {
+    const password = await ensurePassword()
+    if (!password) return
 
-  function confirmFavorite(password: string) {
-    if (!pendingFavoriteChange) return
-
-    const { id, favorite } = pendingFavoriteChange
+    const favorite = !isJobFavorite(job)
     const previous = jobs
-    onChange(jobs.map((item) => (item.id === id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
-    setPendingFavorite(id)
-    setPendingFavoriteChange(null)
+    onChange(jobs.map((item) => (item.id === job.id ? { ...item, is_favorite: favorite ? 1 : 0 } : item)))
+    setPendingFavorite(job.id)
 
-    void setJobsFavorite([id], favorite, password)
-      .catch((error) => {
-        onChange(previous)
-        show(error instanceof Error ? error.message : 'Could not update favorite')
-        track('jobs_mutation_failed', { action: 'setFavorite' })
-        trackException(error, { source: 'jobs_favorite' })
-      })
-      .finally(() => {
-        setPendingFavorite((value) => (value === id ? null : value))
-      })
+    try {
+      await setJobsFavorite([job.id], favorite, password)
+      remember(password)
+    } catch (error) {
+      if (isJobsAuthError(error)) forget()
+      onChange(previous)
+      show(error instanceof Error ? error.message : 'Could not update favorite')
+      track('jobs_mutation_failed', { action: 'setFavorite' })
+      trackException(error, { source: 'jobs_favorite' })
+    } finally {
+      setPendingFavorite((value) => (value === job.id ? null : value))
+    }
   }
 
-  function requestMove(id: string, status: string) {
+  async function moveJob(id: string, status: string) {
     const current = jobs.find((job) => job.id === id)
     if (!current || resolveColumnId(current.status, columns) === status) return
-    setPendingMove({ id, status, title: current.title })
-  }
 
-  function confirmMove(password: string) {
-    if (!pendingMove) return
+    const password = await ensurePassword()
+    if (!password) return
 
-    const { id, status } = pendingMove
     const previous = jobs
     onChange(jobs.map((job) => (job.id === id ? { ...job, status } : job)))
     setPendingId(id)
-    setPendingMove(null)
 
-    void setJobsStatus([id], status, password)
-      .catch((error) => {
-        onChange(previous)
-        show(error instanceof Error ? error.message : 'Could not update status')
-        track('jobs_mutation_failed', { action: 'setStatus' })
-        trackException(error, { source: 'jobs_status' })
-      })
-      .finally(() => {
-        setPendingId((value) => (value === id ? null : value))
-      })
+    try {
+      await setJobsStatus([id], status, password)
+      remember(password)
+    } catch (error) {
+      if (isJobsAuthError(error)) forget()
+      onChange(previous)
+      show(error instanceof Error ? error.message : 'Could not update status')
+      track('jobs_mutation_failed', { action: 'setStatus' })
+      trackException(error, { source: 'jobs_status' })
+    } finally {
+      setPendingId((value) => (value === id ? null : value))
+    }
   }
 
-  function saveColumnSetup(next: KanbanColumnConfig[], password?: string) {
+  function saveColumnSetup(next: KanbanColumnConfig[]) {
     const previousColumns = columns
     const previousJobs = jobs
     const removedIds = columns
@@ -167,11 +156,15 @@ export function JobsKanban({
     }
 
     void saveKanbanColumns(next)
-      .then(() => {
+      .then(async () => {
         if (!fallback || ids.length === 0) return
-        return setJobsStatus(ids, fallback, password ?? '')
+        const secret = await ensurePassword()
+        if (!secret) throw new Error('Password is required to move jobs from removed columns.')
+        await setJobsStatus(ids, fallback, secret)
+        remember(secret)
       })
       .catch((error) => {
+        if (isJobsAuthError(error)) forget()
         onColumnsChange(previousColumns)
         onChange(previousJobs)
         show(error instanceof Error ? error.message : 'Could not save columns')
@@ -263,7 +256,7 @@ export function JobsKanban({
                 setOverStatus(null)
                 setDraggingId(null)
                 const id = readDragId(event)
-                if (id) requestMove(id, column.id)
+                if (id) void moveJob(id, column.id)
               }}
               over={over}
             >
@@ -305,7 +298,7 @@ export function JobsKanban({
                           <Dropdown
                             disabled={pendingId === job.id}
                             label={`Status for ${job.title}`}
-                            onChange={(value) => requestMove(job.id, value)}
+                            onChange={(value) => void moveJob(job.id, value)}
                             options={shown.map((option) => ({ value: option.id, label: option.label }))}
                             value={shown.some((item) => item.id === jobStatus) ? jobStatus : shown[0]?.id ?? ''}
                           />
@@ -313,7 +306,7 @@ export function JobsKanban({
                             <JobFavoriteButton
                               disabled={pendingFavorite === job.id}
                               favorited={isJobFavorite(job)}
-                              onToggle={() => requestFavorite(job)}
+                              onToggle={() => void toggleFavorite(job)}
                               title={job.title}
                             />
                             <Button
@@ -357,28 +350,6 @@ export function JobsKanban({
           jobCounts={jobCounts}
           onCancel={() => setEditingColumns(false)}
           onSave={saveColumnSetup}
-        />
-      ) : null}
-
-      {pendingFavoriteChange ? (
-        <JobsConfirmModal
-          confirmLabel={pendingFavoriteChange.favorite ? 'Add' : 'Remove'}
-          description={`Enter the jobs password to ${pendingFavoriteChange.favorite ? 'add' : 'remove'} ${pendingFavoriteChange.title} ${pendingFavoriteChange.favorite ? 'to' : 'from'} favorites.`}
-          pendingLabel="Saving…"
-          title={pendingFavoriteChange.favorite ? 'Add to favorites?' : 'Remove from favorites?'}
-          onCancel={() => setPendingFavoriteChange(null)}
-          onConfirm={confirmFavorite}
-        />
-      ) : null}
-
-      {pendingMove ? (
-        <JobsConfirmModal
-          confirmLabel="Move"
-          description={`Enter the jobs password to move ${pendingMove.title}.`}
-          pendingLabel="Moving…"
-          title="Change job status?"
-          onCancel={() => setPendingMove(null)}
-          onConfirm={confirmMove}
         />
       ) : null}
     </div>

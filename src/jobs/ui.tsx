@@ -43,6 +43,7 @@ type JobsConfirmModalProps = {
   confirmLabel?: string
   pendingLabel?: string
   pending?: boolean
+  needPassword?: boolean
   onCancel: () => void
   onConfirm: (password: string) => void
 }
@@ -53,6 +54,7 @@ export function JobsConfirmModal({
   confirmLabel = 'Delete',
   pendingLabel = 'Deleting…',
   pending = false,
+  needPassword = false,
   onCancel,
   onConfirm,
 }: JobsConfirmModalProps) {
@@ -60,7 +62,8 @@ export function JobsConfirmModal({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (pending || !password) return
+    if (pending) return
+    if (needPassword && !password) return
     onConfirm(password)
   }
 
@@ -78,9 +81,11 @@ export function JobsConfirmModal({
         <p className="mt-md text-body-default text-foreground-secondary" id="jobs-confirm-description">
           {description}
         </p>
-        <div className="mt-xl">
-          <JobsPasswordField autoFocus disabled={pending} onChange={setPassword} value={password} />
-        </div>
+        {needPassword ? (
+          <div className="mt-xl">
+            <JobsPasswordField autoFocus disabled={pending} onChange={setPassword} value={password} />
+          </div>
+        ) : null}
         <div className="mt-xl flex justify-end gap-sm">
           <Button disabled={pending} onClick={onCancel}>
             Cancel

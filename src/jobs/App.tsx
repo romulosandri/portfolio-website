@@ -3,6 +3,8 @@ import { track, trackException } from '../lib/analytics'
 import { RevealGroup, RevealText } from '../motion-system'
 import { Tabs, useSnackbar } from '../design-system'
 import { AddJobDialog } from './AddJobDialog'
+import { isJobsAuthError } from './auth'
+import { JobsAuthProvider, useJobsAuth } from './JobsAuth'
 import { JobsBoard } from './JobsBoard'
 import { JobsKanban } from './JobsKanban'
 import {
@@ -32,12 +34,47 @@ function hashFromTab(tab: JobsTab) {
 }
 
 export function JobsApp() {
+  const [tab, setTab] = useState<JobsTab>(tabFromHash)
+
+  useEffect(() => {
+    const syncTab = () => setTab(tabFromHash())
+    window.addEventListener('hashchange', syncTab)
+    window.addEventListener('popstate', syncTab)
+    return () => {
+      window.removeEventListener('hashchange', syncTab)
+      window.removeEventListener('popstate', syncTab)
+    }
+  }, [])
+
+  function changeTab(next: JobsTab) {
+    if (next !== tab) track('jobs_tab_changed', { tab: next })
+    setTab(next)
+    const hash = hashFromTab(next)
+    if (window.location.hash !== hash) {
+      window.history.pushState(null, '', hash)
+    }
+  }
+
+  return (
+    <JobsAuthProvider>
+      <JobsWorkspace onTabChange={changeTab} tab={tab} />
+    </JobsAuthProvider>
+  )
+}
+
+function JobsWorkspace({
+  tab,
+  onTabChange,
+}: {
+  tab: JobsTab
+  onTabChange: (tab: JobsTab) => void
+}) {
   const { show } = useSnackbar()
+  const { ensurePassword, remember, forget } = useJobsAuth()
   const [jobs, setJobs] = useState<Job[]>([])
   const [columns, setColumns] = useState<KanbanColumn[]>(DEFAULT_COLUMNS)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<JobsTab>(tabFromHash)
   const [formJob, setFormJob] = useState<Job | 'add' | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -76,41 +113,28 @@ export function JobsApp() {
     }
   }, [])
 
-  useEffect(() => {
-    const syncTab = () => setTab(tabFromHash())
-    window.addEventListener('hashchange', syncTab)
-    window.addEventListener('popstate', syncTab)
-    return () => {
-      window.removeEventListener('hashchange', syncTab)
-      window.removeEventListener('popstate', syncTab)
-    }
-  }, [])
+  async function submitJobForm(input: JobWriteInput) {
+    const secret = await ensurePassword()
+    if (!secret) return
 
-  function changeTab(next: JobsTab) {
-    if (next !== tab) track('jobs_tab_changed', { tab: next })
-    setTab(next)
-    const hash = hashFromTab(next)
-    if (window.location.hash !== hash) {
-      window.history.pushState(null, '', hash)
-    }
-  }
-
-  async function submitJobForm(input: JobWriteInput, password: string) {
     setSaving(true)
     try {
       if (formJob && formJob !== 'add') {
-        const job = await updateJob(formJob.id, input, password)
+        const job = await updateJob(formJob.id, input, secret)
         setJobs((current) => current.map((item) => (item.id === job.id ? job : item)))
         setFormJob(null)
+        remember(secret)
         show(`Updated ${job.title}`)
         return
       }
 
-      const job = await createJob(input, password)
+      const job = await createJob(input, secret)
       setJobs((current) => [job, ...current])
       setFormJob(null)
+      remember(secret)
       show(`Added ${job.title}`)
     } catch (error) {
+      if (isJobsAuthError(error)) forget()
       const action = formJob === 'add' || formJob === null ? 'create' : 'update'
       show(error instanceof Error ? error.message : action === 'create' ? 'Could not add job' : 'Could not update job')
       track('jobs_mutation_failed', { action })
@@ -144,7 +168,7 @@ export function JobsApp() {
         </RevealText>
       </RevealGroup>
       <div className="mb-2xl shrink-0">
-        <Tabs idPrefix="jobs-tab" items={JOBS_TABS} label="Jobs views" onChange={changeTab} value={tab} />
+        <Tabs idPrefix="jobs-tab" items={JOBS_TABS} label="Jobs views" onChange={onTabChange} value={tab} />
       </div>
       <div
         aria-labelledby={`jobs-tab-button-${tab}`}

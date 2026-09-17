@@ -155,6 +155,12 @@ export function ContactPage() {
                 href={site.cv.href}
                 label={site.cv.label}
               />
+              <BookingButton
+                cta="download_portfolio"
+                download={site.portfolioPdf.filename}
+                href={site.portfolioPdf.href}
+                label={site.portfolioPdf.label}
+              />
             </div>
           </div>
         </form>
