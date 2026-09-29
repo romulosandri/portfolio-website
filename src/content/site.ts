@@ -31,9 +31,9 @@ export const socialLinks: SocialLink[] = [
   },
   {
     type: 'instagram',
-    href: 'https://www.instagram.com/rom_bunnyhop/',
+    href: 'https://www.instagram.com/sandri_romulo/',
     label: 'Instagram',
-    username: 'rom_bunnyhop',
+    username: 'sandri_romulo',
   },
 ]
 

@@ -30,6 +30,7 @@
         "npm:phaser@^4.2.1",
         "npm:playwright@^1.62.1",
         "npm:posthog-js@^1.425.1",
+        "npm:posthog-node@^5.21.2",
         "npm:react-dom@^19.2.8",
         "npm:react@^19.2.8",
         "npm:sharp@~0.35.4",
