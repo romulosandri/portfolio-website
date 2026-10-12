@@ -322,8 +322,12 @@ function WorkPageModal({
         Project
       </h2>
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        {/* Lenis stays stopped while the game is open, and a stopped Lenis
+            still cancels wheel and touch. This attribute lets the panel keep
+            its own overflow scroll. */}
         <div
           className="pointer-events-auto relative h-[80dvh] w-[80dvw] overflow-x-hidden overflow-y-auto overscroll-y-contain rounded-lg bg-background-primary"
+          data-lenis-prevent=""
           data-reveal-scroller=""
           ref={panelRef}
         >
