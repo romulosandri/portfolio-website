@@ -1,7 +1,7 @@
 import type { Config } from '@netlify/functions'
 import { getDb } from './_shared/db.ts'
 import { rejectIfInvalidPassword, requiresJobsPassword } from './_shared/jobs-auth.ts'
-import { captureServerEvent, captureServerException } from './_shared/posthog.ts'
+import { captureJobsEvent as captureServerEvent, captureJobsException as captureServerException } from './_shared/posthog.ts'
 import {
   firstVisibleColumnId,
   listKanbanColumns,
