@@ -1,5 +1,7 @@
 import { PostHog } from 'posthog-node'
 
+type AnalyticsProduct = 'portfolio' | 'jobs'
+
 function env(name: string) {
   const netlify = (
     globalThis as {
@@ -33,6 +35,7 @@ export async function captureServerEvent(
   request: Request,
   event: string,
   properties?: Record<string, unknown>,
+  product: AnalyticsProduct = 'portfolio',
 ) {
   const client = createClient()
   if (!client) return
@@ -41,7 +44,7 @@ export async function captureServerEvent(
     client.capture({
       distinctId: distinctIdFrom(request),
       event,
-      properties: sessionProperties(request, properties),
+      properties: sessionProperties(request, { product, ...properties }),
     })
   } finally {
     await client.shutdown()
@@ -52,6 +55,7 @@ export async function captureServerException(
   request: Request,
   error: unknown,
   properties?: Record<string, unknown>,
+  product: AnalyticsProduct = 'portfolio',
 ) {
   const client = createClient()
   if (!client) return
@@ -60,9 +64,25 @@ export async function captureServerException(
     client.captureException(
       error instanceof Error ? error : new Error(String(error)),
       distinctIdFrom(request),
-      sessionProperties(request, properties),
+      sessionProperties(request, { product, ...properties }),
     )
   } finally {
     await client.shutdown()
   }
+}
+
+export function captureJobsEvent(
+  request: Request,
+  event: string,
+  properties?: Record<string, unknown>,
+) {
+  return captureServerEvent(request, event, properties, 'jobs')
+}
+
+export function captureJobsException(
+  request: Request,
+  error: unknown,
+  properties?: Record<string, unknown>,
+) {
+  return captureServerException(request, error, properties, 'jobs')
 }

@@ -4,7 +4,7 @@ import { PostHogErrorBoundary, PostHogProvider } from '@posthog/react'
 import '../motion-system/gsap'
 import '../index.css'
 import { SnackbarProvider } from '../design-system'
-import { posthogOptions, posthogToken, shouldInitPostHog } from '../lib/posthog'
+import { posthogOptionsFor, posthogToken, shouldInitPostHog } from '../lib/posthog'
 import { JobsApp } from './App'
 
 function Root() {
@@ -25,7 +25,7 @@ function Root() {
   if (!shouldInitPostHog() || !posthogToken) return app
 
   return (
-    <PostHogProvider apiKey={posthogToken} options={posthogOptions}>
+    <PostHogProvider apiKey={posthogToken} options={posthogOptionsFor('jobs')}>
       {app}
     </PostHogProvider>
   )

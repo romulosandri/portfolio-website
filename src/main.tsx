@@ -5,7 +5,7 @@ import './motion-system/gsap'
 import './index.css'
 import { SnackbarProvider } from './design-system'
 import { LenisProvider } from './motion-system/LenisProvider'
-import { posthogOptions, posthogToken, shouldInitPostHog } from './lib/posthog'
+import { posthogOptionsFor, posthogToken, shouldInitPostHog } from './lib/posthog'
 import App from './App.tsx'
 
 function Root() {
@@ -28,7 +28,7 @@ function Root() {
   if (!shouldInitPostHog() || !posthogToken) return app
 
   return (
-    <PostHogProvider apiKey={posthogToken} options={posthogOptions}>
+    <PostHogProvider apiKey={posthogToken} options={posthogOptionsFor('portfolio')}>
       {app}
     </PostHogProvider>
   )
