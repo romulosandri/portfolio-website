@@ -79,6 +79,16 @@ function MetaList({ label, items }: { label: string; items: string[] }) {
 
 const DRAG_THRESHOLD_PX = 4
 const SEE_NEXT_COUNT = 3
+const SCROLL_EDGE_PX = 1
+
+function wheelPixels(event: WheelEvent, el: HTMLElement, axis: 'x' | 'y') {
+  const raw = axis === 'x' ? event.deltaX : event.deltaY
+  if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) return raw * 16
+  if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+    return raw * (axis === 'x' ? el.clientWidth : el.clientHeight)
+  }
+  return raw
+}
 
 function nextItems<T extends { slug: string }>(items: T[], slug: string, count: number) {
   const index = items.findIndex((item) => item.slug === slug)
@@ -199,9 +209,39 @@ function DragScroll({ children }: { children: ReactNode }) {
       event.preventDefault()
     }
 
+    // The row has no scrollbar. A wheel over it slides the cards, including
+    // while the game modal has stopped Lenis (which would otherwise cancel
+    // the gesture). At either end the event is left alone so the page, or
+    // the case-study panel, keeps scrolling.
+    const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey) return
+      const max = el.scrollWidth - el.clientWidth
+      if (max <= SCROLL_EDGE_PX) return
+
+      const deltaX = wheelPixels(event, el, 'x')
+      const deltaY = wheelPixels(event, el, 'y')
+      if (deltaX === 0 && deltaY === 0) return
+
+      const horizontal = event.shiftKey || Math.abs(deltaX) > Math.abs(deltaY)
+      const nested = el.closest('[data-reveal-scroller]')
+      if (!horizontal && !nested) return
+
+      const delta = horizontal ? (deltaX !== 0 ? deltaX : deltaY) : deltaY
+      if (delta === 0) return
+
+      const atStart = el.scrollLeft <= SCROLL_EDGE_PX
+      const atEnd = el.scrollLeft >= max - SCROLL_EDGE_PX
+      if ((delta > 0 && atEnd) || (delta < 0 && atStart)) return
+
+      event.preventDefault()
+      event.stopPropagation()
+      el.scrollLeft += delta
+    }
+
     el.addEventListener('pointerdown', onPointerDown)
     el.addEventListener('click', onClickCapture, true)
     el.addEventListener('dragstart', onDragStart)
+    el.addEventListener('wheel', onWheel, { passive: false })
 
     return () => {
       window.clearTimeout(resetMovedTimer)
@@ -211,12 +251,13 @@ function DragScroll({ children }: { children: ReactNode }) {
       el.removeEventListener('pointerdown', onPointerDown)
       el.removeEventListener('click', onClickCapture, true)
       el.removeEventListener('dragstart', onDragStart)
+      el.removeEventListener('wheel', onWheel)
     }
   }, [])
 
   return (
     <div
-      className="flex w-full cursor-grab items-start gap-2.5 overflow-x-auto overscroll-x-contain scrollbar-none select-none active:cursor-grabbing [&_a]:cursor-grab [&_a]:active:cursor-grabbing"
+      className="flex w-full min-w-0 cursor-grab items-start gap-2.5 overflow-x-auto overflow-y-hidden overscroll-x-contain scrollbar-none select-none active:cursor-grabbing [&_a]:cursor-grab [&_a]:active:cursor-grabbing"
       ref={ref}
     >
       {children}

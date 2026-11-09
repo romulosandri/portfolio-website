@@ -66,7 +66,7 @@ function ogCard(image: string, alt: string): OgFields {
 
 const HOME_OG = ogCard(
   '/images/og/og-home.png',
-  'Rômulo Sandri, Product Designer, with an illustration of him and his dog Pluto, UI screenshots, and logos of companies he has worked with.',
+  'Rômulo Sandri, Product Designer, with his portrait, a product interface, and logos of companies he has worked with.',
 )
 
 function ogForItem(item: { slug: string; title: string }): OgFields {

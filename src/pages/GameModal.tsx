@@ -324,6 +324,7 @@ function WorkPageModal({
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div
           className="pointer-events-auto relative h-[80dvh] w-[80dvw] overflow-x-hidden overflow-y-auto overscroll-y-contain rounded-lg bg-background-primary"
+          data-lenis-prevent=""
           data-reveal-scroller=""
           ref={panelRef}
         >
