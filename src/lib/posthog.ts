@@ -9,6 +9,7 @@ export const posthogOptions = {
   capture_pageview: 'history_change',
   capture_exceptions: true,
   person_profiles: 'identified_only',
+  disable_session_recording: false,
   loaded(posthog) {
     if (navigator.webdriver) posthog.opt_out_capturing()
   },
